@@ -6,6 +6,9 @@ import {
   SunMedium,
   X,
   Check,
+  MonitorPlay,
+  Pencil,
+  Columns2,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -16,6 +19,9 @@ export const Icons = {
   twitter: X,
   copy: Copy,
   check: Check,
+  preview: MonitorPlay,
+  edit: Pencil,
+  splitPane: Columns2,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

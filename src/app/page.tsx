@@ -14,7 +14,7 @@ export default async function Page() {
           {posts.map((post, index) => (
             <article
               key={post.title}
-              className="group relative flex flex-col space-y-2 hover:scale-105 border border-slate-700 rounded-md max-h-[25rem]"
+              className="group relative flex flex-col space-y-2 hover:scale-105 border border-muted rounded-md max-h-[25rem]"
             >
               {post.image && (
                 <div className="w-full h-[40%] flex justify-center items-center">
@@ -37,7 +37,7 @@ export default async function Page() {
                     </p>
                   )}
                   {post.publishedOn && (
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-sm font-extralight text-muted-foreground mb-1">
                       {formatDate(post.publishedOn, "MMMM dd, yyyy")}
                     </p>
                   )}

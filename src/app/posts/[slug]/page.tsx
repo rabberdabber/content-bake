@@ -1,9 +1,11 @@
+import "@/app/mdx.css";
 import { Metadata } from "next";
 import { loadBlogPost } from "@/file-helper";
 import { MDXRemote } from "next-mdx-remote/rsc";
+
 import BlogHero from "@/components/blog-hero";
 
-import CodeSnippet from "@/components/code-snippet";
+import { mdxRemoteComponents, mdxRemoteOptions } from "@/config/mdx";
 
 interface PageProps {
   params: {
@@ -50,7 +52,11 @@ const Page = async ({ params: { slug } }: PageProps) => {
         sm:rounded-lg
       "
         >
-          <MDXRemote source={content} components={{ pre: CodeSnippet }} />
+          <MDXRemote
+            source={content}
+            components={mdxRemoteComponents}
+            options={mdxRemoteOptions}
+          />
         </div>
       </article>
     </div>

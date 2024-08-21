@@ -15,6 +15,8 @@ type CodeProps = {
 };
 
 export async function Code({ code, className }: CodeProps) {
+  // const language = className ? className.replace(/language-/, '') : '';
+  // const code = (props.children as string).trim();
   const highlightedCode = await highlightCode(code);
   return (
     <section

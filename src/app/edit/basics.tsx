@@ -29,6 +29,7 @@ import codeBlocksMarkdown from "@/app/editor/examples/assets/code-blocks.md?raw"
 import imageMarkdown from "@/app/editor/examples/assets/image.md?raw";
 import jsxMarkdown from "@/app/editor/examples/assets/jsx.md?raw";
 import tableMarkdown from "@/app/editor/examples/assets/table.md?raw";
+import { virtuosoSampleSandpackConfig } from "./examples/_boilerplate";
 
 // import { virtuosoSampleSandpackConfig } from "@/app/editor/examples/_boilerplate";
 
@@ -325,28 +326,28 @@ const PlainTextCodeEditorDescriptor: CodeBlockEditorDescriptor = {
   },
 };
 
-// export function CodeBlock() {
-//   return (
-//     <MDXEditor
-//       onChange={console.log}
-//       markdown={codeBlocksMarkdown}
-//       plugins={[
-//         codeBlockPlugin({
-//           codeBlockEditorDescriptors: [PlainTextCodeEditorDescriptor],
-//         }),
-//         sandpackPlugin({ sandpackConfig: virtuosoSampleSandpackConfig }),
-//         codeMirrorPlugin({
-//           codeBlockLanguages: {
-//             jsx: "JavaScript (react)",
-//             js: "JavaScript",
-//             css: "CSS",
-//           },
-//           // codeMirrorExtensions: [basicDark]
-//         }),
-//       ]}
-//     />
-//   );
-// }
+export default function CodeBlock() {
+  return (
+    <MDXEditor
+      onChange={console.log}
+      markdown={codeBlocksMarkdown}
+      plugins={[
+        codeBlockPlugin({
+          codeBlockEditorDescriptors: [PlainTextCodeEditorDescriptor],
+        }),
+        sandpackPlugin({ sandpackConfig: virtuosoSampleSandpackConfig }),
+        codeMirrorPlugin({
+          codeBlockLanguages: {
+            jsx: "JavaScript (react)",
+            js: "JavaScript",
+            css: "CSS",
+          },
+          // codeMirrorExtensions: [basicDark]
+        }),
+      ]}
+    />
+  );
+}
 
 export function CustomCodeBlockEditor() {
   return (

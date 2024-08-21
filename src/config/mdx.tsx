@@ -1,183 +1,238 @@
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypePrettyCode, { LineElement } from "rehype-pretty-code";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
-import { MDXRemoteProps } from "next-mdx-remote/rsc";
+import Image from "next/image";
+import {
+  DOMNode,
+  domToReact,
+  Element,
+  HTMLReactParserOptions,
+} from "html-react-parser";
 
 import { cn } from "../lib/utils";
-// import { Code } from "@/components/code-snippet"
+import Sandbox from "@/components/live-code-block";
 
-export const mdxRemoteOptions: MDXRemoteProps["options"] = {
-  mdxOptions: {
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypePrettyCode,
-        {
-          theme: "github-dark-dimmed",
-          onVisitLine(node: any) {
-            // Prevent lines from collapsing in `display: grid` mode, and allow empty
-            // lines to be copy/pasted
-            if (node.children.length === 0) {
-              node.children = [{ type: "text", value: " " }];
-            }
-          },
-          onVisitHighlightedLine(node: LineElement, id: string | undefined) {
-            node.properties.className?.push("line--highlighted");
-          },
-        },
-      ],
-      [
-        rehypeAutolinkHeadings,
-        {
-          properties: {
-            className: ["subheading-anchor"],
-            ariaLabel: "Link to section",
-          },
-        },
-      ],
-    ],
+export const htmlParserOptions: HTMLReactParserOptions = {
+  replace({
+    name,
+    attribs,
+    children,
+  }: {
+    name: string;
+    attribs: Element["attribs"];
+    children: ChildNode[];
+  }) {
+    if (!attribs) return;
+
+    switch (name) {
+      case "h1":
+        return (
+          <h1
+            className={cn(
+              "mt-2 scroll-m-20 text-4xl font-bold tracking-tight",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h1>
+        );
+
+      case "h2":
+        return (
+          <h2
+            className={cn(
+              "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h2>
+        );
+
+      case "h3":
+        return (
+          <h3
+            className={cn(
+              "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h3>
+        );
+
+      case "h4":
+        return (
+          <h4
+            className={cn(
+              "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h4>
+        );
+
+      case "h5":
+        return (
+          <h5
+            className={cn(
+              "mt-8 scroll-m-20 text-lg font-semibold tracking-tight",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h5>
+        );
+
+      case "h6":
+        return (
+          <h6
+            className={cn(
+              "mt-8 scroll-m-20 text-base font-semibold tracking-tight",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </h6>
+        );
+
+      case "a":
+        return (
+          <a
+            className={cn(
+              "font-medium underline underline-offset-4",
+              attribs.class
+            )}
+            href={attribs.href}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </a>
+        );
+
+      case "p":
+        return (
+          <p
+            className={cn(
+              "leading-7 [&:not(:first-child)]:mt-6",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </p>
+        );
+
+      case "ul":
+        return (
+          <ul className={cn("my-6 ml-6 list-disc", attribs.class)}>
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </ul>
+        );
+
+      case "ol":
+        return (
+          <ol className={cn("my-6 ml-6 list-decimal", attribs.class)}>
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </ol>
+        );
+
+      case "li":
+        return (
+          <li className={cn("mt-2", attribs.class)}>
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </li>
+        );
+
+      case "blockquote":
+        return (
+          <blockquote
+            className={cn(
+              "mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </blockquote>
+        );
+
+      case "img":
+        return (
+          <Image
+            className={cn("rounded-md border", attribs.class)}
+            alt={attribs.alt || ""}
+            src={attribs.src as string}
+          />
+        );
+
+      case "hr":
+        return <hr className="my-4 md:my-8" />;
+
+      case "table":
+        return (
+          <div className="my-6 w-full overflow-y-auto">
+            <table className={cn("w-full", attribs.class)}>
+              {domToReact(children as DOMNode[], htmlParserOptions)}
+            </table>
+          </div>
+        );
+
+      case "tr":
+        return (
+          <tr className={cn("m-0 border-t p-0 even:bg-muted", attribs.class)}>
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </tr>
+        );
+
+      case "th":
+        return (
+          <th
+            className={cn(
+              "border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </th>
+        );
+
+      case "td":
+        return (
+          <td
+            className={cn(
+              "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </td>
+        );
+
+      case "pre":
+        return (
+          // <code
+          //   className={cn(
+          //     "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
+          //     attribs.class
+          //   )}
+          // >
+          //   {domToReact(children as DOMNode[], htmlParserOptions)}
+          // </code>
+          <div className="my-4">
+            <Sandbox />
+          </div>
+        );
+
+      case "code":
+        return (
+          <code
+            className={cn(
+              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
+              attribs.class
+            )}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </code>
+        );
+
+      default:
+        return null;
+    }
   },
-};
-
-export const mdxRemoteComponents: MDXRemoteProps["components"] = {
-  h1: ({ className, ...props }) => (
-    <h1
-      className={cn(
-        "mt-2 scroll-m-20 text-4xl font-bold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  ),
-  h2: ({ className, ...props }) => (
-    <h2
-      className={cn(
-        "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
-        className
-      )}
-      {...props}
-    />
-  ),
-  h3: ({ className, ...props }) => (
-    <h3
-      className={cn(
-        "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  ),
-  h4: ({ className, ...props }) => (
-    <h4
-      className={cn(
-        "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  ),
-  h5: ({ className, ...props }) => (
-    <h5
-      className={cn(
-        "mt-8 scroll-m-20 text-lg font-semibold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  ),
-  h6: ({ className, ...props }) => (
-    <h6
-      className={cn(
-        "mt-8 scroll-m-20 text-base font-semibold tracking-tight",
-        className
-      )}
-      {...props}
-    />
-  ),
-  a: ({ className, ...props }) => (
-    <a
-      className={cn("font-medium underline underline-offset-4", className)}
-      {...props}
-    />
-  ),
-  p: ({ className, ...props }) => (
-    <p
-      className={cn("leading-7 [&:not(:first-child)]:mt-6", className)}
-      {...props}
-    />
-  ),
-  ul: ({ className, ...props }) => (
-    <ul className={cn("my-6 ml-6 list-disc", className)} {...props} />
-  ),
-  ol: ({ className, ...props }) => (
-    <ol className={cn("my-6 ml-6 list-decimal", className)} {...props} />
-  ),
-  li: ({ className, ...props }) => (
-    <li className={cn("mt-2", className)} {...props} />
-  ),
-  blockquote: ({ className, ...props }) => (
-    <blockquote
-      className={cn(
-        "mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground",
-        className
-      )}
-      {...props}
-    />
-  ),
-  img: ({
-    className,
-    alt,
-    ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img className={cn("rounded-md border", className)} alt={alt} {...props} />
-  ),
-  hr: ({ ...props }) => <hr className="my-4 md:my-8" {...props} />,
-  table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-    <div className="my-6 w-full overflow-y-auto">
-      <table className={cn("w-full", className)} {...props} />
-    </div>
-  ),
-  tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
-    <tr
-      className={cn("m-0 border-t p-0 even:bg-muted", className)}
-      {...props}
-    />
-  ),
-  th: ({ className, ...props }) => (
-    <th
-      className={cn(
-        "border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
-        className
-      )}
-      {...props}
-    />
-  ),
-  td: ({ className, ...props }) => (
-    <td
-      className={cn(
-        "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
-        className
-      )}
-      {...props}
-    />
-  ),
-  pre: ({ className, ...props }) => (
-    <pre
-      className={cn("mb-4 mt-6 overflow-x-auto rounded-lg", className)}
-      {...props}
-    />
-  ),
-  code: ({ className, ...props }) => (
-    <code
-      className={cn(
-        // "bg-clip-padding p-1 px-4 relative font-mono text-sm overflow-hidden rounded-md m-0 md:rounded-[8px] [&_pre]:p-[16px] [&_code]:font-mono [&_code>div]:text-[1.125rem] [&_code>div]:p-0",
-        "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
-        className
-      )}
-      {...props}
-    />
-  ),
 };

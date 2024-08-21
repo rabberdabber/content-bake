@@ -1,11 +1,8 @@
 import "@/app/mdx.css";
 import { Metadata } from "next";
 import { loadBlogPost } from "@/file-helper";
-import { MDXRemote } from "next-mdx-remote/rsc";
 
 import BlogHero from "@/components/blog-hero";
-
-import { mdxRemoteComponents, mdxRemoteOptions } from "@/config/mdx";
 
 interface PageProps {
   params: {
@@ -52,11 +49,8 @@ const Page = async ({ params: { slug } }: PageProps) => {
         sm:rounded-lg
       "
         >
-          <MDXRemote
-            source={content}
-            components={mdxRemoteComponents}
-            options={mdxRemoteOptions}
-          />
+          {/* TODO: static generation of sites should be applied */}
+          IN PROGRESS 🚧
         </div>
       </article>
     </div>

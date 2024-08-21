@@ -14,7 +14,7 @@ export default async function Page() {
           {posts.map((post, index) => (
             <article
               key={post.title}
-              className="group relative flex flex-col space-y-2 hover:scale-105 border border-muted rounded-md max-h-[25rem]"
+              className="group relative flex flex-col space-y-2 hover:shadow-md border border-muted rounded-xl max-h-[25rem]"
             >
               {post.image && (
                 <div className="w-full h-[40%] flex justify-center items-center">

@@ -230,9 +230,12 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </code>
         );
-
-      default:
-        return null;
+      case "live-code-block":
+        return (
+          <div className="mt-2">
+            <Sandbox />
+          </div>
+        );
     }
   },
 };

@@ -1,11 +1,15 @@
 "use client";
-
-import { Button, ButtonProps } from "@/components/ui/button";
-import { Icons } from "@/components/icons";
-import { cn } from "@/lib/utils";
+import React, { useEffect } from "react";
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { common, createLowlight } from "lowlight";
 import { Color } from "@tiptap/extension-color";
 import ListItem from "@tiptap/extension-list-item";
 import TextStyle from "@tiptap/extension-text-style";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
 import {
   EditorContent,
   useCurrentEditor,
@@ -13,33 +17,128 @@ import {
   BubbleMenu,
   useEditor,
   EditorProvider,
-  Editor,
+  Editor as EditorType,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React, { useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { Icons } from "@/components/icons";
+import IconButton from "@/components/ui/icon-button";
 
-type IconButtonProps = ButtonProps & {
-  children: React.ReactNode;
-  className?: string;
-};
+const CustomTableCell = TableCell.extend({
+  addAttributes() {
+    return {
+      // extend the existing attributes …
+      ...this.parent?.(),
+
+      // and add a new one …
+      backgroundColor: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-background-color"),
+        renderHTML: (attributes) => {
+          return {
+            "data-background-color": attributes.backgroundColor,
+            style: `background-color: ${attributes.backgroundColor}`,
+          };
+        },
+      },
+    };
+  },
+});
+
+const extensions = [
+  Table.configure({
+    resizable: true,
+  }),
+  TableRow,
+  TableHeader,
+  // Default TableCell
+  // TableCell,
+  // Custom TableCell with backgroundColor attribute
+  CustomTableCell,
+  CodeBlockLowlight.configure({
+    lowlight: createLowlight(common),
+    // HTMLAttributes: {
+    //   class:
+    //     // "text-lg bg-purple-800 dark:bg-purple-200 bg-[#0D0D0D] text-white  p-3 rounded-lg [&_code]:text-inherit [&_code]:p-0 [&_code]:bg-none [&_code]:text-[1rem] [&_.hljs-comment]:text-[#616161] [&_.hljs-quote]:text-[#616161] [&_.hljs-variable]:text-[#F98181] [&_.hljs-template-variable]:text-[#F98181] [&_.hljs-attribute]:text-[#F98181] [&_.hljs-tag]:text-[#F98181] [&_.hljs-name]:text-[#F98181] [&_.hljs-regexp]:text-[#F98181] [&_.hljs-link]:text-[#F98181] [&_.hljs-selector-id]:text-[#F98181] [&_.hljs-selector-class]:text-[#F98181] [&_.hljs-number]:text-[#FBBC88] [&_.hljs-meta]:text-[#FBBC88] [&_.hljs-built_in]:text-[#FBBC88] [&_.hljs-builtin-name]:text-[#FBBC88] [&_.hljs-literal]:text-[#FBBC88] [&_.hljs-type]:text-[#FBBC88] [&_.hljs-params]:text-[#FBBC88] [&_.hljs-string]:text-[#B9F18D] [&_.hljs-symbol]:text-[#B9F18D] [&_.hljs-bullet]:text-[#B9F18D] [&_.hljs-title]:text-[#FAF594] [&_.hljs-section]:text-[#FAF594] [&_.hljs-keyword]:text-[#70CFF8] [&_.hljs-selector-tag]:text-[#70CFF8] [&_.hljs-emphasis]:italic [&_.hljs-strong]:font-bold",
+    // },
+    languageClassPrefix: "language-",
+  }),
+  SandboxExtension,
+  Color.configure({ types: [TextStyle.name, ListItem.name] }),
+  TextStyle.configure({ types: [ListItem.name] }),
+  StarterKit.configure({
+    bulletList: {
+      keepMarks: true,
+      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+    },
+    orderedList: {
+      keepMarks: true,
+      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+    },
+    codeBlock: false,
+  }),
+];
+
+export const tableHTML = `
+  <table style="width:100%">
+    <tr>
+      <th>Firstname</th>
+      <th>Lastname</th>
+      <th>Age</th>
+    </tr>
+    <tr>
+      <td>Jill</td>
+      <td>Smith</td>
+      <td>50</td>
+    </tr>
+    <tr>
+      <td>Eve</td>
+      <td>Jackson</td>
+      <td>94</td>
+    </tr>
+    <tr>
+      <td>John</td>
+      <td>Doe</td>
+      <td>80</td>
+    </tr>
+  </table>
+`;
+
+const content = `
+<h2>
+  Hi there,
+</h2>
+<p>
+  this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
+</p>
+<ul>
+  <li>
+    That’s a bullet list with one …
+  </li>
+  <li>
+    … or two list items.
+  </li>
+</ul>
+<p>
+  Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
+</p>
+<pre><code class="language-css">body {
+  display: none;
+}</code></pre>
+<p>
+  I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
+</p>
+<blockquote>
+  Wow, that’s amazing. Good work, boy! 👏
+  <br />
+  — Mom
+</blockquote>
+<live-code-block>
+</live-code-block>
+`;
 
 const ICON_BUTTON_CLASSNAMES =
   "flex gap-2 [&>button]:border-slate-700 [&>button]:border [&>button]:rounded-lg [&>button]:p-2 [&>button]:bg-slate-700";
-
-const IconButton = ({ children, className, ...props }: IconButtonProps) => {
-  return (
-    <Button
-      {...props}
-      className={cn(
-        "flex items-center justify-center w-8 h-8 rounded-md bg-slate-900 text-white hover:bg-transparent hover:text-slate-900",
-        className
-      )}
-      size="icon"
-    >
-      {children}
-    </Button>
-  );
-};
 
 const MenuBar = () => {
   const { editor } = useCurrentEditor();
@@ -85,9 +184,19 @@ const MenuBar = () => {
           <Icons.code />
         </IconButton>
         <IconButton
-          onClick={() => editor.chain().focus().unsetAllMarks().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .insertContent(tableHTML, {
+                parseOptions: {
+                  preserveWhitespace: false,
+                },
+              })
+              .run()
+          }
         >
-          <Icons.XCircle />
+          <Icons.Table />
         </IconButton>
         <IconButton onClick={() => editor.chain().focus().clearNodes().run()}>
           <Icons.Layout />
@@ -171,7 +280,13 @@ const MenuBar = () => {
           <Icons.ListOrdered />
         </IconButton>
         <IconButton
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleNode("live-code-block", "div", { level: 1 })
+              .run()
+          }
           className={editor.isActive("codeBlock") ? "is-active" : ""}
         >
           <Icons.codePen />
@@ -217,61 +332,22 @@ const MenuBar = () => {
   );
 };
 
-const extensions = [
-  Color.configure({ types: [TextStyle.name, ListItem.name] }),
-  TextStyle.configure({ types: [ListItem.name] }),
-  StarterKit.configure({
-    bulletList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-    orderedList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-  }),
-];
-
-const content = `
-<h2>
-  Hi there,
-</h2>
-<p>
-  this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-</p>
-<ul>
-  <li>
-    That’s a bullet list with one …
-  </li>
-  <li>
-    … or two list items.
-  </li>
-</ul>
-<p>
-  Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-</p>
-<pre><code class="language-css">body {
-  display: none;
-}</code></pre>
-<p>
-  I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-</p>
-<blockquote>
-  Wow, that’s amazing. Good work, boy! 👏
-  <br />
-  — Mom
-</blockquote>
-`;
-
-export type TipTapEditorType = Editor;
+export type TipTapEditorType = EditorType;
 
 type EditorProps = {
-  editorRef: React.MutableRefObject<Editor | null>;
+  editorRef: React.MutableRefObject<EditorType | null>;
+  setEditorContent?: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const Editor = ({ editorRef }: EditorProps) => {
+const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const editor = useEditor({
-    extensions: [StarterKit],
+    onUpdate: ({ editor }) => {
+      onContentUpdate();
+    },
+    onCreate: ({ editor }) => {
+      onContentUpdate();
+    },
+    extensions: extensions,
     content: content,
     editorProps: {
       attributes: {
@@ -281,11 +357,16 @@ const Editor = ({ editorRef }: EditorProps) => {
     },
   });
 
+  const onContentUpdate = () => {
+    setEditorContent?.(editor?.getHTML() || "");
+  };
+
   useEffect(() => {
     if (editor) {
       editorRef.current = editor;
     }
   }, [editor]);
+
   return (
     <>
       {editor && (
@@ -321,7 +402,7 @@ const Editor = ({ editorRef }: EditorProps) => {
       {editor && (
         <FloatingMenu
           className={cn(
-            "floating-menu floating-menu flex bg-gray-300 p-0.5 rounded-md group [&>button]:bg-transparent [&>button]:p-[0.275rem] [&>button]:px-[0.425rem] [&>button]:rounded [&>button]:hover:bg-gray-300 [&>button].is-active:bg-white [&>button].is-active:text-purple-500 [&>button].is-active:hover:text-purple-600",
+            "floating-menu floating-menu flex bg-gray-300 p-2 rounded-md group [&>button]:bg-transparent [&>button]:p-[0.275rem] [&>button]:px-[0.425rem] [&>button]:rounded [&>button]:hover:bg-gray-300 [&>button].is-active:bg-white [&>button].is-active:text-purple-500 [&>button].is-active:hover:text-purple-600",
             ICON_BUTTON_CLASSNAMES
           )}
           tippyOptions={{ duration: 100 }}
@@ -353,6 +434,33 @@ const Editor = ({ editorRef }: EditorProps) => {
           >
             <Icons.List />
           </IconButton>
+          <IconButton
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertContent("<live-code-block></live-code-block>")
+                .run()
+            }
+            className={editor.isActive("live-code-block") ? "is-active" : ""}
+          >
+            <Icons.codePen />
+          </IconButton>
+          <IconButton
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertContent(tableHTML, {
+                  parseOptions: {
+                    preserveWhitespace: false,
+                  },
+                })
+                .run()
+            }
+          >
+            <Icons.Table />
+          </IconButton>
         </FloatingMenu>
       )}
 
@@ -361,10 +469,10 @@ const Editor = ({ editorRef }: EditorProps) => {
   );
 };
 
-const TipTapEditor = ({ editorRef }: EditorProps) => {
+const TipTapEditor = ({ editorRef, setEditorContent }: EditorProps) => {
   return (
     <EditorProvider slotBefore={<MenuBar />} extensions={extensions}>
-      <Editor editorRef={editorRef} />
+      <Editor editorRef={editorRef} setEditorContent={setEditorContent} />
     </EditorProvider>
   );
 };

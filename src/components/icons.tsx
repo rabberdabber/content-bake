@@ -32,6 +32,10 @@ import {
   Code,
   Undo,
   Redo,
+  Table,
+  Eye,
+  Terminal,
+  Plus,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -51,6 +55,7 @@ export const Icons = {
   Heading6,
   List,
   ListOrdered,
+  Table,
   Quote,
   Minus,
   CornerDownLeft,
@@ -58,6 +63,7 @@ export const Icons = {
   Undo,
   Redo,
   Droplet,
+  eye: Eye,
   sun: SunMedium,
   moon: Moon,
   twitter: X,
@@ -68,6 +74,8 @@ export const Icons = {
   splitPane: Columns2,
   refresh: RefreshCcw,
   code: Code,
+  terminal: Terminal,
+  create: Plus,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

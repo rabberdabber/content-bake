@@ -1,10 +1,10 @@
-import { Sandbox } from "../editor/examples/sandbox";
-import { CustomButton } from "../editor/CustomButton";
+"use client";
+import Sandbox from "@/components/live-code-block";
 
 export default function Page() {
   return (
-    <div className="h-dvh w-dvw grid place-content-center">
-      <CustomButton />
+    <div suppressHydrationWarning className="mt-4">
+      <Sandbox />
     </div>
   );
 }

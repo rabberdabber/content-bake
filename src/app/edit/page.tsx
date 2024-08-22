@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import dynamic from "next/dynamic";
 
 export const metadata: Metadata = {
-  title: "MDX Editor",
+  title: "Blog Editor",
   description: "Bite Sized Blog by bake.",
 };
 

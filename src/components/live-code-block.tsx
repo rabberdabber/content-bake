@@ -8,7 +8,6 @@ import {
 import { NodeViewWrapper } from "@tiptap/react";
 import { SandpackFileExplorer } from "sandpack-file-explorer";
 import { atomDark } from "@codesandbox/sandpack-themes";
-import IconButton from "./ui/icon-button";
 import { Icons } from "./icons";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -41,19 +40,6 @@ button {
 }
   `,
 };
-
-// function ActiveFileDisplay() {
-//   const { sandpack } = useSandpack();
-//   const activeFile = sandpack.activeFile;
-
-//   return (
-//     <div className="bg-gray-200 p-4">
-//       <h2 className="text-lg font-semibold">Active File</h2>
-//       <pre className="text-sm">{activeFile}</pre>
-//     </div>
-//   );
-// }
-
 type SandboxProps = {
   files?: { [key: string]: string };
   template?: SandpackPredefinedTemplate;
@@ -71,19 +57,13 @@ function TitleBar() {
 
 function Console() {
   return (
-    <div className="flex justify-between border border-zinc-700 bg-zinc-900 p-3">
-      <div className="flex gap-1">
-        <IconButton className="border border-slate-500">
-          <Icons.eye size={15} className="hover:bg-slate-400" />
-        </IconButton>
-        <IconButton className="border border-slate-500">
-          <Icons.terminal size={15} className="hover:bg-slate-400" />
-        </IconButton>
+    <div className="flex justify-between border border-zinc-700  p-3 bg-white">
+      <div className="flex gap-2">
+        <Icons.eye className="hover:bg-slate-400 rounded-md p-1 bg-black" />
+        <Icons.terminal className="hover:bg-slate-400 rounded-md p-1 bg-black" />
       </div>
       <div>
-        <IconButton className="border border-slate-500">
-          <Icons.refresh size={15} className="hover:bg-slate-400" />
-        </IconButton>
+        <Icons.refresh className="hover:bg-slate-400 rounded-md p-1 bg-black" />
       </div>
     </div>
   );

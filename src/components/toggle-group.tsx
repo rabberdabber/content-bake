@@ -41,7 +41,9 @@ export default function ToggleGroup({ iconsWithTooltip }: ToggleGroupProps) {
                     <Icon key={index} className="h-6 w-6" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">{tooltip}</TooltipContent>
+                <TooltipContent side="bottom" className="mt-1">
+                  {tooltip}
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )

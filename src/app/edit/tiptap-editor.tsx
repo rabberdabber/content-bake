@@ -10,6 +10,7 @@ import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
+import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import {
   EditorContent,
   useCurrentEditor,
@@ -18,6 +19,7 @@ import {
   useEditor,
   EditorProvider,
   Editor as EditorType,
+  isTextSelection,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { cn } from "@/lib/utils";
@@ -76,6 +78,22 @@ const extensions = [
       keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
     },
     codeBlock: false,
+  }),
+  BubbleMenuExtension.configure({
+    shouldShow: ({ editor, view, state, from, to }) => {
+      if (!view.hasFocus()) return false;
+      const { doc, selection } = state;
+      const isText = isTextSelection(selection);
+      if (!isText) return false;
+      const isEmpty =
+        selection.empty || (isText && doc.textBetween(from, to).length === 0);
+      if (isEmpty) return false;
+      if (editor.isActive("codeBlock")) return false;
+      if (editor.isActive("table")) return false;
+      if (editor.isActive("live-code-block")) return false;
+      console.log(editor.isActive("live-code-block"));
+      return true;
+    },
   }),
 ];
 

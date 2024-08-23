@@ -158,6 +158,9 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             className={cn("rounded-md border", attribs.class)}
             alt={attribs.alt || ""}
             src={attribs.src as string}
+            objectFit="cover"
+            height={500}
+            width={500}
           />
         );
 

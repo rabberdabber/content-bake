@@ -16,6 +16,10 @@ export const siteConfig = {
       title: "Sandbox",
       href: "/sandbox",
     },
+    {
+      title: "Image Upload",
+      href: "/image-upload",
+    },
   ],
   links: {
     twitter: "https://twitter.com/shadcn",

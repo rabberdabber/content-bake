@@ -117,10 +117,7 @@ const Editor = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.75 }}
-                className={cn(
-                  `flex-1 rounded-lg ${isSplitPane ? "ml-2" : "w-full"}`,
-                  mode === "editor" && "hidden"
-                )}
+                className={cn(mode === "editor" && "hidden")}
                 layoutId="preview"
               >
                 <article>
@@ -131,7 +128,9 @@ const Editor = () => {
                       isSplitPane && "min-w-[calc(50%-2rem)] ml-2"
                     )}
                   >
-                    {parse(editorContent, htmlParserOptions)}
+                    <div className="flex flex-col items-center justify-center gap-8">
+                      {parse(editorContent, htmlParserOptions)}
+                    </div>
                   </div>
                 </article>
               </motion.div>

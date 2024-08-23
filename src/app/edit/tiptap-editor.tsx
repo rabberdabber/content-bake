@@ -1,8 +1,11 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
 import { Color } from "@tiptap/extension-color";
+import Document from "@tiptap/extension-document";
+import Dropcursor from "@tiptap/extension-dropcursor";
+import Image from "@tiptap/extension-image";
 import ListItem from "@tiptap/extension-list-item";
 import TextStyle from "@tiptap/extension-text-style";
 import Table from "@tiptap/extension-table";
@@ -11,6 +14,7 @@ import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
 import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
+import TrailingNodeExtension from "@/components/tiptap-extensions/trailing-node";
 import {
   EditorContent,
   useCurrentEditor,
@@ -25,6 +29,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import IconButton from "@/components/ui/icon-button";
+import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -95,6 +100,14 @@ const extensions = [
       return true;
     },
   }),
+  Image.configure({
+    HTMLAttributes: {
+      class: "w-[500px] h-[500px]",
+    },
+  }),
+  Dropcursor,
+  Document,
+  TrailingNodeExtension,
 ];
 
 export const tableHTML = `
@@ -123,36 +136,7 @@ export const tableHTML = `
 `;
 
 const content = `
-<h2>
-  Hi there,
-</h2>
-<p>
-  this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:
-</p>
-<ul>
-  <li>
-    That’s a bullet list with one …
-  </li>
-  <li>
-    … or two list items.
-  </li>
-</ul>
-<p>
-  Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:
-</p>
-<pre><code class="language-css">body {
-  display: none;
-}</code></pre>
-<p>
-  I know, I know, this is impressive. It’s only the tip of the iceberg though. Give it a try and click a little bit around. Don’t forget to check the other examples too.
-</p>
-<blockquote>
-  Wow, that’s amazing. Good work, boy! 👏
-  <br />
-  — Mom
-</blockquote>
-<live-code-block>
-</live-code-block>
+<h1>Hello Please Edit the blog</h1>
 `;
 
 const ICON_BUTTON_CLASSNAMES =
@@ -374,6 +358,8 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
       },
     },
   });
+  const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [image, setImage] = useState<string | File | null>(null);
 
   const onContentUpdate = () => {
     setEditorContent?.(editor?.getHTML() || "");
@@ -385,14 +371,25 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     }
   }, [editor]);
 
+  useEffect(() => {
+    if (editor && image) {
+      editor
+        .chain()
+        .focus()
+        .setImage({
+          src:
+            typeof image === "string"
+              ? image
+              : URL.createObjectURL(image as File),
+        })
+        .run();
+    }
+  }, [image]);
   return (
     <>
       {editor && (
         <BubbleMenu
-          className={cn(
-            "bubble-menu bg-white border border-gray-200 rounded-lg shadow-md flex p-1 group [&>button]:bg-transparent [&>button]:hover:bg-gray-300 [&>button].is-active:bg-purple-500 [&>button].is-active:hover:bg-purple-600",
-            ICON_BUTTON_CLASSNAMES
-          )}
+          className={cn("bubble-menu p-1", ICON_BUTTON_CLASSNAMES)}
           tippyOptions={{ duration: 100 }}
           editor={editor}
         >
@@ -420,8 +417,9 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
       {editor && (
         <FloatingMenu
           className={cn(
-            "floating-menu floating-menu flex bg-gray-300 p-2 rounded-md group [&>button]:bg-transparent [&>button]:p-[0.275rem] [&>button]:px-[0.425rem] [&>button]:rounded [&>button]:hover:bg-gray-300 [&>button].is-active:bg-white [&>button].is-active:text-purple-500 [&>button].is-active:hover:text-purple-600",
-            ICON_BUTTON_CLASSNAMES
+            "floating-menu p-1",
+            ICON_BUTTON_CLASSNAMES,
+            openImageDialog ? "hidden" : ""
           )}
           tippyOptions={{ duration: 100 }}
           editor={editor}
@@ -479,10 +477,28 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
           >
             <Icons.Table />
           </IconButton>
+          <IconButton
+            onClick={() => {
+              setOpenImageDialog(true);
+            }}
+          >
+            <Icons.image />
+          </IconButton>
         </FloatingMenu>
       )}
 
-      <EditorContent editor={editor} />
+      <EditorContent
+        editor={editor}
+        className={openImageDialog ? "blur-sm" : ""}
+      />
+      <ImageUploadDialog
+        image={image}
+        setImage={setImage}
+        open={openImageDialog}
+        setOpen={setOpenImageDialog}
+        onSubmit={() => setOpenImageDialog(false)}
+        onCancel={() => setOpenImageDialog(false)}
+      />
     </>
   );
 };

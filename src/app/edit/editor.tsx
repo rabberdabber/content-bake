@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "@/app/mdx.css";
 import "@mdxeditor/editor/style.css";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Editor as EditorType } from "@tiptap/react";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,8 @@ import { Icons } from "@/components/icons";
 import ToggleGroup from "@/components/toggle-group";
 import parse from "html-react-parser";
 import { htmlParserOptions } from "@/config/html-parser";
+import { Separator } from "@/components/ui/separator";
+import DOMPurify from "dompurify";
 
 const TipTapEditor = dynamic(() => import("@/app/edit/tiptap-editor"), {
   ssr: false,
@@ -28,16 +30,9 @@ const Editor = () => {
   const editorRef = useRef<EditorType>(null);
   const blogRef = useRef<HTMLDivElement>(null);
 
-  const onPreview = () => {
-    setMode("preview");
-    editorContent === "" &&
-      setEditorContent(editorRef.current?.getHTML() || "");
-  };
-
-  const onSplitPane = () => {
-    setMode("split-pane");
-    editorContent === "" &&
-      setEditorContent(editorRef.current?.getHTML() || "");
+  const onChangeMode = (mode: "editor" | "preview" | "split-pane") => {
+    setMode(mode);
+    setEditorContent(DOMPurify.sanitize(editorRef.current?.getHTML() || ""));
   };
 
   React.useEffect(() => {
@@ -63,19 +58,19 @@ const Editor = () => {
               {
                 icon: Icons.splitPane,
                 tooltip: "split pane",
-                onClick: onSplitPane,
+                onClick: () => onChangeMode("split-pane"),
                 selected: isSplitPane,
               },
               {
                 icon: Icons.edit,
                 tooltip: "Editor",
-                onClick: () => setMode("editor"),
+                onClick: () => onChangeMode("editor"),
                 selected: mode === "editor",
               },
               {
                 icon: Icons.preview,
                 tooltip: "Preview",
-                onClick: onPreview,
+                onClick: () => onChangeMode("preview"),
                 selected: mode === "preview",
               },
             ]}
@@ -86,56 +81,57 @@ const Editor = () => {
             isSplitPane ? "flex-row rounded-md" : "flex-col"
           } w-full gap-4 mb-10`}
         >
-          <AnimatePresence mode="wait">
-            {
-              <motion.div
-                key="editor"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ duration: 0.75 }}
-                className={cn(
-                  `prose dark:prose-invert border flex-1 shadow-md rounded-lg p-4 ${
-                    isSplitPane
-                      ? "mr-2 min-w-[calc(50%-2rem)]"
-                      : "min-w-full w-full"
-                  }`,
-                  mode === "preview" && "hidden"
-                )}
-                layoutId="editor"
-              >
-                <TipTapEditor
-                  setEditorContent={setEditorContent}
-                  editorRef={editorRef}
-                />
-              </motion.div>
-            }
-            {
-              <motion.div
-                key="preview"
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.75 }}
-                className={cn(mode === "editor" && "hidden")}
-                layoutId="preview"
-              >
-                <article>
-                  <div
-                    ref={blogRef}
-                    className={cn(
-                      "relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg",
-                      isSplitPane && "min-w-[calc(50%-2rem)] ml-2"
-                    )}
-                  >
-                    <div className="flex flex-col items-center justify-center gap-8">
-                      {parse(editorContent, htmlParserOptions)}
-                    </div>
+          {
+            <motion.div
+              key="editor"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+              transition={{ duration: 0.75 }}
+              className={cn(
+                `prose dark:prose-invert border flex-1 shadow-md rounded-lg p-4 ${
+                  isSplitPane
+                    ? "mr-2 min-w-[calc(50%-2rem)]"
+                    : "min-w-full w-full"
+                }`,
+                mode === "preview" && "hidden"
+              )}
+              layoutId="editor"
+            >
+              <TipTapEditor
+                setEditorContent={setEditorContent}
+                editorRef={editorRef}
+              />
+            </motion.div>
+          }
+          {isSplitPane && (
+            <Separator orientation="vertical" className="h-full" />
+          )}
+          {
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.75 }}
+              className={mode === "editor" ? "hidden" : ""}
+              layoutId="preview"
+            >
+              <article>
+                <div
+                  ref={blogRef}
+                  className={cn(
+                    "relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg",
+                    isSplitPane && "min-w-[calc(50%-2rem)] ml-2"
+                  )}
+                >
+                  <div className="flex flex-col items-center justify-center gap-8">
+                    {parse(editorContent, htmlParserOptions)}
                   </div>
-                </article>
-              </motion.div>
-            }
-          </AnimatePresence>
+                </div>
+              </article>
+            </motion.div>
+          }
         </div>
       </div>
     </LayoutGroup>

@@ -135,3 +135,10 @@ pre {
     font-weight: 700;
   }
 }
+.tippy-box {
+  @apply bg-white text-gray-800 shadow-lg rounded-lg border border-gray-200;
+}
+
+.tippy-arrow {
+  @apply text-white;
+}

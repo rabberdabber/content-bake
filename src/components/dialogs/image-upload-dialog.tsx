@@ -28,7 +28,7 @@ const ImageUploadDialog = ({
 }: ImageUploadDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md lg:max-w-screen-lg overflow-y-scroll max-h-[90dvh]">
         <DialogHeader>
           <DialogTitle>Upload Image</DialogTitle>
           <DialogDescription>

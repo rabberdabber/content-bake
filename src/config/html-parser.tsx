@@ -209,17 +209,15 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "pre":
         return (
-          // <code
-          //   className={cn(
-          //     "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
-          //     attribs.class
-          //   )}
-          // >
-          //   {domToReact(children as DOMNode[], htmlParserOptions)}
-          // </code>
-          <div className="my-4">
-            <Sandbox />
-          </div>
+          <code
+            className={cn(
+              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
+              attribs.class
+            )}
+            lang={attribs.language}
+          >
+            {domToReact(children as DOMNode[], htmlParserOptions)}
+          </code>
         );
 
       case "code":

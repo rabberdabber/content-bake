@@ -15,21 +15,25 @@ import TableRow from "@tiptap/extension-table-row";
 import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
 import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
 import TrailingNodeExtension from "@/components/tiptap-extensions/trailing-node";
+import CommandsExtension from "@/components/tiptap-extensions/commands";
 import {
   EditorContent,
   useCurrentEditor,
-  FloatingMenu,
   BubbleMenu,
   useEditor,
   EditorProvider,
   Editor as EditorType,
   isTextSelection,
+  ReactNodeViewRenderer,
 } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import IconButton from "@/components/ui/icon-button";
 import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
+import DOMPurify from "dompurify";
+import { NodeSelection } from "@tiptap/pm/state";
+import CodeBlock from "@/components/code-block";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -62,12 +66,12 @@ const extensions = [
   // TableCell,
   // Custom TableCell with backgroundColor attribute
   CustomTableCell,
-  CodeBlockLowlight.configure({
+  CodeBlockLowlight.extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(CodeBlock);
+    },
+  }).configure({
     lowlight: createLowlight(common),
-    // HTMLAttributes: {
-    //   class:
-    //     // "text-lg bg-purple-800 dark:bg-purple-200 bg-[#0D0D0D] text-white  p-3 rounded-lg [&_code]:text-inherit [&_code]:p-0 [&_code]:bg-none [&_code]:text-[1rem] [&_.hljs-comment]:text-[#616161] [&_.hljs-quote]:text-[#616161] [&_.hljs-variable]:text-[#F98181] [&_.hljs-template-variable]:text-[#F98181] [&_.hljs-attribute]:text-[#F98181] [&_.hljs-tag]:text-[#F98181] [&_.hljs-name]:text-[#F98181] [&_.hljs-regexp]:text-[#F98181] [&_.hljs-link]:text-[#F98181] [&_.hljs-selector-id]:text-[#F98181] [&_.hljs-selector-class]:text-[#F98181] [&_.hljs-number]:text-[#FBBC88] [&_.hljs-meta]:text-[#FBBC88] [&_.hljs-built_in]:text-[#FBBC88] [&_.hljs-builtin-name]:text-[#FBBC88] [&_.hljs-literal]:text-[#FBBC88] [&_.hljs-type]:text-[#FBBC88] [&_.hljs-params]:text-[#FBBC88] [&_.hljs-string]:text-[#B9F18D] [&_.hljs-symbol]:text-[#B9F18D] [&_.hljs-bullet]:text-[#B9F18D] [&_.hljs-title]:text-[#FAF594] [&_.hljs-section]:text-[#FAF594] [&_.hljs-keyword]:text-[#70CFF8] [&_.hljs-selector-tag]:text-[#70CFF8] [&_.hljs-emphasis]:italic [&_.hljs-strong]:font-bold",
-    // },
     languageClassPrefix: "language-",
   }),
   SandboxExtension,
@@ -108,6 +112,7 @@ const extensions = [
   Dropcursor,
   Document,
   TrailingNodeExtension,
+  CommandsExtension,
 ];
 
 export const tableHTML = `
@@ -343,11 +348,23 @@ type EditorProps = {
 
 const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const editor = useEditor({
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onContentUpdate();
     },
     onCreate: ({ editor }) => {
       onContentUpdate();
+    },
+    onTransaction: ({ editor, transaction }) => {
+      console.log(transaction.selection);
+      const selection = transaction.selection;
+      if (selection instanceof NodeSelection) {
+        if (selection.node.type.name === "image") {
+          const node = selection.node;
+          console.log(node.attrs.src);
+          setOpenImageDialog(true);
+        }
+      }
     },
     extensions: extensions,
     content: content,
@@ -362,7 +379,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const [image, setImage] = useState<string | File | null>(null);
 
   const onContentUpdate = () => {
-    setEditorContent?.(editor?.getHTML() || "");
+    setEditorContent?.(DOMPurify.sanitize(editor?.getHTML() || ""));
   };
 
   useEffect(() => {
@@ -414,7 +431,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         </BubbleMenu>
       )}
 
-      {editor && (
+      {/* {editor && (
         <FloatingMenu
           className={cn(
             "floating-menu p-1",
@@ -485,20 +502,22 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
             <Icons.image />
           </IconButton>
         </FloatingMenu>
-      )}
+      )} */}
 
       <EditorContent
         editor={editor}
         className={openImageDialog ? "blur-sm" : ""}
       />
-      <ImageUploadDialog
-        image={image}
-        setImage={setImage}
-        open={openImageDialog}
-        setOpen={setOpenImageDialog}
-        onSubmit={() => setOpenImageDialog(false)}
-        onCancel={() => setOpenImageDialog(false)}
-      />
+      <div className="relative mb-4 mt-4">
+        <ImageUploadDialog
+          image={image}
+          setImage={setImage}
+          open={openImageDialog}
+          setOpen={setOpenImageDialog}
+          onSubmit={() => setOpenImageDialog(false)}
+          onCancel={() => setOpenImageDialog(false)}
+        />
+      </div>
     </>
   );
 };

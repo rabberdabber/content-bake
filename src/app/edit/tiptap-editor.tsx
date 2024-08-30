@@ -33,7 +33,8 @@ import IconButton from "@/components/ui/icon-button";
 import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
 import DOMPurify from "dompurify";
 import { NodeSelection } from "@tiptap/pm/state";
-import CodeBlock from "@/components/code-block";
+import CodeBlock from "@/components/code/tiptap-code-block";
+import { TabCommand } from "@/components/tiptap-extensions/tab-command";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -74,6 +75,7 @@ const extensions = [
     lowlight: createLowlight(common),
     languageClassPrefix: "language-",
   }),
+  TabCommand,
   SandboxExtension,
   Color.configure({ types: [TextStyle.name, ListItem.name] }),
   TextStyle.configure({ types: [ListItem.name] }),
@@ -99,7 +101,8 @@ const extensions = [
       if (isEmpty) return false;
       if (editor.isActive("codeBlock")) return false;
       if (editor.isActive("table")) return false;
-      if (editor.isActive("live-code-block")) return false;
+      if (editor.isActive("live-code-block") || editor.isActive("image"))
+        return false;
       console.log(editor.isActive("live-code-block"));
       return true;
     },
@@ -142,6 +145,15 @@ export const tableHTML = `
 
 const content = `
 <h1>Hello Please Edit the blog</h1>
+<pre>
+  <code class="language-typescript">
+const a: number = 1;
+// This is a comment
+const b: number = 2;
+// highlight-line
+const c: number = a + b;
+  </code>
+</pre>
 `;
 
 const ICON_BUTTON_CLASSNAMES =
@@ -356,14 +368,15 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
       onContentUpdate();
     },
     onTransaction: ({ editor, transaction }) => {
-      console.log(transaction.selection);
       const selection = transaction.selection;
-      if (selection instanceof NodeSelection) {
-        if (selection.node.type.name === "image") {
-          const node = selection.node;
-          console.log(node.attrs.src);
-          setOpenImageDialog(true);
-        }
+      if (
+        selection instanceof NodeSelection &&
+        selection.node.type.name === "image"
+      ) {
+        const node = selection.node;
+
+        console.log("Image selected:", node.attrs.src);
+        setOpenImageDialog(true);
       }
     },
     extensions: extensions,
@@ -379,7 +392,17 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const [image, setImage] = useState<string | File | null>(null);
 
   const onContentUpdate = () => {
-    setEditorContent?.(DOMPurify.sanitize(editor?.getHTML() || ""));
+    console.log("onContentUpdate");
+    console.log(
+      DOMPurify.sanitize(editor?.getHTML() || "", {
+        ADD_TAGS: ["live-code-block"],
+      })
+    );
+    setEditorContent?.(
+      DOMPurify.sanitize(editor?.getHTML() || "", {
+        ADD_TAGS: ["live-code-block"],
+      })
+    );
   };
 
   useEffect(() => {
@@ -402,6 +425,8 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         .run();
     }
   }, [image]);
+
+  console.log(editor?.getHTML());
   return (
     <>
       {editor && (

@@ -2,7 +2,6 @@
 import React, { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import "@/app/mdx.css";
-import "@mdxeditor/editor/style.css";
 import { motion, LayoutGroup } from "framer-motion";
 import { useTheme } from "next-themes";
 import { Editor as EditorType } from "@tiptap/react";
@@ -25,14 +24,17 @@ const Editor = () => {
   const [mode, setMode] = useState<"editor" | "preview" | "split-pane">(
     "editor"
   );
-  const { theme } = useTheme();
   const isSplitPane = mode === "split-pane";
   const editorRef = useRef<EditorType>(null);
   const blogRef = useRef<HTMLDivElement>(null);
 
   const onChangeMode = (mode: "editor" | "preview" | "split-pane") => {
     setMode(mode);
-    setEditorContent(DOMPurify.sanitize(editorRef.current?.getHTML() || ""));
+    setEditorContent(
+      DOMPurify.sanitize(editorRef.current?.getHTML() || "", {
+        ADD_TAGS: ["live-code-block"],
+      })
+    );
   };
 
   React.useEffect(() => {
@@ -114,18 +116,17 @@ const Editor = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.75 }}
-              className={mode === "editor" ? "hidden" : ""}
+              className={cn("flex-1", mode === "editor" ? "hidden" : "")}
               layoutId="preview"
             >
               <article>
                 <div
                   ref={blogRef}
-                  className={cn(
-                    "relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg",
-                    isSplitPane && "min-w-[calc(50%-2rem)] ml-2"
-                  )}
+                  className={
+                    "relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg"
+                  }
                 >
-                  <div className="flex flex-col items-center justify-center gap-8">
+                  <div className="flex flex-col justify-center gap-8">
                     {parse(editorContent, htmlParserOptions)}
                   </div>
                 </div>

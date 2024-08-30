@@ -1,5 +1,5 @@
 "use client";
-import Sandbox from "@/components/live-code-block";
+import Sandbox from "@/components/code/live-code-block";
 
 export default function Page() {
   return (

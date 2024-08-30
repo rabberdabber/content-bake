@@ -1,9 +1,18 @@
 import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { Button } from "../ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
+import { cn } from "@/lib/utils";
 
 interface CommandItem {
   title: string;
   command: ({ editor, range }: { editor: any; range: any }) => void;
+  icon: React.ReactNode;
 }
 
 interface CommandsListProps {
@@ -42,33 +51,50 @@ const CommandsList = forwardRef((props: CommandsListProps, ref) => {
         upHandler();
         return true;
       }
-
       if (event.key === "ArrowDown") {
         downHandler();
         return true;
       }
-
       if (event.key === "Enter") {
         enterHandler();
         return true;
       }
-
       return false;
     },
   }));
 
   return (
-    <div className="flex flex-col space-y-1 p-2 max-h-[300px] overflow-y-auto">
-      {props.items.map((item, index) => (
-        <Button
-          key={index}
-          variant={index === selectedIndex ? "default" : "ghost"}
-          className="justify-start"
-          onClick={() => selectItem(index)}
-        >
-          {item.title}
-        </Button>
-      ))}
+    <div className="flex flex-col space-y-1 p-2 max-h-[500px] overflow-y-auto">
+      <Command>
+        <CommandInput placeholder="Search command..." />
+        <CommandList>
+          <CommandEmpty>No framework found.</CommandEmpty>
+          <CommandGroup>
+            {props.items.map((item, index) => (
+              <CommandItem
+                key={item.title}
+                value={item.title}
+                onSelect={() => {
+                  selectItem(index);
+                }}
+                className={cn(
+                  "flex items-center space-x-2 gap-2",
+                  index === selectedIndex ? "bg-foreground/10" : ""
+                )}
+              >
+                {item.icon}
+                {/* <Icons.check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    index === selectedIndex ? "opacity-100" : "opacity-0"
+                  )}
+                /> */}
+                {item.title}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
     </div>
   );
 });

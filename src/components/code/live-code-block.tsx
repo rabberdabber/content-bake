@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
   SandpackCodeEditor,
   SandpackLayout,
@@ -8,8 +10,7 @@ import {
 import { NodeViewWrapper } from "@tiptap/react";
 import { SandpackFileExplorer } from "sandpack-file-explorer";
 import { atomDark } from "@codesandbox/sandpack-themes";
-import { Icons } from "./icons";
-import { useEffect, useState } from "react";
+import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const templateFiles = {
@@ -90,30 +91,47 @@ const SandboxContent = ({
   showFileExplorer: boolean;
 }) => {
   return (
-    <div className="relative flex gap-0.5 my-auto mx-0">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="relative flex gap-0.5 my-auto mx-0"
+    >
       <SandpackLayout className="!block !rounded-none sm:!rounded-lg !-mx-4 sm:!mx-0">
         <TitleBar />
         <div className="flex">
-          <div
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: showFileExplorer ? "25%" : 0, opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className={cn(
               "border-r border-zinc-700",
               showFileExplorer ? "w-1/4" : "hidden"
             )}
           >
             <SandpackFileExplorer />
-          </div>
+          </motion.div>
           <div className="flex-1 flex">
-            <div className="w-1/2 border-r border-zinc-700">
+            <motion.div
+              initial={{ width: "50%" }}
+              animate={{ width: showFileExplorer ? "50%" : "75%" }}
+              transition={{ duration: 0.3 }}
+              className="border-r border-zinc-700"
+            >
               <SandpackCodeEditor showTabs />
-            </div>
-            <div className="w-1/2">
+            </motion.div>
+            <motion.div
+              initial={{ width: "50%" }}
+              animate={{ width: showFileExplorer ? "50%" : "25%" }}
+              transition={{ duration: 0.3 }}
+            >
               <Preview />
-            </div>
+            </motion.div>
           </div>
         </div>
-        <Console />
+        {/* <Console /> */}
       </SandpackLayout>
-    </div>
+    </motion.div>
   );
 };
 
@@ -134,21 +152,27 @@ const Sandbox = ({
 
   return (
     <NodeViewWrapper className="live-code-block">
-      <SandpackProvider
-        template={template}
-        theme={atomDark}
-        files={files}
-        options={{
-          autorun: true,
-          recompileMode: "delayed",
-          recompileDelay: 500,
-          experimental_enableServiceWorker: true,
-          initMode: "user-visible",
-          initModeObserverOptions: { rootMargin: `1000px 0px` },
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <SandboxContent showFileExplorer={showFileExplorer} />
-      </SandpackProvider>
+        <SandpackProvider
+          template={template}
+          theme={atomDark}
+          files={files}
+          options={{
+            autorun: true,
+            recompileMode: "delayed",
+            recompileDelay: 500,
+            experimental_enableServiceWorker: true,
+            initMode: "user-visible",
+            initModeObserverOptions: { rootMargin: `1000px 0px` },
+          }}
+        >
+          <SandboxContent showFileExplorer={showFileExplorer} />
+        </SandpackProvider>
+      </motion.div>
     </NodeViewWrapper>
   );
 };

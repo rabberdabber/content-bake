@@ -41,6 +41,7 @@ import {
   Link,
   Send,
   MessageSquare,
+  ChevronDown,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -86,6 +87,7 @@ export const Icons = {
   code: Code,
   terminal: Terminal,
   create: Plus,
+  chevronDown: ChevronDown,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path
@@ -108,6 +110,7 @@ export const Icons = {
       aria-label="CodePen"
       role="img"
       viewBox="0 0 512 512"
+      className="w-6 h-6"
     >
       <rect width="512" height="512" rx="15%" fill="#111" />
 

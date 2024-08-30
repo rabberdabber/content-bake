@@ -7,7 +7,8 @@ import {
 } from "html-react-parser";
 
 import { cn } from "../lib/utils";
-import Sandbox from "@/components/live-code-block";
+import Sandbox from "@/components/code/live-code-block";
+import CodeBlock from "@/components/code/code-block";
 
 export const htmlParserOptions: HTMLReactParserOptions = {
   replace({
@@ -209,22 +210,21 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "pre":
         return (
-          <code
+          <CodeBlock
             className={cn(
               "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
               attribs.class
             )}
-            lang={attribs.language}
           >
             {domToReact(children as DOMNode[], htmlParserOptions)}
-          </code>
+          </CodeBlock>
         );
 
       case "code":
         return (
           <code
             className={cn(
-              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
+              "relative rounded px-[0.5rem] font-mono text-sm border border-slate-700 py-[1rem] w-full",
               attribs.class
             )}
           >

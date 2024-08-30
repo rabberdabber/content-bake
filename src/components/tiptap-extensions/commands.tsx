@@ -3,6 +3,7 @@ import Suggestion from "@tiptap/suggestion";
 import tippy from "tippy.js";
 import { ReactRenderer } from "@tiptap/react";
 import CommandsList from "./command-list";
+import { Icons } from "../icons";
 
 interface CommandsListRef {
   onKeyDown: (props: any) => boolean;
@@ -13,6 +14,7 @@ const suggestions = {
     return [
       {
         title: "Heading 1",
+        icon: <Icons.Heading1 />,
         command: ({ editor, range }: { editor: any; range: any }) => {
           editor
             .chain()
@@ -24,6 +26,7 @@ const suggestions = {
       },
       {
         title: "Heading 2",
+        icon: <Icons.Heading2 />,
         command: ({ editor, range }: { editor: any; range: any }) => {
           editor
             .chain()
@@ -35,6 +38,7 @@ const suggestions = {
       },
       {
         title: "code block",
+        icon: <Icons.code />,
         command: ({ editor, range }: { editor: any; range: any }) => {
           editor
             .chain()
@@ -46,12 +50,27 @@ const suggestions = {
       },
       {
         title: "live code block",
+        icon: <Icons.codePen />,
         command: ({ editor, range }: { editor: any; range: any }) => {
           editor
             .chain()
             .focus()
             .deleteRange(range)
             .insertContent("<live-code-block></live-code-block>")
+            .run();
+        },
+      },
+      {
+        title: "Image",
+        icon: <Icons.image />,
+        command: ({ editor, range }: { editor: any; range: any }) => {
+          editor
+            .chain()
+            .focus()
+            .deleteRange(range)
+            .insertContent(
+              "<img src='http://localhost:3000/images/lion.png' />"
+            )
             .run();
         },
       },
@@ -85,7 +104,7 @@ const suggestions = {
           interactive: true,
           trigger: "manual",
           placement: "bottom-start",
-          theme: "light",
+          theme: "dark",
           arrow: true,
           maxWidth: "none",
         });

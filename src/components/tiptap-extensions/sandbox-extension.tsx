@@ -1,6 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import Sandbox from "../live-code-block";
+import Sandbox from "../code/live-code-block";
 
 export default Node.create({
   name: "live-code-block",

@@ -6,7 +6,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "../ui/command";
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 interface CommandItem {
@@ -83,12 +83,6 @@ const CommandsList = forwardRef((props: CommandsListProps, ref) => {
                 )}
               >
                 {item.icon}
-                {/* <Icons.check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    index === selectedIndex ? "opacity-100" : "opacity-0"
-                  )}
-                /> */}
                 {item.title}
               </CommandItem>
             ))}

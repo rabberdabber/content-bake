@@ -3,7 +3,8 @@ import Suggestion from "@tiptap/suggestion";
 import tippy from "tippy.js";
 import { ReactRenderer } from "@tiptap/react";
 import CommandsList from "./command-list";
-import { Icons } from "../icons";
+import { Icons } from "@/components/icons";
+import { Editor, Range } from "@tiptap/core";
 
 interface CommandsListRef {
   onKeyDown: (props: any) => boolean;
@@ -15,7 +16,7 @@ const suggestions = {
       {
         title: "Heading 1",
         icon: <Icons.Heading1 />,
-        command: ({ editor, range }: { editor: any; range: any }) => {
+        command: ({ editor, range }: { editor: Editor; range: Range }) => {
           editor
             .chain()
             .focus()
@@ -27,7 +28,7 @@ const suggestions = {
       {
         title: "Heading 2",
         icon: <Icons.Heading2 />,
-        command: ({ editor, range }: { editor: any; range: any }) => {
+        command: ({ editor, range }: { editor: Editor; range: Range }) => {
           editor
             .chain()
             .focus()
@@ -39,19 +40,19 @@ const suggestions = {
       {
         title: "code block",
         icon: <Icons.code />,
-        command: ({ editor, range }: { editor: any; range: any }) => {
+        command: ({ editor, range }: { editor: Editor; range: Range }) => {
           editor
             .chain()
             .focus()
             .deleteRange(range)
-            .setNode("codeBlock", { language: "python" })
+            .setNode("codeBlock", { language: "typescript" })
             .run();
         },
       },
       {
         title: "live code block",
         icon: <Icons.codePen />,
-        command: ({ editor, range }: { editor: any; range: any }) => {
+        command: ({ editor, range }: { editor: Editor; range: Range }) => {
           editor
             .chain()
             .focus()
@@ -63,15 +64,13 @@ const suggestions = {
       {
         title: "Image",
         icon: <Icons.image />,
-        command: ({ editor, range }: { editor: any; range: any }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent(
-              "<img src='http://localhost:3000/images/lion.png' />"
-            )
-            .run();
+        command: ({ editor, range }: { editor: Editor; range: Range }) => {
+          editor.view.dom.dispatchEvent(
+            new CustomEvent("openImageDialog", {
+              bubbles: true,
+              cancelable: true,
+            })
+          );
         },
       },
     ]
@@ -126,6 +125,10 @@ const suggestions = {
         if (props.event.key === "Escape") {
           popup[0].hide();
           return true;
+        } else if (props.event.key === "Enter") {
+          (reactRenderer.ref as CommandsListRef)?.onKeyDown(props);
+          popup[0].hide();
+          return true;
         }
 
         return (reactRenderer.ref as CommandsListRef)?.onKeyDown(props);
@@ -151,8 +154,8 @@ const CommandsExtension = Extension.create({
           range,
           props,
         }: {
-          editor: any;
-          range: any;
+          editor: Editor;
+          range: Range;
           props: any;
         }) => {
           props.command({ editor, range });

@@ -1,122 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
-import { common, createLowlight } from "lowlight";
-import { Color } from "@tiptap/extension-color";
-import Document from "@tiptap/extension-document";
-import Dropcursor from "@tiptap/extension-dropcursor";
-import Image from "@tiptap/extension-image";
-import ListItem from "@tiptap/extension-list-item";
-import TextStyle from "@tiptap/extension-text-style";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
-import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
-import BubbleMenuExtension from "@tiptap/extension-bubble-menu";
-import TrailingNodeExtension from "@/components/tiptap-extensions/trailing-node";
-import CommandsExtension from "@/components/tiptap-extensions/commands";
 import {
   EditorContent,
   useCurrentEditor,
-  BubbleMenu,
   useEditor,
   EditorProvider,
   Editor as EditorType,
-  isTextSelection,
-  ReactNodeViewRenderer,
 } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import EditorBubble from "./editor-bubble";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import IconButton from "@/components/ui/icon-button";
 import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
 import DOMPurify from "dompurify";
-import { NodeSelection } from "@tiptap/pm/state";
-import CodeBlock from "@/components/code/tiptap-code-block";
-import { TabCommand } from "@/components/tiptap-extensions/tab-command";
-
-const CustomTableCell = TableCell.extend({
-  addAttributes() {
-    return {
-      // extend the existing attributes …
-      ...this.parent?.(),
-
-      // and add a new one …
-      backgroundColor: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-background-color"),
-        renderHTML: (attributes) => {
-          return {
-            "data-background-color": attributes.backgroundColor,
-            style: `background-color: ${attributes.backgroundColor}`,
-          };
-        },
-      },
-    };
-  },
-});
-
-const extensions = [
-  Table.configure({
-    resizable: true,
-  }),
-  TableRow,
-  TableHeader,
-  // Default TableCell
-  // TableCell,
-  // Custom TableCell with backgroundColor attribute
-  CustomTableCell,
-  CodeBlockLowlight.extend({
-    addNodeView() {
-      return ReactNodeViewRenderer(CodeBlock);
-    },
-  }).configure({
-    lowlight: createLowlight(common),
-    languageClassPrefix: "language-",
-  }),
-  TabCommand,
-  SandboxExtension,
-  Color.configure({ types: [TextStyle.name, ListItem.name] }),
-  TextStyle.configure({ types: [ListItem.name] }),
-  StarterKit.configure({
-    bulletList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-    orderedList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-    },
-    codeBlock: false,
-  }),
-  BubbleMenuExtension.configure({
-    shouldShow: ({ editor, view, state, from, to }) => {
-      if (!view.hasFocus()) return false;
-      const { doc, selection } = state;
-      const isText = isTextSelection(selection);
-      if (!isText) return false;
-      const isEmpty =
-        selection.empty || (isText && doc.textBetween(from, to).length === 0);
-      if (isEmpty) return false;
-      if (editor.isActive("codeBlock")) return false;
-      if (editor.isActive("table")) return false;
-      if (editor.isActive("live-code-block") || editor.isActive("image"))
-        return false;
-      console.log(editor.isActive("live-code-block"));
-      return true;
-    },
-  }),
-  Image.configure({
-    HTMLAttributes: {
-      class: "w-[500px] h-[500px]",
-    },
-  }),
-  Dropcursor,
-  Document,
-  TrailingNodeExtension,
-  CommandsExtension,
-];
+import extensions from "./extensions";
+import { Separator } from "@/components/ui/separator";
+import { NodeSelector } from "./selectors/node-selector";
+import { LinkSelector } from "./selectors/link-selector";
+import { TextButtons } from "./selectors/text-buttons";
+import { ColorSelector } from "./selectors/color-selector";
 
 export const tableHTML = `
   <table style="width:100%">
@@ -154,6 +56,7 @@ const b: number = 2;
 const c: number = a + b;
   </code>
 </pre>
+<p>Hello</p>
 `;
 
 const ICON_BUTTON_CLASSNAMES =
@@ -361,23 +264,11 @@ type EditorProps = {
 const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const editor = useEditor({
     immediatelyRender: false,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({}) => {
       onContentUpdate();
     },
     onCreate: ({ editor }) => {
       onContentUpdate();
-    },
-    onTransaction: ({ editor, transaction }) => {
-      const selection = transaction.selection;
-      if (
-        selection instanceof NodeSelection &&
-        selection.node.type.name === "image"
-      ) {
-        const node = selection.node;
-
-        console.log("Image selected:", node.attrs.src);
-        setOpenImageDialog(true);
-      }
     },
     extensions: extensions,
     content: content,
@@ -390,6 +281,9 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   });
   const [openImageDialog, setOpenImageDialog] = useState(false);
   const [image, setImage] = useState<string | File | null>(null);
+  const [openNode, setOpenNode] = useState(false);
+  const [openColor, setOpenColor] = useState(false);
+  const [openLink, setOpenLink] = useState(false);
 
   const onContentUpdate = () => {
     console.log("onContentUpdate");
@@ -426,109 +320,67 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     }
   }, [image]);
 
-  console.log(editor?.getHTML());
+  useEffect(() => {
+    if (editor) {
+      const editorElement = editor.view.dom;
+      editorElement.addEventListener("openImageDialog", () => {
+        setOpenImageDialog(true);
+      });
+      return () => {
+        editorElement.removeEventListener("openImageDialog", () => {});
+      };
+    }
+  }, [editor, openImageDialog]);
+
   return (
     <>
-      {editor && (
-        <BubbleMenu
-          className={cn("bubble-menu p-1", ICON_BUTTON_CLASSNAMES)}
-          tippyOptions={{ duration: 100 }}
-          editor={editor}
+      <EditorBubble
+        tippyOptions={{
+          placement: "top",
+        }}
+        className="flex w-fit max-w-[90vw] overflow-hidden rounded-md border border-muted bg-background shadow-xl"
+        editor={editor}
+      >
+        {/* <IconButton
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className={editor.isActive("bold") ? "is-active" : ""}
         >
-          <IconButton
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={editor.isActive("bold") ? "is-active" : ""}
-          >
-            <Icons.Bold />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={editor.isActive("italic") ? "is-active" : ""}
-          >
-            <Icons.Italic />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={editor.isActive("strike") ? "is-active" : ""}
-          >
-            <Icons.Strikethrough />
-          </IconButton>
-        </BubbleMenu>
-      )}
-
-      {/* {editor && (
-        <FloatingMenu
-          className={cn(
-            "floating-menu p-1",
-            ICON_BUTTON_CLASSNAMES,
-            openImageDialog ? "hidden" : ""
-          )}
-          tippyOptions={{ duration: 100 }}
-          editor={editor}
+          <Icons.Bold />
+        </IconButton>
+        <IconButton
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          className={editor.isActive("italic") ? "is-active" : ""}
         >
-          <IconButton
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 1 }) ? "is-active" : ""
-            }
-          >
-            <Icons.Heading1 />
-          </IconButton>
-          <IconButton
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            className={
-              editor.isActive("heading", { level: 2 }) ? "is-active" : ""
-            }
-          >
-            <Icons.Heading2 />
-          </IconButton>
-          <IconButton
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={editor.isActive("bulletList") ? "is-active" : ""}
-          >
-            <Icons.List />
-          </IconButton>
-          <IconButton
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .insertContent("<live-code-block></live-code-block>")
-                .run()
-            }
-            className={editor.isActive("live-code-block") ? "is-active" : ""}
-          >
-            <Icons.codePen />
-          </IconButton>
-          <IconButton
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .insertContent(tableHTML, {
-                  parseOptions: {
-                    preserveWhitespace: false,
-                  },
-                })
-                .run()
-            }
-          >
-            <Icons.Table />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setOpenImageDialog(true);
-            }}
-          >
-            <Icons.image />
-          </IconButton>
-        </FloatingMenu>
-      )} */}
+          <Icons.Italic />
+        </IconButton>
+        <IconButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          className={editor.isActive("strike") ? "is-active" : ""}
+        >
+          <Icons.Strikethrough />
+        </IconButton> */}
+        <Separator orientation="vertical" />
+        <NodeSelector
+          open={openNode}
+          onOpenChange={setOpenNode}
+          editor={editor}
+        />
+        <Separator orientation="vertical" />
 
+        <LinkSelector
+          open={openLink}
+          onOpenChange={setOpenLink}
+          editor={editor}
+        />
+        <Separator orientation="vertical" />
+        <TextButtons editor={editor} />
+        <Separator orientation="vertical" />
+        <ColorSelector
+          open={openColor}
+          onOpenChange={setOpenColor}
+          editor={editor}
+        />
+      </EditorBubble>
       <EditorContent
         editor={editor}
         className={openImageDialog ? "blur-sm" : ""}
@@ -549,9 +401,9 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
 
 const TipTapEditor = ({ editorRef, setEditorContent }: EditorProps) => {
   return (
-    <EditorProvider slotBefore={<MenuBar />} extensions={extensions}>
-      <Editor editorRef={editorRef} setEditorContent={setEditorContent} />
-    </EditorProvider>
+    // <EditorProvider extensions={extensions}>
+    <Editor editorRef={editorRef} setEditorContent={setEditorContent} />
+    // </EditorProvider>
   );
 };
 

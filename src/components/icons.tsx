@@ -42,6 +42,12 @@ import {
   Send,
   MessageSquare,
   ChevronDown,
+  Download,
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  StrikethroughIcon,
+  CodeIcon,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -88,6 +94,11 @@ export const Icons = {
   terminal: Terminal,
   create: Plus,
   chevronDown: ChevronDown,
+  download: Download,
+  bold: BoldIcon,
+  italic: ItalicIcon,
+  underline: UnderlineIcon,
+  strikethrough: StrikethroughIcon,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

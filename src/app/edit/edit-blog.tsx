@@ -1,9 +1,8 @@
 "use client";
+
 import React, { useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import "@/app/mdx.css";
 import { motion, LayoutGroup } from "framer-motion";
-import { useTheme } from "next-themes";
 import { Editor as EditorType } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
@@ -13,7 +12,7 @@ import { htmlParserOptions } from "@/config/html-parser";
 import { Separator } from "@/components/ui/separator";
 import DOMPurify from "dompurify";
 
-const TipTapEditor = dynamic(() => import("@/app/edit/tiptap-editor"), {
+const TipTapEditor = dynamic(() => import("@/app/(editor)/editor"), {
   ssr: false,
 });
 
@@ -45,16 +44,15 @@ const Editor = () => {
     return null;
   }
 
-  console.log(editorContent);
   return (
     <LayoutGroup>
       <div
         className={cn(
-          "mt-8 flex flex-col gap-4 justify-center items-center w-full max-w-7xl mx-auto",
+          "mt-8 flex flex-col gap-1 justify-center items-center w-full max-w-7xl mx-auto",
           mode === "split-pane" && "max-w-[calc(100dvw-4rem)]"
         )}
       >
-        <div className="flex justify-end w-full mb-4 space-x-4 mr-4">
+        <div className="flex justify-end w-full space-x-4 mr-4">
           <ToggleGroup
             iconsWithTooltip={[
               {

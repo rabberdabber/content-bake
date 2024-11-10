@@ -13,14 +13,19 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
+import GlobalDragHandle from "tiptap-extension-global-drag-handle";
+import { ReactNodeViewRenderer } from "@tiptap/react";
+import Placeholder from "@tiptap/extension-placeholder";
+import StarterKit from "@tiptap/starter-kit";
+import Youtube from "@tiptap/extension-youtube";
+import Video from "@/components/tiptap-extensions/video";
 import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
 import TrailingNodeExtension from "@/components/tiptap-extensions/trailing-node";
 import CommandsExtension from "@/components/tiptap-extensions/commands";
-import { ReactNodeViewRenderer } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import CodeBlock from "@/components/code/tiptap-code-block";
 import { TabCommand } from "@/components/tiptap-extensions/tab-command";
-import Placeholder from "@tiptap/extension-placeholder";
+import { cn } from "@/lib/utils";
+import commandSuggestions from "@/components/tiptap-extensions/commands-suggestion";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -44,6 +49,7 @@ const CustomTableCell = TableCell.extend({
 });
 
 const extensions = [
+  GlobalDragHandle,
   Table.configure({
     resizable: true,
   }),
@@ -57,12 +63,17 @@ const extensions = [
   }).configure({
     lowlight: createLowlight(common),
     languageClassPrefix: "language-",
+    HTMLAttributes: {
+      class: cn(
+        "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
+      ),
+    },
   }),
   TabCommand,
   SandboxExtension,
   Color.configure({ types: [TextStyle.name, ListItem.name] }),
   Highlight.configure({ multicolor: true }),
-  TextStyle.configure({ types: [ListItem.name] }),
+  TextStyle,
   Underline,
   Link.configure({
     openOnClick: false,
@@ -71,18 +82,48 @@ const extensions = [
   }),
   StarterKit.configure({
     bulletList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+      HTMLAttributes: {
+        class: cn("list-disc list-outside leading-3 -mt-2"),
+      },
     },
     orderedList: {
-      keepMarks: true,
-      keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
+      HTMLAttributes: {
+        class: cn("list-decimal list-outside leading-3 -mt-2"),
+      },
     },
-    codeBlock: false,
+    listItem: {
+      HTMLAttributes: {
+        class: cn("leading-normal -mb-2"),
+      },
+    },
+    blockquote: {
+      HTMLAttributes: {
+        class: cn("border-l-4 border-primary"),
+      },
+    },
+    codeBlock: {
+      HTMLAttributes: {
+        class: cn(
+          "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
+        ),
+      },
+    },
+    code: {
+      HTMLAttributes: {
+        class: cn("rounded-md bg-muted px-1.5 py-1 font-mono font-medium"),
+        spellcheck: "false",
+      },
+    },
+    horizontalRule: false,
+    dropcursor: {
+      color: "#DBEAFE",
+      width: 4,
+    },
+    gapcursor: false,
   }),
   Image.configure({
     HTMLAttributes: {
-      class: "w-[500px] h-[500px]",
+      class: cn("rounded-md border"),
     },
   }),
   Dropcursor,
@@ -92,6 +133,8 @@ const extensions = [
   Placeholder.configure({
     placeholder: "Press '/' for commands",
   }),
+  Youtube,
+  Video,
 ];
 
 export default extensions;

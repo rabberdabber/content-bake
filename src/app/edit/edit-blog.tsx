@@ -89,7 +89,7 @@ const Editor = () => {
               exit={{ opacity: 0, x: 50 }}
               transition={{ duration: 0.75 }}
               className={cn(
-                `prose dark:prose-invert border flex-1 shadow-md rounded-lg p-4 ${
+                `border flex-1 shadow-md rounded-lg p-4 ${
                   isSplitPane
                     ? "mr-2 min-w-[calc(50%-2rem)]"
                     : "min-w-full w-full"
@@ -117,14 +117,14 @@ const Editor = () => {
               className={cn("flex-1", mode === "editor" ? "hidden" : "")}
               layoutId="preview"
             >
-              <article>
+              <article className="relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg">
                 <div
                   ref={blogRef}
                   className={
-                    "relative max-w-full mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg"
+                    "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert"
                   }
                 >
-                  <div className="flex flex-col justify-center gap-8">
+                  <div className="flex flex-col justify-center items-center gap-8">
                     {parse(editorContent, htmlParserOptions)}
                   </div>
                 </div>

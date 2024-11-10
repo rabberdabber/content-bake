@@ -1,150 +1,75 @@
+// import { Extension } from "@tiptap/core";
+// import Suggestion from "@tiptap/suggestion";
+// import { Editor, Range } from "@tiptap/core";
+// import commandSuggestions from "./commands-suggestion";
+
+// declare module "@tiptap/core" {
+//   interface Commands<ReturnType> {
+//     liveCodeBlock: {
+//       /**
+//        * Add a live code block
+//        */
+//       setLiveCodeBlock: (attributes?: {
+//         language?: string;
+//         isWidget?: boolean;
+//       }) => ReturnType;
+//     };
+//   }
+// }
+
+// declare module "@tiptap/core" {
+//   interface NodeConfig {
+//     "live-code-block": {
+//       language: string | null;
+//       isWidget: boolean;
+//     };
+//   }
+// }
+
+// const CommandsExtension = Extension.create({
+//   name: "commands",
+
+//   addOptions() {
+//     return {
+//       suggestion: {
+//         char: "/",
+//         command: ({
+//           editor,
+//           range,
+//           props,
+//         }: {
+//           editor: Editor;
+//           range: Range;
+//           props: any;
+//         }) => {
+//           props.command({ editor, range });
+//         },
+//         ...commandSuggestions,
+//       },
+//     };
+//   },
+
+//   addProseMirrorPlugins() {
+//     return [
+//       Suggestion({
+//         editor: this.editor,
+//         ...this.options.suggestion,
+//       }),
+//     ];
+//   },
+// });
+
+// export default CommandsExtension;
+
 import { Extension } from "@tiptap/core";
-import Suggestion from "@tiptap/suggestion";
-import tippy from "tippy.js";
-import { ReactRenderer } from "@tiptap/react";
-import CommandsList from "./command-list";
-import { Icons } from "@/components/icons";
-import { Editor, Range } from "@tiptap/core";
+import { ReactRenderer, type Editor } from "@tiptap/react";
+import Suggestion, { SuggestionOptions } from "@tiptap/suggestion";
+import tippy, { Instance, Props } from "tippy.js";
+import { EditorCommandOut } from "@/components/editor_command";
+import commandSuggestions from "./commands-suggestion";
 
-interface CommandsListRef {
-  onKeyDown: (props: any) => boolean;
-}
-
-const suggestions = {
-  items: ({ query }: { query: string }) => {
-    return [
-      {
-        title: "Heading 1",
-        icon: <Icons.Heading1 />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("heading", { level: 1 })
-            .run();
-        },
-      },
-      {
-        title: "Heading 2",
-        icon: <Icons.Heading2 />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("heading", { level: 2 })
-            .run();
-        },
-      },
-      {
-        title: "code block",
-        icon: <Icons.code />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("codeBlock", { language: "typescript" })
-            .run();
-        },
-      },
-      {
-        title: "live code block",
-        icon: <Icons.codePen />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent("<live-code-block></live-code-block>")
-            .run();
-        },
-      },
-      {
-        title: "Image",
-        icon: <Icons.image />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor.view.dom.dispatchEvent(
-            new CustomEvent("openImageDialog", {
-              bubbles: true,
-              cancelable: true,
-            })
-          );
-        },
-      },
-    ]
-      .filter((item) =>
-        item.title.toLowerCase().startsWith(query.toLowerCase())
-      )
-      .slice(0, 10);
-  },
-
-  render: () => {
-    let reactRenderer: ReactRenderer;
-    let popup: any;
-
-    return {
-      onStart: (props: any) => {
-        reactRenderer = new ReactRenderer(CommandsList, {
-          props,
-          editor: props.editor,
-        });
-
-        if (!props.clientRect) {
-          return;
-        }
-
-        popup = tippy("body", {
-          getReferenceClientRect: props.clientRect,
-          appendTo: () => document.body,
-          content: reactRenderer.element,
-          showOnCreate: true,
-          interactive: true,
-          trigger: "manual",
-          placement: "bottom-start",
-          theme: "dark",
-          arrow: true,
-          maxWidth: "none",
-        });
-      },
-
-      onUpdate(props: any) {
-        reactRenderer.updateProps(props);
-
-        if (!props.clientRect) {
-          return;
-        }
-
-        popup[0].setProps({
-          getReferenceClientRect: props.clientRect,
-        });
-      },
-
-      onKeyDown(props: any) {
-        if (props.event.key === "Escape") {
-          popup[0].hide();
-          return true;
-        } else if (props.event.key === "Enter") {
-          (reactRenderer.ref as CommandsListRef)?.onKeyDown(props);
-          popup[0].hide();
-          return true;
-        }
-
-        return (reactRenderer.ref as CommandsListRef)?.onKeyDown(props);
-      },
-
-      onExit() {
-        popup[0].destroy();
-        reactRenderer.destroy();
-      },
-    };
-  },
-};
-
-const CommandsExtension = Extension.create({
-  name: "commands",
-
+const CommandExtension = Extension.create({
+  name: "slash-command",
   addOptions() {
     return {
       suggestion: {
@@ -159,20 +84,15 @@ const CommandsExtension = Extension.create({
           props: any;
         }) => {
           props.command({ editor, range });
+          editor.commands.focus();
         },
-        ...suggestions,
+        ...commandSuggestions,
       },
     };
   },
-
   addProseMirrorPlugins() {
-    return [
-      Suggestion({
-        editor: this.editor,
-        ...this.options.suggestion,
-      }),
-    ];
+    return [Suggestion({ editor: this.editor, ...this.options.suggestion })];
   },
 });
 
-export default CommandsExtension;
+export default CommandExtension;

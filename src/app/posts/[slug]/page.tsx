@@ -1,9 +1,7 @@
-import "@/app/mdx.css";
 import { Metadata } from "next";
 import { loadBlogPost } from "@/file-helper";
 
 import BlogHero from "@/components/blog-hero";
-
 interface PageProps {
   params: {
     slug: string;

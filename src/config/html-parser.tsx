@@ -9,6 +9,7 @@ import {
 import { cn } from "../lib/utils";
 import Sandbox from "@/components/code/live-code-block";
 import CodeBlock from "@/components/code/code-block";
+import VideoPlayer from "@/components/video-player";
 
 export const htmlParserOptions: HTMLReactParserOptions = {
   replace({
@@ -232,10 +233,31 @@ export const htmlParserOptions: HTMLReactParserOptions = {
           </code>
         );
       case "live-code-block":
+        if (attribs["data-is-widget"] !== undefined) {
+          return (
+            <div className="mt-2">
+              <Sandbox
+                showPreview
+                previewOnly
+                showConsole={false}
+                showEditor={false}
+                showTitleBar={false}
+              />
+            </div>
+          );
+        }
         return (
           <div className="mt-2">
-            <Sandbox />
+            <Sandbox showEditor showPreview />
           </div>
+        );
+      case "video":
+        return (
+          <VideoPlayer
+            src={attribs.src as string}
+            width={attribs.width ? Number(attribs.width) : 500}
+            height={attribs.height ? Number(attribs.height) : 500}
+          />
         );
     }
   },

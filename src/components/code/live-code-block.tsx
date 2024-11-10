@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   SandpackCodeEditor,
   SandpackLayout,
@@ -13,39 +12,81 @@ import { atomDark } from "@codesandbox/sandpack-themes";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
+type SandPackContentProps = {
+  showFileExplorer?: boolean;
+  showPreview?: boolean;
+  showConsole?: boolean;
+  showEditor?: boolean;
+  showTitleBar?: boolean;
+  previewOnly?: boolean;
+};
+
 const templateFiles = {
   "/App.js": `
 import React from 'react';
 import './index.css';
 
 function App() {
-  const [count, setCount] = React.useState(0);
-  
   return (
-    <button onClick={() => setCount(count + 1)}>
-      Count: {count}
-    </button>
+    <div className="circle-grid">
+      {[...Array(20)].map((_, index) => (
+        <div key={index} className="circle"></div>
+      ))}
+    </div>
   );
 }
+
 export default App;
   `,
   "/index.css": `
-button {
-  background-color: #61dafb;
-  border: none;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  color: hotpink;
+body {
+  margin: 0;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+.circle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.circle {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #3498db, #8e44ad);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.circle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, #e74c3c, #f39c12);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.circle:hover {
+  transform: scale(1.1);
+}
+
+.circle:hover::before {
+  opacity: 1;
 }
   `,
 };
 type SandboxProps = {
   files?: { [key: string]: string };
   template?: SandpackPredefinedTemplate;
-  showFileExplorer?: boolean;
-};
+} & SandPackContentProps;
 
 function TitleBar() {
   return (
@@ -70,68 +111,71 @@ function Console() {
   );
 }
 
-function Preview() {
+function PreviewOnly() {
   return (
-    <>
-      <div className="rounded-b-lg bg-zinc-900 p-4">
-        <div className="overflow-hidden rounded bg-white p-1">
-          <SandpackPreview
-            showOpenInCodeSandbox={false}
-            showRefreshButton={false}
-          />
-        </div>
-      </div>
-    </>
+    <div className="w-full min-h-[500px] h-full">
+      <SandpackPreview
+        showOpenInCodeSandbox={false}
+        showRefreshButton={false}
+        style={{
+          width: "100%",
+          minHeight: "500px",
+          overflow: "hidden",
+        }}
+      />
+    </div>
   );
 }
 
 const SandboxContent = ({
-  showFileExplorer = false,
-}: {
-  showFileExplorer: boolean;
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative flex gap-0.5 my-auto mx-0"
-    >
+  previewOnly,
+  showFileExplorer,
+  showPreview,
+  showEditor,
+  showConsole,
+  showTitleBar,
+}: SandPackContentProps) => {
+  return previewOnly ? (
+    <PreviewOnly />
+  ) : (
+    <div className="flex gap-0.5 min-h-[500px] h-full w-full">
       <SandpackLayout className="!block !rounded-none sm:!rounded-lg !-mx-4 sm:!mx-0">
-        <TitleBar />
-        <div className="flex">
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: showFileExplorer ? "25%" : 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className={cn(
-              "border-r border-zinc-700",
-              showFileExplorer ? "w-1/4" : "hidden"
+        {showTitleBar && <TitleBar />}
+        <div className="flex w-full">
+          {showFileExplorer && (
+            <div
+              className={cn(
+                "border-r border-zinc-700",
+                showFileExplorer && "w-1/4"
+              )}
+            >
+              <SandpackFileExplorer />
+            </div>
+          )}
+          <div className="flex-1 flex min-h-[500px]">
+            {showEditor && (
+              <div className="border-r border-zinc-700">
+                <SandpackCodeEditor showTabs />
+              </div>
             )}
-          >
-            <SandpackFileExplorer />
-          </motion.div>
-          <div className="flex-1 flex">
-            <motion.div
-              initial={{ width: "50%" }}
-              animate={{ width: showFileExplorer ? "50%" : "75%" }}
-              transition={{ duration: 0.3 }}
-              className="border-r border-zinc-700"
-            >
-              <SandpackCodeEditor showTabs />
-            </motion.div>
-            <motion.div
-              initial={{ width: "50%" }}
-              animate={{ width: showFileExplorer ? "50%" : "25%" }}
-              transition={{ duration: 0.3 }}
-            >
-              <Preview />
-            </motion.div>
+            {showPreview && (
+              <div className="border-l border-zinc-700 flex-1 min-h-[500px]">
+                <SandpackPreview
+                  showOpenInCodeSandbox={false}
+                  showRefreshButton={false}
+                  style={{
+                    width: "100%",
+                    minHeight: "500px",
+                    overflow: "hidden",
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
-        {/* <Console /> */}
+        {showConsole && <Console />}
       </SandpackLayout>
-    </motion.div>
+    </div>
   );
 };
 
@@ -139,6 +183,11 @@ const Sandbox = ({
   files = templateFiles,
   template = "react",
   showFileExplorer = false,
+  showPreview = true,
+  showEditor = true,
+  showConsole = false,
+  showTitleBar = true,
+  previewOnly = false,
 }: SandboxProps) => {
   const [isClient, setIsClient] = useState(false);
 
@@ -152,11 +201,7 @@ const Sandbox = ({
 
   return (
     <NodeViewWrapper className="live-code-block">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      >
+      <div className="mt-[1rem] min-w-[500px] min-h-[500px]">
         <SandpackProvider
           template={template}
           theme={atomDark}
@@ -170,9 +215,16 @@ const Sandbox = ({
             initModeObserverOptions: { rootMargin: `1000px 0px` },
           }}
         >
-          <SandboxContent showFileExplorer={showFileExplorer} />
+          <SandboxContent
+            showFileExplorer={showFileExplorer}
+            showPreview={showPreview}
+            showEditor={showEditor}
+            showConsole={showConsole}
+            showTitleBar={showTitleBar}
+            previewOnly={previewOnly}
+          />
         </SandpackProvider>
-      </motion.div>
+      </div>
     </NodeViewWrapper>
   );
 };

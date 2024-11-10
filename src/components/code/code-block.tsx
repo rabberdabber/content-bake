@@ -111,13 +111,15 @@ const CodeBlock = ({ children }: CodeBlockProps) => {
   };
 
   const renderHighlight = (isCollapsed: boolean = false) => (
-    <Highlight theme={themes.nightOwl} code={code.trim()} language={language}>
+    <Highlight
+      theme={themes.jettwaveDark}
+      code={code.trim()}
+      language={language}
+    >
       {({ className, style, tokens, getLineProps, getTokenProps }) => {
         const isOverflowing =
           preRef.current && preRef.current.scrollHeight > MAX_HEIGHT;
 
-        console.log(isOverflowing);
-        console.log(preRef.current?.scrollHeight);
         return (
           <div className="relative">
             <div className="absolute top-0 right-0 translate-y-2 -translate-x-4 flex gap-4">
@@ -209,19 +211,22 @@ const CodeBlock = ({ children }: CodeBlockProps) => {
     <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
-      className="w-full space-y-2"
+      className="w-full space-y-2 max-w-[800px]"
     >
-      <div className="relative max-w-[800px]">
-        <div className="absolute top-0 right-0 -translate-y-[110%]">
-          {language && <Badge variant="outline">{language}</Badge>}
+      {!isOpen && (
+        <div className="relative">
+          <div className="absolute top-0 right-0 -translate-y-[110%]">
+            {language && <Badge variant="outline">{language}</Badge>}
+          </div>
+          {renderHighlight(!isOpen)}
         </div>
-        {renderHighlight(!isOpen)}
-      </div>
+      )}
       {isOverflowing && (
         <>
           <CollapsibleContent>{renderHighlight()}</CollapsibleContent>
           <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full">
+            <Button variant="ghost" className="w-full">
+              {isOpen ? <Icons.chevronUp /> : <Icons.chevronDown />}
               {isOpen ? "Show less" : "Show more"}
             </Button>
           </CollapsibleTrigger>

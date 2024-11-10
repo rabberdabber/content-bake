@@ -17,6 +17,11 @@ const linkHeadingStyles = {
 const config = {
   plugins: [require("@tailwindcss/typography"), require("tailwindcss-animate")],
   darkMode: ["class"],
+  variants: {
+    extend: {
+      typography: ["dark"],
+    },
+  },
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -125,9 +130,10 @@ const config = {
         DEFAULT: {
           css: {
             pre: {
-              background: "rgba(205, 200, 255, 0.05)",
+              backgroundColor: "#282C34",
+              color: "#ABB2BF",
               code: {
-                fontSize: "1rem",
+                fontSize: "0.75rem",
               },
             },
             "h2 a": linkHeadingStyles,
@@ -176,73 +182,16 @@ const config = {
             "a code": {
               fontSize: "1em",
             },
-            "[data-rehype-pretty-code-fragment]:nth-of-type(2) pre": {
-              "[data-line]::before": {
-                content: "counter(line)",
-                counterIncrement: "line",
-                display: "inline-block",
-                width: "1rem",
-                marginRight: "1rem",
-                textAlign: "right",
-                color: colors.slate[600],
+          },
+        },
+        dark: {
+          css: {
+            pre: {
+              backgroundColor: "#FAFAFA",
+              color: "#333333",
+              code: {
+                fontSize: "0.75rem",
               },
-              "[data-highlighted-line]::before": {
-                color: colors.slate[400],
-              },
-            },
-            "[data-rehype-pretty-code-fragment] code": {
-              display: "grid",
-              minWidth: "100%",
-              wordBreak: "break-word",
-              borderRadius: "0",
-              borderWidth: "0",
-              backgroundColor: "transparent",
-              padding: "0",
-              fontSize: "0.875rem", // Equivalent to text-sm
-              color: colors.black,
-              counterReset: "line",
-              boxDecorationBreak: "clone",
-            },
-            "[data-rehype-pretty-code-fragment] .line": {
-              paddingLeft: "1rem", // Equivalent to px-4
-              paddingRight: "1rem",
-              paddingTop: "0.25rem", // Equivalent to py-1
-              paddingBottom: "0.25rem",
-            },
-            "[data-rehype-pretty-code-fragment] [data-line-numbers] > .line::before":
-              {
-                counterIncrement: "line",
-                content: "counter(line)",
-                display: "inline-block",
-                width: "1rem",
-                marginRight: "1rem",
-                textAlign: "right",
-                color: colors.gray[500],
-              },
-            "[data-rehype-pretty-code-fragment] .line--highlighted": {
-              backgroundColor: colors.slate[300],
-              backgroundOpacity: "10%",
-            },
-            "[data-rehype-pretty-code-fragment] .line-highlighted span": {
-              position: "relative",
-            },
-            "[data-rehype-pretty-code-fragment] .word--highlighted": {
-              borderRadius: "0.375rem", // Equivalent to rounded-md
-              backgroundColor: colors.slate[300],
-              backgroundOpacity: "10%",
-              padding: "0.25rem", // Equivalent to p-1
-            },
-            "[data-rehype-pretty-code-title]": {
-              marginTop: "1rem", // Equivalent to mt-4
-              paddingTop: "0.5rem", // Equivalent to py-2
-              paddingBottom: "0.5rem",
-              paddingLeft: "1rem", // Equivalent to px-4
-              paddingRight: "1rem",
-              fontSize: "0.875rem", // Equivalent to text-sm
-              fontWeight: "500", // Equivalent to font-medium
-            },
-            "[data-rehype-pretty-code-title] + pre": {
-              marginTop: "0",
             },
           },
         },

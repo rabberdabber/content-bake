@@ -76,15 +76,15 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const [value, setValue] = React.useState(defaultLanguage);
 
   return (
-    <NodeViewWrapper className="relative max-w-[600px]">
-      <div className="absolute top-0 right-0 translate-y-1 -translate-x-1">
+    <NodeViewWrapper className="relative max-w-full">
+      <div className="absolute top-0 right-0 translate-y-1 -translate-x-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               role="combobox"
               aria-expanded={open}
-              className="w-[150px] justify-between"
+              className="w-[min-content]"
             >
               {value
                 ? extension.options.lowlight

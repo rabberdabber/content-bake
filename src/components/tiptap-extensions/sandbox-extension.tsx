@@ -12,6 +12,16 @@ export default Node.create({
         default: null,
         parseHTML: (element) => element.getAttribute("data-language"),
       },
+      isWidget: {
+        default: false,
+        parseHTML: (element) => element.hasAttribute("data-is-widget"),
+        renderHTML: (attributes) => {
+          if (!attributes.isWidget) {
+            return {};
+          }
+          return { "data-is-widget": "" };
+        },
+      },
     };
   },
   parseHTML() {

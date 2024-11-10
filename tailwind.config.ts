@@ -133,7 +133,7 @@ const config = {
               backgroundColor: "#282C34",
               color: "#ABB2BF",
               code: {
-                fontSize: "0.75rem",
+                fontSize: "1rem",
               },
             },
             "h2 a": linkHeadingStyles,

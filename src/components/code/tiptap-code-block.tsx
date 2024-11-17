@@ -1,18 +1,11 @@
 import React from "react";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { Icons } from "@/components/icons";
 import { Check, ChevronsUpDown } from "lucide-react";
-
+import { cn } from "@/lib/utils";
+import CollapsibleWrapper, {
+  useCollapsibleWrapper,
+} from "./collapsible-wrapper";
 import {
   Command,
   CommandEmpty,
@@ -65,19 +58,30 @@ interface CodeBlockProps {
   };
 }
 
-const CodeBlock: React.FC<CodeBlockProps> = ({
-  node: {
-    attrs: { language: defaultLanguage },
-  },
-  updateAttributes,
+type CodeBlockContentProps = {
+  value: SupportedLanguage;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  setValue: (value: SupportedLanguage) => void;
+  defaultLanguage: SupportedLanguage;
+  extension: CodeBlockProps["extension"];
+  updateAttributes: CodeBlockProps["updateAttributes"];
+};
+
+const CodeBlockContent = ({
+  value,
+  open,
+  setOpen,
+  setValue,
+  defaultLanguage,
   extension,
-}) => {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(defaultLanguage);
+  updateAttributes,
+}: CodeBlockContentProps) => {
+  const { isExpanded } = useCollapsibleWrapper();
 
   return (
-    <NodeViewWrapper className="relative max-w-full">
-      <div className="absolute top-0 right-0 translate-y-1 -translate-x-2">
+    <>
+      <div className="absolute top-0 right-0 translate-y-full -translate-x-2">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -131,9 +135,42 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           </PopoverContent>
         </Popover>
       </div>
-      <pre>
-        <NodeViewContent as="code" />
+      <pre
+        className={cn(
+          "overflow-x-auto",
+          !isExpanded && "max-h-[400px] overflow-hidden"
+        )}
+        spellCheck="false"
+      >
+        <NodeViewContent as="code" spellCheck="false" />
       </pre>
+    </>
+  );
+};
+
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  node: {
+    attrs: { language: defaultLanguage },
+  },
+  updateAttributes,
+  extension,
+}) => {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(defaultLanguage);
+
+  return (
+    <NodeViewWrapper className="relative max-w-full">
+      <CollapsibleWrapper maxHeight={400}>
+        <CodeBlockContent
+          value={value}
+          open={open}
+          setOpen={setOpen}
+          setValue={setValue}
+          defaultLanguage={defaultLanguage}
+          extension={extension}
+          updateAttributes={updateAttributes}
+        />
+      </CollapsibleWrapper>
     </NodeViewWrapper>
   );
 };

@@ -11,6 +11,9 @@ import { SandpackFileExplorer } from "sandpack-file-explorer";
 import { atomDark } from "@codesandbox/sandpack-themes";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import CollapsibleWrapper, {
+  useCollapsibleWrapper,
+} from "./collapsible-wrapper";
 
 type SandPackContentProps = {
   showFileExplorer?: boolean;
@@ -135,11 +138,18 @@ const SandboxContent = ({
   showConsole,
   showTitleBar,
 }: SandPackContentProps) => {
+  const { isExpanded } = useCollapsibleWrapper();
+
   return previewOnly ? (
     <PreviewOnly />
   ) : (
-    <div className="flex gap-0.5 min-h-[500px] h-full w-full">
-      <SandpackLayout className="!block !rounded-none sm:!rounded-lg !-mx-4 sm:!mx-0">
+    <div
+      className={cn(
+        "flex gap-0.5 w-full",
+        isExpanded ? "h-full" : "max-h-[400px]"
+      )}
+    >
+      <SandpackLayout className="!block !rounded-none sm:!rounded-lg !-mx-4 sm:!mx-0 w-full">
         {showTitleBar && <TitleBar />}
         <div className="flex w-full">
           {showFileExplorer && (
@@ -152,20 +162,25 @@ const SandboxContent = ({
               <SandpackFileExplorer />
             </div>
           )}
-          <div className="flex-1 flex min-h-[500px]">
+          <div className="flex-1 flex">
             {showEditor && (
               <div className="border-r border-zinc-700">
-                <SandpackCodeEditor showTabs />
+                <SandpackCodeEditor
+                  showTabs
+                  style={{
+                    height: isExpanded ? "600px" : "400px",
+                  }}
+                />
               </div>
             )}
             {showPreview && (
-              <div className="border-l border-zinc-700 flex-1 min-h-[500px]">
+              <div className="border-l border-zinc-700 flex-1">
                 <SandpackPreview
                   showOpenInCodeSandbox={false}
                   showRefreshButton={false}
                   style={{
                     width: "100%",
-                    minHeight: "500px",
+                    height: isExpanded ? "600px" : "400px",
                     overflow: "hidden",
                   }}
                 />
@@ -200,30 +215,32 @@ const Sandbox = ({
   }
 
   return (
-    <NodeViewWrapper className="live-code-block">
-      <div className="mt-[1rem] min-w-[500px] min-h-[500px]">
-        <SandpackProvider
-          template={template}
-          theme={atomDark}
-          files={files}
-          options={{
-            autorun: true,
-            recompileMode: "delayed",
-            recompileDelay: 500,
-            experimental_enableServiceWorker: true,
-            initMode: "user-visible",
-            initModeObserverOptions: { rootMargin: `1000px 0px` },
-          }}
-        >
-          <SandboxContent
-            showFileExplorer={showFileExplorer}
-            showPreview={showPreview}
-            showEditor={showEditor}
-            showConsole={showConsole}
-            showTitleBar={showTitleBar}
-            previewOnly={previewOnly}
-          />
-        </SandpackProvider>
+    <NodeViewWrapper className="live-code-block w-full">
+      <div className="mt-[1rem] w-full min-h-[500px]">
+        <CollapsibleWrapper maxHeight={500}>
+          <SandpackProvider
+            template={template}
+            theme={atomDark}
+            files={files}
+            options={{
+              autorun: true,
+              recompileMode: "delayed",
+              recompileDelay: 500,
+              experimental_enableServiceWorker: true,
+              initMode: "user-visible",
+              initModeObserverOptions: { rootMargin: `1000px 0px` },
+            }}
+          >
+            <SandboxContent
+              showFileExplorer={showFileExplorer}
+              showPreview={showPreview}
+              showEditor={showEditor}
+              showConsole={showConsole}
+              showTitleBar={showTitleBar}
+              previewOnly={previewOnly}
+            />
+          </SandpackProvider>
+        </CollapsibleWrapper>
       </div>
     </NodeViewWrapper>
   );

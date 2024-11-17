@@ -1,19 +1,17 @@
-import React, { Key, useRef, useState, useEffect, useMemo } from "react";
-import { Highlight, themes, Token } from "prism-react-renderer";
-import { Badge } from "../ui/badge";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Highlight, themes } from "prism-react-renderer";
 import { Icons } from "../icons";
-import IconButton from "../ui/icon-button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import CollapsibleWrapper, {
+  useCollapsibleWrapper,
+} from "./collapsible-wrapper";
 
-type CodeBlockProps = {
+interface CodeBlockProps {
   children: React.ReactNode;
-  className: string;
-};
+  showLineNumbers?: boolean;
+  fontSize?: string;
+}
 
 const getFileExtension = (language: string): string => {
   const extensionMap: { [key: string]: string } = {
@@ -40,19 +38,81 @@ const getFileExtension = (language: string): string => {
     powershell: "ps1",
     dockerfile: "Dockerfile",
   };
-
-  return extensionMap[language] || "txt";
+  return extensionMap[language] || language;
 };
 
-const highlightClassName =
-  "bg-yellow-100 bg-opacity-20 -mx-5 px-5 border-l-4 border-gray-800";
+function HighlightedCode({
+  code,
+  language,
+  showLineNumbers = true,
+  fontSize = "14px",
+}: {
+  code: string;
+  language: string;
+} & Omit<CodeBlockProps, "children">) {
+  const { maxHeight, setIsOverflowing, isExpanded } = useCollapsibleWrapper();
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (contentRef.current) {
+      setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
+    }
+  }, [maxHeight]);
 
-const MAX_HEIGHT = 400;
+  return (
+    <Highlight theme={themes.nightOwl} code={code.trim()} language={language}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre
+          className={cn(
+            className,
+            "p-4 rounded-lg overflow-x-auto font-mono relative",
+            !isExpanded && "max-h-[400px]"
+          )}
+          style={{
+            ...style,
+            backgroundColor: "#011627",
+            fontSize: fontSize,
+            lineHeight: "1.5",
+            overflow: !isExpanded ? "hidden" : "auto",
+          }}
+        >
+          <div className="relative">
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line })} className="table-row">
+                {showLineNumbers && (
+                  <span
+                    className="table-cell text-gray-500 text-right pr-4 select-none w-12 opacity-50"
+                    style={{ fontSize }}
+                  >
+                    {i + 1}
+                  </span>
+                )}
+                <span className="table-cell">
+                  {line.map((token, key) => (
+                    <span
+                      key={key}
+                      {...getTokenProps({ token })}
+                      style={{
+                        ...getTokenProps({ token }).style,
+                        fontSize,
+                      }}
+                    />
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </pre>
+      )}
+    </Highlight>
+  );
+}
 
-const CodeBlock = ({ children }: CodeBlockProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-  const preRef = useRef<HTMLPreElement>(null);
+function CodeBlock({
+  children,
+  showLineNumbers = true,
+  fontSize = "14px",
+}: CodeBlockProps) {
+  const [copied, setCopied] = useState(false);
 
   const { code, language } = useMemo(() => {
     if (!children || typeof children !== "object") {
@@ -71,169 +131,62 @@ const CodeBlock = ({ children }: CodeBlockProps) => {
     return { code: props.children || "", language };
   }, [children]);
 
-  useEffect(() => {
-    if (preRef.current && preRef.current.scrollHeight > MAX_HEIGHT) {
-      setIsOverflowing(true);
-    }
-  }, [code]);
-
-  if (!code || code.length === 0) return null;
-
-  let highlightStart = false;
-  let highlightNext = false;
-
-  const processLine = (
-    line: Token[]
-  ): { shouldHighlight: boolean; shouldExclude: boolean } => {
-    let shouldHighlight = highlightStart;
-    let shouldExclude = false;
-
-    const commentToken = line.find((token) => token.types.includes("comment"));
-    if (commentToken) {
-      const content = commentToken.content.trim();
-
-      if (content.endsWith("highlight-start")) {
-        highlightStart = true;
-        shouldExclude = true;
-      } else if (content.endsWith("highlight-end")) {
-        highlightStart = false;
-        shouldExclude = true;
-      } else if (content.endsWith("highlight-line")) {
-        highlightNext = true;
-        shouldExclude = true;
-      }
-    } else if (highlightNext) {
-      shouldHighlight = true;
-      highlightNext = false;
-    }
-
-    return { shouldHighlight, shouldExclude };
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const renderHighlight = (isCollapsed: boolean = false) => (
-    <Highlight
-      theme={themes.jettwaveDark}
-      code={code.trim()}
-      language={language}
-    >
-      {({ className, style, tokens, getLineProps, getTokenProps }) => {
-        const isOverflowing =
-          preRef.current && preRef.current.scrollHeight > MAX_HEIGHT;
+  const downloadSnippet = async () => {
+    const extension = getFileExtension(language);
+    const filename = `code.${extension}`;
+    const blob = new Blob([code], {
+      type: "text/plain",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-        return (
-          <div className="relative">
-            <div className="absolute top-0 right-0 translate-y-2 -translate-x-4 flex gap-4">
-              <IconButton className="border border-gray-800 bg-gray-900 p-1">
-                <Icons.copy
-                  onClick={() => {
-                    const processedCode = tokens
-                      .map((line) => {
-                        const { shouldExclude } = processLine(line);
-                        if (shouldExclude) return "";
-                        return line.map((token) => token.content).join("");
-                      })
-                      .filter(Boolean)
-                      .join("\n");
-                    navigator.clipboard.writeText(processedCode);
-                  }}
-                />
-              </IconButton>
-              <IconButton className="border border-gray-800 bg-gray-900 p-1">
-                <Icons.download
-                  onClick={() => {
-                    const processedCode = tokens
-                      .map((line) => {
-                        const { shouldExclude } = processLine(line);
-                        if (shouldExclude) return "";
-                        return line.map((token) => token.content).join("");
-                      })
-                      .filter(Boolean)
-                      .join("\n");
-                    const extension = getFileExtension(language);
-                    const filename = `code.${extension}`;
-                    const blob = new Blob([processedCode], {
-                      type: "text/plain",
-                    });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = filename;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }}
-                />
-              </IconButton>
-            </div>
-            <pre
-              ref={preRef}
-              className={`${className} overflow-x-auto`}
-              style={{
-                ...style,
-                padding: "20px",
-                maxHeight:
-                  isOverflowing && isCollapsed ? `${MAX_HEIGHT}px` : "none",
-                overflow: isOverflowing && isCollapsed ? "hidden" : "auto",
-              }}
-            >
-              {tokens.map((line, i) => {
-                const { key, ...lineProps } = getLineProps({ line, key: i });
-                const { shouldHighlight, shouldExclude } = processLine(line);
-                if (shouldHighlight) {
-                  lineProps.className = `${lineProps.className} ${highlightClassName}`;
-                }
-                if (shouldExclude) {
-                  return null;
-                }
-                return (
-                  <div key={key as Key} {...lineProps}>
-                    {line.map((token, key) => {
-                      const { key: tokenKey, ...tokenProps } = getTokenProps({
-                        token,
-                        key,
-                      });
-                      return (
-                        <span key={tokenKey as Key} {...tokenProps}>
-                          {token.content}
-                        </span>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </pre>
-          </div>
-        );
-      }}
-    </Highlight>
+  const renderCodeBlock = () => (
+    <div className="relative group rounded-lg">
+      <div className="absolute right-4 top-4 z-20 flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 bg-gray-700/50 hover:bg-gray-700 text-gray-100"
+          onClick={downloadSnippet}
+        >
+          <Icons.download className="h-3 w-3" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 bg-gray-700/50 hover:bg-gray-700 text-gray-100"
+          onClick={copyToClipboard}
+        >
+          {copied ? (
+            <Icons.check className="h-3 w-3" />
+          ) : (
+            <Icons.copy className="h-3 w-3" />
+          )}
+        </Button>
+      </div>
+      <HighlightedCode
+        code={code}
+        language={language}
+        showLineNumbers={showLineNumbers}
+        fontSize={fontSize}
+      />
+    </div>
   );
 
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="w-full space-y-2 max-w-[800px]"
-    >
-      {!isOpen && (
-        <div className="relative">
-          <div className="absolute top-0 right-0 -translate-y-[110%]">
-            {language && <Badge variant="outline">{language}</Badge>}
-          </div>
-          {renderHighlight(!isOpen)}
-        </div>
-      )}
-      {isOverflowing && (
-        <>
-          <CollapsibleContent>{renderHighlight()}</CollapsibleContent>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full">
-              {isOpen ? <Icons.chevronUp /> : <Icons.chevronDown />}
-              {isOpen ? "Show less" : "Show more"}
-            </Button>
-          </CollapsibleTrigger>
-        </>
-      )}
-    </Collapsible>
+    <CollapsibleWrapper maxHeight={400}>{renderCodeBlock()}</CollapsibleWrapper>
   );
-};
+}
 
 export default CodeBlock;

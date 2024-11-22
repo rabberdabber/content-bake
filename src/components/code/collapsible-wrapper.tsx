@@ -52,7 +52,6 @@ function CollapsibleWrapper({
     maxHeight,
   };
 
-  console.log(isExpanded, isOverflowing);
   return (
     <CollapsibleWrapperContext.Provider value={contextValue}>
       <Collapsible

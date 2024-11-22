@@ -13,32 +13,62 @@ interface CodeBlockProps {
   fontSize?: string;
 }
 
+interface CodeContent {
+  code: string;
+  language: string;
+}
+
+const LANGUAGE_EXTENSIONS: Record<string, string> = {
+  javascript: "js",
+  typescript: "ts",
+  python: "py",
+  java: "java",
+  cpp: "cpp",
+  csharp: "cs",
+  go: "go",
+  rust: "rs",
+  swift: "swift",
+  kotlin: "kt",
+  ruby: "rb",
+  php: "php",
+  html: "html",
+  css: "css",
+  scss: "scss",
+  json: "json",
+  yaml: "yaml",
+  markdown: "md",
+  sql: "sql",
+  shell: "sh",
+  powershell: "ps1",
+  dockerfile: "Dockerfile",
+};
+
 const getFileExtension = (language: string): string => {
-  const extensionMap: { [key: string]: string } = {
-    javascript: "js",
-    typescript: "ts",
-    python: "py",
-    java: "java",
-    cpp: "cpp",
-    csharp: "cs",
-    go: "go",
-    rust: "rs",
-    swift: "swift",
-    kotlin: "kt",
-    ruby: "rb",
-    php: "php",
-    html: "html",
-    css: "css",
-    scss: "scss",
-    json: "json",
-    yaml: "yaml",
-    markdown: "md",
-    sql: "sql",
-    shell: "sh",
-    powershell: "ps1",
-    dockerfile: "Dockerfile",
-  };
-  return extensionMap[language] || language;
+  return LANGUAGE_EXTENSIONS[language] || language;
+};
+
+const parseCodeContent = (children: React.ReactNode): CodeContent => {
+  if (!children || typeof children !== "object") {
+    return { code: "", language: "" };
+  }
+
+  const element = children as React.ReactElement<{
+    className: string;
+    children: string | string[];
+  }>;
+
+  // Extract code content
+  const rawCode = element.props.children;
+  const code = Array.isArray(rawCode) ? rawCode.join("") : rawCode || "";
+
+  // Extract language from className
+  const classNames = element.props.className?.split(" ") || [];
+  const languageClass = classNames.find((className) =>
+    className.startsWith("language-")
+  );
+  const language = languageClass ? languageClass.replace("language-", "") : "";
+
+  return { code, language };
 };
 
 function HighlightedCode({
@@ -51,7 +81,7 @@ function HighlightedCode({
   language: string;
 } & Omit<CodeBlockProps, "children">) {
   const { maxHeight, setIsOverflowing, isExpanded } = useCollapsibleWrapper();
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLPreElement>(null);
   useEffect(() => {
     if (contentRef.current) {
       setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
@@ -62,6 +92,7 @@ function HighlightedCode({
     <Highlight theme={themes.nightOwl} code={code.trim()} language={language}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
         <pre
+          ref={contentRef}
           className={cn(
             className,
             "p-4 rounded-lg overflow-x-auto font-mono relative",
@@ -114,22 +145,10 @@ function CodeBlock({
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
-  const { code, language } = useMemo(() => {
-    if (!children || typeof children !== "object") {
-      return { code: "", language: "" };
-    }
-
-    const { props } = children as React.ReactElement<{
-      className: string;
-      children: string;
-    }>;
-    const classNames = props.className?.split(" ") || [];
-    const lastClassName = classNames.at(-1);
-    const language = lastClassName
-      ? lastClassName.replace(/language-/, "")
-      : "";
-    return { code: props.children || "", language };
-  }, [children]);
+  const { code, language } = useMemo(
+    () => parseCodeContent(children),
+    [children]
+  );
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(code);

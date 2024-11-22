@@ -1,10 +1,4 @@
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  createContext,
-  useContext,
-} from "react";
+import React, { useRef, useState, createContext, useContext } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -58,12 +52,13 @@ function CollapsibleWrapper({
     maxHeight,
   };
 
+  console.log(isExpanded, isOverflowing);
   return (
     <CollapsibleWrapperContext.Provider value={contextValue}>
       <Collapsible
         open={isExpanded}
         onOpenChange={setIsExpanded}
-        className={cn("w-full", className)}
+        className={cn("w-full relative", className)}
       >
         {!isExpanded && (
           <div
@@ -78,31 +73,35 @@ function CollapsibleWrapper({
         <CollapsibleContent>{children}</CollapsibleContent>
 
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            className={cn(
-              "rounded-none",
-              "w-full justify-center",
-              "bg-[#011627] text-gray-400",
-              "hover:bg-gray-800 hover:text-gray-50",
-              "dark:bg-[#011627] dark:text-gray-400",
-              "dark:hover:bg-gray-800 dark:hover:text-gray-50",
-              "border border-gray-800 dark:border-gray-800",
-              "justify-start"
-            )}
-          >
-            {isExpanded ? (
-              <div className="flex items-center gap-2">
-                <Icons.chevronUp />
-                <span>Show less</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Icons.chevronDown />
-                <span>Show more</span>
-              </div>
-            )}
-          </Button>
+          {(isExpanded || isOverflowing) && (
+            <Button
+              variant="ghost"
+              className={cn(
+                "absolute bottom-0",
+                "rounded-none",
+                "w-full justify-center",
+                "bg-[#011627] text-gray-400",
+                "hover:bg-gray-800 hover:text-gray-50",
+                "dark:bg-[#011627] dark:text-gray-400",
+                "dark:hover:bg-gray-800 dark:hover:text-gray-50",
+                "border border-gray-800 dark:border-gray-800",
+                "justify-start"
+              )}
+            >
+              {isExpanded && (
+                <div className="flex items-center gap-2">
+                  <Icons.chevronUp />
+                  <span>Show less</span>
+                </div>
+              )}
+              {isOverflowing && !isExpanded && (
+                <div className="flex items-center gap-2">
+                  <Icons.chevronDown />
+                  <span>Show more</span>
+                </div>
+              )}
+            </Button>
+          )}
         </CollapsibleTrigger>
       </Collapsible>
     </CollapsibleWrapperContext.Provider>

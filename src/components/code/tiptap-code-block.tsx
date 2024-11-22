@@ -1,26 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CollapsibleWrapper, {
   useCollapsibleWrapper,
 } from "./collapsible-wrapper";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import LanguageSelector from "./language-selector";
 
-type SupportedLanguage =
+export type SupportedLanguage =
   | "javascript"
   | "typescript"
   | "tsx"
@@ -77,71 +63,36 @@ const CodeBlockContent = ({
   extension,
   updateAttributes,
 }: CodeBlockContentProps) => {
-  const { isExpanded } = useCollapsibleWrapper();
+  const { isExpanded, setIsOverflowing, maxHeight } = useCollapsibleWrapper();
+  const contentRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
+    }
+  }, [maxHeight]);
 
   return (
     <>
-      <div className="absolute top-0 right-0 translate-y-full -translate-x-2">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-[min-content]"
-            >
-              {value
-                ? extension.options.lowlight
-                    .listLanguages()
-                    .find((lang) => lang === value)
-                    ?.charAt(0)
-                    .toUpperCase() + value.slice(1)
-                : "Select Language..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder="Search Language..." />
-              <CommandList>
-                <CommandEmpty>No Language found.</CommandEmpty>
-                <CommandGroup>
-                  {extension.options.lowlight
-                    .listLanguages()
-                    .map((lang, index) => (
-                      <CommandItem
-                        key={index}
-                        value={lang}
-                        onSelect={(currentValue) => {
-                          updateAttributes({ language: lang });
-                          setValue(lang);
-                          setOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            defaultLanguage === lang
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                      </CommandItem>
-                    ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
       <pre
+        ref={contentRef}
         className={cn(
-          "overflow-x-auto",
+          "relative overflow-x-auto",
           !isExpanded && "max-h-[400px] overflow-hidden"
         )}
         spellCheck="false"
       >
+        <div className="absolute top-2 right-2">
+          <LanguageSelector
+            value={value}
+            open={open}
+            setOpen={setOpen}
+            setValue={setValue}
+            defaultLanguage={defaultLanguage}
+            languages={extension.options.lowlight.listLanguages()}
+            updateAttributes={updateAttributes}
+          />
+        </div>
         <NodeViewContent as="code" spellCheck="false" />
       </pre>
     </>

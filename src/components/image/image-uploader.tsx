@@ -31,6 +31,7 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
     { role: "user" | "ai"; content: string }[]
   >([]);
   const [userInput, setUserInput] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,24 +55,83 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
-  // const handleChatSubmit = (event: React.FormEvent) => {
-  //   event.preventDefault();
-  //   if (userInput) {
-  //     setChatMessages((prevMessages) => [
-  //       ...prevMessages,
-  //       { role: "user", content: userInput },
-  //     ]);
-  //     // Here you would typically call an AI service to get a response
-  //     // For this example, we'll just echo the user's message
-  //     setTimeout(() => {
-  //       setChatMessages((prevMessages) => [
-  //         ...prevMessages,
-  //         { role: "ai", content: `AI response to: ${userInput}` },
-  //       ]);
-  //     }, 1000);
-  //     setUserInput("");
-  //   }
-  // };
+  const generateImage = async (prompt: string) => {
+    try {
+      // Generate a UUID for the image
+      const imageId = crypto.randomUUID();
+
+      // First, generate the image
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/v1/generate-image?model=flux-pro-1.1",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            accept: "application/json",
+          },
+          body: JSON.stringify({
+            prompt,
+            width: 512,
+            height: 512,
+            prompt_upsampling: false,
+            seed: 0,
+            safety_tolerance: 2,
+            output_format: "jpeg",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate image");
+      }
+
+      // Get the image blob
+      const imageBlob = await response.blob();
+
+      // Create FormData and append the image blob
+      const formData = new FormData();
+      formData.append("file", imageBlob, "generated-image.jpg");
+
+      // Upload the generated image
+      const uploadResponse = await fetch(
+        `http://127.0.0.1:8000/api/v1/upload/${imageId}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      // Create the final image URL using the image ID
+      const imageUrl = `http://127.0.0.1:8000/uploads/${imageId}.jpg`;
+      setImage(imageUrl);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error generating image:", error);
+      throw error;
+    }
+  };
+
+  const handleChatSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!userInput.trim()) return;
+
+    // Add user message
+    setChatMessages((prev) => [...prev, { role: "user", content: userInput }]);
+    setIsGenerating(true);
+
+    try {
+      // Generate image from the prompt
+      const imageUrl = await generateImage(userInput);
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   console.log(image);
   return (
@@ -170,15 +230,20 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
                     ))}
                   </ScrollArea>
                 )}
-                <form onSubmit={() => {}} className="flex space-x-2">
+                <form onSubmit={handleChatSubmit} className="flex space-x-2">
                   <Textarea
-                    placeholder="Chat with AI about photos..."
+                    placeholder="Describe the image you want to generate..."
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     className="flex-grow"
+                    disabled={isGenerating}
                   />
-                  <Button type="submit" size="icon">
-                    <Icons.send className="h-4 w-4" />
+                  <Button type="submit" size="icon" disabled={isGenerating}>
+                    {isGenerating ? (
+                      <Icons.refresh className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Icons.send className="h-4 w-4" />
+                    )}
                   </Button>
                 </form>
               </div>

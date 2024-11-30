@@ -11,6 +11,7 @@ import parse from "html-react-parser";
 import { htmlParserOptions } from "@/config/html-parser";
 import { Separator } from "@/components/ui/separator";
 import DOMPurify from "dompurify";
+import type { EditorMode } from "./types";
 
 const TipTapEditor = dynamic(() => import("@/app/(editor)/editor"), {
   ssr: false,
@@ -21,9 +22,7 @@ const Editor = () => {
   const [editorContent, setEditorContent] = useState("");
   const shouldReduceMotion = useReducedMotion();
 
-  const [mode, setMode] = useState<"editor" | "preview" | "split-pane">(
-    "editor"
-  );
+  const [mode, setMode] = useState<EditorMode>("editor");
   const isSplitPane = mode === "split-pane";
   const editorRef = useRef<EditorType>(null);
   const blogRef = useRef<HTMLDivElement>(null);
@@ -59,7 +58,7 @@ const Editor = () => {
     },
   });
 
-  const onChangeMode = (mode: "editor" | "preview" | "split-pane") => {
+  const onChangeMode = (mode: EditorMode) => {
     setMode(mode);
     setEditorContent(
       DOMPurify.sanitize(editorRef.current?.getHTML() || "", {
@@ -116,7 +115,7 @@ const Editor = () => {
           key="editor"
           {...getAnimationConfig(-1)}
           className={cn(
-            `border flex-1 min-h-screen shadow-md rounded-lg p-4 ${
+            `border-2 flex-1 min-h-screen shadow-xl rounded-lg p-4 ${
               isSplitPane ? "mr-2 min-w-[calc(50%-2rem)]" : "min-w-full w-full"
             }`,
             mode === "preview" && "hidden"
@@ -131,7 +130,7 @@ const Editor = () => {
         <motion.div
           key="preview"
           {...getAnimationConfig(1)}
-          className={cn("flex-1", mode === "editor" ? "hidden" : "")}
+          className={cn("flex-1 border-2", mode === "editor" ? "hidden" : "")}
         >
           <article className="relative max-w-full min-h-screen mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg">
             <div

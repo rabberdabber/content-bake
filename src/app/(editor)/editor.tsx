@@ -2,17 +2,17 @@
 import React, { useEffect, useState } from "react";
 import { EditorContent, useEditor, Editor as EditorType } from "@tiptap/react";
 import EditorBubble from "./editor-bubble";
-import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
-import DOMPurify from "dompurify";
-import extensions from "./extensions";
 import { Separator } from "@/components/ui/separator";
+import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
+import extensions from "./extensions";
 import { NodeSelector } from "./selectors/node-selector";
 import { LinkSelector } from "./selectors/link-selector";
 import { TextButtons } from "./selectors/text-buttons";
 import { ColorSelector } from "./selectors/color-selector";
 import { MediaResizer } from "@/components/tiptap-extensions/media-resizer";
-import useLocalStorage from "@/lib/hooks/use-local-storage";
 import { handleCommandNavigation } from "@/components/tiptap-extensions/commands-suggestion";
+import DOMPurify from "dompurify";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 const defaultContent = `
 <h1>Hello Please Edit the blog</h1>
@@ -129,7 +129,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     if (editor) {
       const editorElement = editor.view.dom;
       editorElement.addEventListener("openVideoDialog", () => {
-        //TODO: create a dialog for video
+        // TODO: create a dialog for video
         addVideo();
       });
       return () => {

@@ -13,8 +13,7 @@ interface MainNavProps {
 }
 
 export function MainNav({ items }: MainNavProps) {
-  const segment = useSelectedLayoutSegment();
-  console.log(segment);
+  const segment = useSelectedLayoutSegment() || "";
   return (
     <div className="flex gap-6 md:gap-10">
       <Link href="/" className="flex items-center space-x-2">
@@ -23,11 +22,11 @@ export function MainNav({ items }: MainNavProps) {
       </Link>
       {items?.length ? (
         <nav className="flex gap-6">
-          {items?.map(
-            (item, index) =>
+          {items?.map((item) => {
+            return (
               item.href && (
                 <Link
-                  key={index}
+                  key={item?.href}
                   href={item.href}
                   className={cn(
                     "flex items-center text-sm font-medium text-foreground/60 hover:text-foreground",
@@ -35,13 +34,17 @@ export function MainNav({ items }: MainNavProps) {
                       (item.href.startsWith(`/${segment}`)
                         ? "text-foreground"
                         : "text-foreground/60"),
+                    segment === "" && item.href === "/"
+                      ? "text-foreground"
+                      : "",
                     item.disabled && "cursor-not-allowed opacity-80"
                   )}
                 >
                   {item.title}
                 </Link>
               )
-          )}
+            );
+          })}
         </nav>
       ) : null}
     </div>

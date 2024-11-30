@@ -21,7 +21,7 @@ type ToggleGroupProps = {
 
 export default function ToggleGroup({ iconsWithTooltip }: ToggleGroupProps) {
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center space-x-4 border rounded-md">
       <div className="flex items-center space-x-2 px-2 py-1 border rounded-md">
         {iconsWithTooltip.map(
           ({ icon: Icon, tooltip, onClick, selected }, index) => (

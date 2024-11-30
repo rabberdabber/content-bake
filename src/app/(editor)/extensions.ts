@@ -25,7 +25,6 @@ import CommandsExtension from "@/components/tiptap-extensions/commands";
 import CodeBlock from "@/components/code/tiptap-code-block";
 import { TabCommand } from "@/components/tiptap-extensions/tab-command";
 import { cn } from "@/lib/utils";
-import commandSuggestions from "@/components/tiptap-extensions/commands-suggestion";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {

@@ -3,19 +3,7 @@ import { Icons } from "@/components/icons";
 import { Editor, Range } from "@tiptap/core";
 import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance, Props, type GetReferenceClientRect } from "tippy.js";
-import CommandsList from "./command-list";
 import { EditorCommandOut } from "../editor_command";
-
-interface CommandsListRef extends HTMLDivElement {
-  onKeyDown: (event: KeyboardEvent) => boolean;
-}
-
-interface RenderProps {
-  query: string;
-  editor: Editor;
-  range: Range;
-  clientRect: () => DOMRect;
-}
 
 export const tableHTML = `
   <table style="width:100%">
@@ -233,7 +221,7 @@ export const suggestions = {
           showOnCreate: true,
           interactive: true,
           trigger: "manual",
-          placement: "bottom-start",
+          placement: "top-start",
         });
       },
       onUpdate: (props: {

@@ -2,46 +2,42 @@ import { Editor } from "@tiptap/react";
 import Moveable from "react-moveable";
 
 export const MediaResizer = ({ editor }: { editor: Editor | null }) => {
-  if (!editor?.isActive("image")) return null;
+  if (!editor) {
+    console.log("No editor instance");
+    return null;
+  }
+
+  if (!editor.isActive("image")) {
+    console.log("Returning null: not active image");
+    return null;
+  }
+
+  const domElement = editor.view.dom.querySelector(
+    "img.ProseMirror-selectednode"
+  ) as HTMLElement;
+
+  if (!domElement) {
+    console.log("No DOM element found");
+    return null;
+  }
 
   const updateMediaSize = () => {
-    const mediaElement = document.querySelector(
-      ".ProseMirror-selectednode"
-    ) as HTMLElement;
-    if (mediaElement) {
+    if (domElement) {
       const selection = editor.state.selection;
-      const isImage = editor.isActive("image");
-      const isYoutube = editor.isActive("youtube");
+      const width = Number(domElement.style.width.replace("px", ""));
+      const height = Number(domElement.style.height.replace("px", ""));
 
-      const width = Number(mediaElement.style.width.replace("px", ""));
-      const height = Number(mediaElement.style.height.replace("px", ""));
-      console.log(width, height);
+      const setImage = editor.commands.setImage as (options: {
+        src: string;
+        width: number;
+        height: number;
+      }) => boolean;
 
-      if (isImage) {
-        const setImage = editor.commands.setImage as (options: {
-          src: string;
-          width: number;
-          height: number;
-        }) => boolean;
-
-        setImage({
-          src: (mediaElement as HTMLImageElement).src,
-          width,
-          height,
-        });
-      } else if (isYoutube) {
-        const setYoutube = editor.commands.setYoutubeVideo as (options: {
-          src: string;
-          width: number;
-          height: number;
-        }) => boolean;
-
-        setYoutube({
-          src: (mediaElement as HTMLIFrameElement).src,
-          width,
-          height,
-        });
-      }
+      setImage({
+        src: (domElement as HTMLImageElement).src,
+        width,
+        height,
+      });
 
       editor.commands.setNodeSelection(selection.from);
     }
@@ -49,9 +45,7 @@ export const MediaResizer = ({ editor }: { editor: Editor | null }) => {
 
   return (
     <Moveable
-      target={
-        document.querySelector(".ProseMirror-selectednode") as HTMLElement
-      }
+      target={domElement}
       container={null}
       origin={false}
       edge={false}

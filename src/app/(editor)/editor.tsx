@@ -14,6 +14,7 @@ import { handleCommandNavigation } from "@/components/tiptap-extensions/commands
 import DOMPurify from "dompurify";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
 import { uploadImage } from "@/lib/image/utils";
+import { cn } from "@/lib/utils";
 
 const defaultContent = `
 <h1>Hello Please Edit the blog</h1>
@@ -40,6 +41,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     },
     extensions: extensions,
     content: content,
+    autofocus: "start",
     editorProps: {
       attributes: {
         class:
@@ -185,7 +187,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
       </EditorBubble>
       <EditorContent
         editor={editor}
-        className={openImageDialog ? "blur-sm" : ""}
+        className={cn(openImageDialog ? "blur-sm" : "")}
       />
       {!openImageDialog && <MediaResizer editor={editor} />}
       <div className="relative mb-4 mt-4">

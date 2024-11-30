@@ -101,13 +101,15 @@ const extensions = [
         class: cn("border-l-4 border-primary"),
       },
     },
-    codeBlock: {
-      HTMLAttributes: {
-        class: cn(
-          "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
-        ),
-      },
-    },
+    // codeBlock: {
+    //   HTMLAttributes: {
+    //     class: cn(
+    //       "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
+    //     ),
+    //   },
+    // },
+    codeBlock: false,
+    dropcursor: false,
     code: {
       HTMLAttributes: {
         class: cn("rounded-md bg-muted px-1.5 py-1 font-mono font-medium"),
@@ -115,23 +117,42 @@ const extensions = [
       },
     },
     horizontalRule: false,
-    dropcursor: {
-      color: "#DBEAFE",
-      width: 4,
-    },
     gapcursor: false,
   }),
-  Image.configure({
+  Image.extend({
     HTMLAttributes: {
       class: cn("rounded-md border"),
     },
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        width: {
+          default: 512,
+        },
+        height: {
+          default: 512,
+        },
+      };
+    },
   }),
   Dropcursor,
-  Document,
   TrailingNodeExtension,
   CommandsExtension,
   Placeholder.configure({
-    placeholder: "Press '/' for commands",
+    placeholder: ({ node, pos, editor }) => {
+      // Special placeholder for the first (title) node
+      if (pos === 0) {
+        return "Enter title...";
+      }
+
+      // Only show placeholder for empty paragraph nodes
+      if (node.type.name === "paragraph") {
+        return "Press '/' for commands";
+      }
+
+      return "";
+    },
+    showOnlyCurrent: true,
   }),
   Youtube,
   Video,

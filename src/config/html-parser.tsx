@@ -161,8 +161,8 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             alt={attribs.alt || ""}
             src={attribs.src as string}
             objectFit="cover"
-            height={500}
-            width={500}
+            height={attribs.height ? Number(attribs.height) : 500}
+            width={attribs.width ? Number(attribs.width) : 500}
           />
         );
 

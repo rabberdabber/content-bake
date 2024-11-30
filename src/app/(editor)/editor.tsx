@@ -13,6 +13,7 @@ import { MediaResizer } from "@/components/tiptap-extensions/media-resizer";
 import { handleCommandNavigation } from "@/components/tiptap-extensions/commands-suggestion";
 import DOMPurify from "dompurify";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
+import { uploadImage } from "@/lib/image/utils";
 
 const defaultContent = `
 <h1>Hello Please Edit the blog</h1>
@@ -51,7 +52,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         if (!moved && event.dataTransfer?.files.length) {
           event.preventDefault();
           const [file] = Array.from(event.dataTransfer.files);
-          setImage(file);
+          uploadImage(file).then((imageUrl) => setImage(imageUrl));
           return true;
         }
       },

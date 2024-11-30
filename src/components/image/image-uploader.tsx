@@ -7,16 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Icons } from "@/components/icons";
 import { Label } from "../ui/label";
 import Image from "next/image";
+import { generateAndUploadImage, uploadImage } from "@/lib/image/utils";
 
 type ImageUploaderProps = {
   image: string | File | null;
@@ -34,13 +28,18 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const uploadAndSetImage = async (image: File | Blob) => {
+    const imageUrl = await uploadImage(image);
+    setImage(imageUrl);
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = event.target.files;
     console.log(fileList);
     if (fileList) {
       console.log("image set to file");
       console.log(fileList[0]);
-      setImage(fileList[0]);
+      uploadAndSetImage(fileList[0]);
     }
   };
 
@@ -55,66 +54,6 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
-  const generateImage = async (prompt: string) => {
-    try {
-      // Generate a UUID for the image
-      const imageId = crypto.randomUUID();
-
-      // First, generate the image
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/v1/generate-image?model=flux-pro-1.1",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            accept: "application/json",
-          },
-          body: JSON.stringify({
-            prompt,
-            width: 512,
-            height: 512,
-            prompt_upsampling: false,
-            seed: 0,
-            safety_tolerance: 2,
-            output_format: "jpeg",
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to generate image");
-      }
-
-      // Get the image blob
-      const imageBlob = await response.blob();
-
-      // Create FormData and append the image blob
-      const formData = new FormData();
-      formData.append("file", imageBlob, "generated-image.jpg");
-
-      // Upload the generated image
-      const uploadResponse = await fetch(
-        `http://127.0.0.1:8000/api/v1/upload/${imageId}`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (!uploadResponse.ok) {
-        throw new Error("Failed to upload image");
-      }
-
-      // Create the final image URL using the image ID
-      const imageUrl = `http://127.0.0.1:8000/uploads/${imageId}.jpg`;
-      setImage(imageUrl);
-      return imageUrl;
-    } catch (error) {
-      console.error("Error generating image:", error);
-      throw error;
-    }
-  };
-
   const handleChatSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!userInput.trim()) return;
@@ -125,7 +64,8 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
 
     try {
       // Generate image from the prompt
-      const imageUrl = await generateImage(userInput);
+      const imageUrl = await generateAndUploadImage(userInput);
+      setImage(imageUrl);
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {

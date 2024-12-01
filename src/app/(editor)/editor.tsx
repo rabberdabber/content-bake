@@ -15,6 +15,7 @@ import DOMPurify from "dompurify";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
 import { uploadImage } from "@/lib/image/utils";
 import { cn } from "@/lib/utils";
+import { sanitizeConfig } from "@/config/sanitize-config";
 
 const defaultContent = `
 <h1>Hello Please Edit the blog</h1>
@@ -69,9 +70,7 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const [openVideoDialog, setOpenVideoDialog] = useState(false);
 
   const onContentUpdate = (newContent: string) => {
-    const sanitizedContent = DOMPurify.sanitize(newContent, {
-      ADD_TAGS: ["live-code-block"],
-    });
+    const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
     setEditorContent?.(sanitizedContent);
   };
 

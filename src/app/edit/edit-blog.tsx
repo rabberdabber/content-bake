@@ -12,6 +12,8 @@ import { htmlParserOptions } from "@/config/html-parser";
 import { Separator } from "@/components/ui/separator";
 import DOMPurify from "dompurify";
 import type { EditorMode } from "./types";
+import { sanitizeConfig } from "@/config/sanitize-config";
+import BlogPreview from "@/components/blog/blog-preview";
 
 const TipTapEditor = dynamic(() => import("@/app/(editor)/editor"), {
   ssr: false,
@@ -61,9 +63,7 @@ const Editor = () => {
   const onChangeMode = (mode: EditorMode) => {
     setMode(mode);
     setEditorContent(
-      DOMPurify.sanitize(editorRef.current?.getHTML() || "", {
-        ADD_TAGS: ["live-code-block"],
-      })
+      DOMPurify.sanitize(editorRef.current?.getHTML() || "", sanitizeConfig)
     );
   };
 
@@ -118,7 +118,8 @@ const Editor = () => {
             `border-2 flex-1 min-h-screen shadow-xl rounded-lg p-4 ${
               isSplitPane ? "mr-2 min-w-[calc(50%-2rem)]" : "min-w-full w-full"
             }`,
-            mode === "preview" && "hidden"
+            mode === "preview" && "hidden",
+            "border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-md"
           )}
         >
           <TipTapEditor
@@ -130,18 +131,13 @@ const Editor = () => {
         <motion.div
           key="preview"
           {...getAnimationConfig(1)}
-          className={cn("flex-1 border-2", mode === "editor" ? "hidden" : "")}
+          className={cn(
+            "flex-1",
+            mode === "editor" ? "hidden" : "",
+            "border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-md"
+          )}
         >
-          <article className="relative max-w-full min-h-screen mx-auto grid-cols-[1fr_min(var(--tw-trimmed-content-width),100%)_1fr] p-16 sm:p-16 pb-8 bg-page-background-light dark:bg-page-background-dark shadow-page-light dark:shadow-page-dark sm:border sm:border-page-border-light dark:border-page-border-dark sm:rounded-lg">
-            <div
-              ref={blogRef}
-              className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert"
-            >
-              <div className="flex flex-col justify-center items-center gap-8">
-                {parse(editorContent, htmlParserOptions)}
-              </div>
-            </div>
-          </article>
+          <BlogPreview content={editorContent} blogRef={blogRef} />
         </motion.div>
       </div>
     </div>

@@ -1,7 +1,6 @@
 import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { common, createLowlight } from "lowlight";
 import { Color } from "@tiptap/extension-color";
-import Document from "@tiptap/extension-document";
 import Dropcursor from "@tiptap/extension-dropcursor";
 import Image from "@tiptap/extension-image";
 import ListItem from "@tiptap/extension-list-item";
@@ -154,7 +153,13 @@ const extensions = [
     },
     showOnlyCurrent: true,
   }),
-  Youtube,
+  Youtube.configure({
+    allowFullscreen: true,
+    HTMLAttributes: {
+      class:
+        "relative w-full aspect-video my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800",
+    },
+  }),
   Video,
 ];
 

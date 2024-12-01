@@ -259,6 +259,25 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             height={attribs.height ? Number(attribs.height) : 500}
           />
         );
+      case "div":
+        if (attribs["data-youtube-video"] !== undefined) {
+          const iframe = children[0] as Element;
+          if (iframe && iframe.name === "iframe") {
+            return (
+              <div className="relative w-full aspect-video my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={iframe.attribs.src}
+                  width={iframe.attribs.width || "640"}
+                  height={iframe.attribs.height || "360"}
+                  allowFullScreen={iframe.attribs.allowfullscreen === "true"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+              </div>
+            );
+          }
+        }
+        return domToReact(children as DOMNode[], htmlParserOptions);
     }
   },
 };

@@ -7,13 +7,13 @@ export const MediaResizer = ({ editor }: { editor: Editor | null }) => {
     return null;
   }
 
-  if (!editor.isActive("image")) {
-    console.log("Returning null: not active image");
+  if (!editor.isActive("image") && !editor.isActive("youtube")) {
+    console.log("Returning null: not active image or youtube");
     return null;
   }
 
   const domElement = editor.view.dom.querySelector(
-    "img.ProseMirror-selectednode"
+    "img.ProseMirror-selectednode, iframe.ProseMirror-selectednode"
   ) as HTMLElement;
 
   if (!domElement) {

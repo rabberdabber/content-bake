@@ -16,6 +16,7 @@ import useLocalStorage from "@/lib/hooks/use-local-storage";
 import { uploadImage } from "@/lib/image/utils";
 import { cn } from "@/lib/utils";
 import { sanitizeConfig } from "@/config/sanitize-config";
+import { toast } from "sonner";
 
 const defaultContent = `
 <h1>Hello Please Edit the blog</h1>
@@ -55,7 +56,13 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         if (!moved && event.dataTransfer?.files.length) {
           event.preventDefault();
           const [file] = Array.from(event.dataTransfer.files);
-          uploadImage(file).then((imageUrl) => setImage(imageUrl));
+          try {
+            uploadImage(file).then((imageUrl) => setImage(imageUrl));
+            toast.success("Image uploaded successfully");
+          } catch (error) {
+            toast.error("Failed to upload image");
+          }
+
           return true;
         }
       },

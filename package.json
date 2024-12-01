@@ -65,6 +65,7 @@
     "react-dom": "^18",
     "react-moveable": "^0.56.0",
     "sandpack-file-explorer": "^0.0.7",
+    "sonner": "^1.7.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "tiptap-extension-global-drag-handle": "^0.1.12"

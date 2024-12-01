@@ -11,6 +11,7 @@ import { Icons } from "@/components/icons";
 import { Label } from "../ui/label";
 import Image from "next/image";
 import { generateAndUploadImage, uploadImage } from "@/lib/image/utils";
+import { toast } from "sonner";
 
 type ImageUploaderProps = {
   image: string | File | null;
@@ -29,8 +30,13 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadAndSetImage = async (image: File | Blob) => {
-    const imageUrl = await uploadImage(image);
-    setImage(imageUrl);
+    try {
+      const imageUrl = await uploadImage(image);
+      setImage(imageUrl);
+      toast.success("Image uploaded successfully");
+    } catch (error) {
+      toast.error("Failed to upload image");
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +72,9 @@ export default function ImageUploader({ image, setImage }: ImageUploaderProps) {
       // Generate image from the prompt
       const imageUrl = await generateAndUploadImage(userInput);
       setImage(imageUrl);
+      toast.success("Image generated successfully");
     } catch (error) {
+      toast.error("Failed to generate image, check the prompt and try again.");
       console.error("Error generating image:", error);
     } finally {
       setIsGenerating(false);

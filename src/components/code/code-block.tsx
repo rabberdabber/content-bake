@@ -104,7 +104,7 @@ function HighlightedCode({
           ref={contentRef}
           className={cn(
             className,
-            "p-4 rounded-lg overflow-x-auto font-mono relative",
+            "p-4 rounded-lg overflow-x-auto font-mono relative not-prose",
             !isExpanded && "max-h-[400px]"
           )}
           style={{

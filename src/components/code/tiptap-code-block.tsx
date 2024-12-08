@@ -77,7 +77,7 @@ const CodeBlockContent = ({
       <pre
         ref={contentRef}
         className={cn(
-          "overflow-x-auto relative max-w-full border border-slate-200 dark:border-slate-700 rounded-md",
+          "overflow-x-auto relative max-w-full border border-slate-200 dark:border-slate-700 rounded-md not-prose",
           !isExpanded && "max-h-[400px] overflow-hidden"
         )}
         spellCheck="false"

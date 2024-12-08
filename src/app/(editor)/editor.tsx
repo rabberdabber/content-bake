@@ -73,24 +73,11 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
-  const [openYoutubeDialog, setOpenYoutubeDialog] = useState(false);
   const [openVideoDialog, setOpenVideoDialog] = useState(false);
 
   const onContentUpdate = (newContent: string) => {
     const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
     setEditorContent?.(sanitizedContent);
-  };
-
-  const addYoutubeVideo = () => {
-    const url = prompt("Enter YouTube URL");
-
-    if (url) {
-      editor?.commands.setYoutubeVideo({
-        src: url,
-        width: 480,
-        height: 480,
-      });
-    }
   };
 
   const addVideo = () => {
@@ -147,26 +134,13 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     }
   }, [editor, openVideoDialog]);
 
-  useEffect(() => {
-    if (editor) {
-      const editorElement = editor.view.dom;
-      editorElement.addEventListener("openYoutubeDialog", () => {
-        //TODO: create a dialog for youtube video
-        addYoutubeVideo();
-      });
-      return () => {
-        editorElement.removeEventListener("openYoutubeDialog", () => {});
-      };
-    }
-  }, [editor, openYoutubeDialog]);
-
   return (
     <div className="mt-[2rem]">
       <EditorBubble
         tippyOptions={{
           placement: "top",
         }}
-        className="flex w-fit max-w-[90vw] overflow-hidden rounded-md border border-muted bg-background shadow-xl"
+        className="flex w-fit max-w-[90vw] overflow-hidden rounded-md border border-muted bg-background shadow-xl dark:bg-white"
         editor={editor}
       >
         <Separator orientation="vertical" />

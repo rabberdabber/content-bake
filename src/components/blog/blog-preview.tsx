@@ -27,9 +27,7 @@ const BlogPreview = ({ content, className, blogRef }: BlogPreviewProps) => {
         ref={blogRef}
         className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none dark:prose-invert"
       >
-        <div className="flex flex-col justify-center items-center gap-8">
-          {parse(content, htmlParserOptions)}
-        </div>
+        <div className="flex flex-col">{parse(content, htmlParserOptions)}</div>
       </div>
     </article>
   );

@@ -64,6 +64,34 @@ export const suggestions = {
                 .run();
             },
           },
+          {
+            key: "bulletList",
+            title: "Bullet List",
+            description: "Create a bulleted list",
+            icon: <Icons.List />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .toggleBulletList()
+                .run();
+            },
+          },
+          {
+            key: "numberedList",
+            title: "Numbered List",
+            description: "Create a numbered list",
+            icon: <Icons.ListOrdered />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .toggleOrderedList()
+                .run();
+            },
+          },
         ],
       },
       {

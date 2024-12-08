@@ -22,7 +22,9 @@ import SandboxExtension from "@/components/tiptap-extensions/sandbox-extension";
 import TrailingNodeExtension from "@/components/tiptap-extensions/trailing-node";
 import CommandsExtension from "@/components/tiptap-extensions/commands";
 import CodeBlock from "@/components/code/tiptap-code-block";
+import Focus from "@tiptap/extension-focus";
 import { TabCommand } from "@/components/tiptap-extensions/tab-command";
+import YoutubeInput from "@/components/tiptap-extensions/embeds/youtube-input-extension";
 import { cn } from "@/lib/utils";
 
 const CustomTableCell = TableCell.extend({
@@ -161,6 +163,11 @@ const extensions = [
     },
   }),
   Video,
+  Focus.configure({
+    className: "rounded shadow-[0_0_0_2px_green]",
+    mode: "all",
+  }),
+  YoutubeInput,
 ];
 
 export default extensions;

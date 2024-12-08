@@ -8,7 +8,6 @@ export const MediaResizer = ({ editor }: { editor: Editor | null }) => {
   }
 
   if (!editor.isActive("image") && !editor.isActive("youtube")) {
-    console.log("Returning null: not active image or youtube");
     return null;
   }
 

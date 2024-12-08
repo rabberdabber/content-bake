@@ -38,6 +38,7 @@ export const EditorBubble = forwardRef<HTMLDivElement, EditorBubbleProps>(
             editor.isActive("live-code-block") ||
             editor.isActive("table") ||
             editor.isActive("codeBlock") ||
+            editor.isActive("embedInput") ||
             empty ||
             isNodeSelection(selection)
           ) {

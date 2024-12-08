@@ -32,152 +32,181 @@ export const tableHTML = `
 
 export const suggestions = {
   items: ({ query }: { query: string }) => {
-    return [
+    const commandGroups = [
       {
-        key: "heading1",
-        title: "Heading 1",
-        description: "Large section heading",
-        icon: <Icons.Heading1 />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("heading", { level: 1 })
-            .run();
-        },
+        heading: "Text Formatting",
+        items: [
+          {
+            key: "heading1",
+            title: "Heading 1",
+            description: "Large section heading",
+            icon: <Icons.Heading1 />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setNode("heading", { level: 1 })
+                .run();
+            },
+          },
+          {
+            key: "heading2",
+            title: "Heading 2",
+            description: "Medium section heading",
+            icon: <Icons.Heading2 />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setNode("heading", { level: 2 })
+                .run();
+            },
+          },
+        ],
       },
       {
-        key: "heading2",
-        title: "Heading 2",
-        description: "Medium section heading",
-        icon: <Icons.Heading2 />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("heading", { level: 2 })
-            .run();
-        },
+        heading: "Code & Development",
+        items: [
+          {
+            key: "codeBlock",
+            title: "Code Block",
+            description: "Add a block of code",
+            icon: <Icons.code />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setNode("codeBlock", { language: "typescript" })
+                .run();
+            },
+          },
+          {
+            key: "liveCodeBlock",
+            title: "Live Code Block",
+            description: "Add an interactive code block",
+            icon: <Icons.codePen />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .insertContent("<live-code-block></live-code-block>")
+                .run();
+            },
+          },
+          {
+            key: "widget",
+            title: "Widget",
+            description: "Insert an interactive widget",
+            icon: <Icons.widget />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .insertContent({
+                  type: "live-code-block",
+                  attrs: {
+                    language: "javascript",
+                    isWidget: true,
+                  },
+                  content: [],
+                })
+                .run();
+            },
+          },
+        ],
       },
       {
-        key: "codeBlock",
-        title: "Code Block",
-        description: "Add a block of code",
-        icon: <Icons.code />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .setNode("codeBlock", { language: "typescript" })
-            .run();
-        },
+        heading: "Media",
+        items: [
+          {
+            key: "image",
+            title: "Image",
+            description: "Upload and insert an image",
+            icon: <Icons.image />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor.commands.deleteRange(range);
+              editor.view.dom.dispatchEvent(
+                new CustomEvent("openImageDialog", {
+                  bubbles: true,
+                  cancelable: true,
+                })
+              );
+            },
+          },
+          {
+            key: "youtube",
+            title: "YouTube",
+            description: "Embed a YouTube video",
+            icon: <Icons.youtube />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .insertContent({
+                  type: "youtubeInput",
+                })
+                .run();
+            },
+          },
+          {
+            key: "video",
+            title: "Video",
+            description: "Upload and embed a video",
+            icon: <Icons.video />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor.commands.deleteRange(range);
+              editor.view.dom.dispatchEvent(
+                new CustomEvent("openVideoDialog", {
+                  bubbles: true,
+                  cancelable: true,
+                })
+              );
+            },
+          },
+        ],
       },
       {
-        key: "liveCodeBlock",
-        title: "Live Code Block",
-        description: "Add an interactive code block",
-        icon: <Icons.codePen />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent("<live-code-block></live-code-block>")
-            .run();
-        },
+        heading: "Other",
+        items: [
+          {
+            key: "table",
+            title: "Table",
+            description: "Insert a table",
+            icon: <Icons.Table />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .insertContent(tableHTML, {
+                  parseOptions: {
+                    preserveWhitespace: false,
+                  },
+                })
+                .run();
+            },
+          },
+        ],
       },
-      {
-        key: "widget",
-        title: "Widget",
-        description: "Insert an interactive widget",
-        icon: <Icons.widget />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent({
-              type: "live-code-block",
-              attrs: {
-                language: "javascript",
-                isWidget: true,
-              },
-              content: [],
-            })
-            .run();
-        },
-      },
-      {
-        key: "image",
-        title: "Image",
-        description: "Upload and insert an image",
-        icon: <Icons.image />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor.commands.deleteRange(range);
-          editor.view.dom.dispatchEvent(
-            new CustomEvent("openImageDialog", {
-              bubbles: true,
-              cancelable: true,
-            })
-          );
-        },
-      },
-      {
-        key: "youtube",
-        title: "YouTube",
-        description: "Embed a YouTube video",
-        icon: <Icons.youtube />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor.commands.deleteRange(range);
-          editor.view.dom.dispatchEvent(
-            new CustomEvent("openYoutubeDialog", {
-              bubbles: true,
-              cancelable: true,
-            })
-          );
-        },
-      },
-      {
-        key: "video",
-        title: "Video",
-        description: "Upload and embed a video",
-        icon: <Icons.video />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor.commands.deleteRange(range);
-          editor.view.dom.dispatchEvent(
-            new CustomEvent("openVideoDialog", {
-              bubbles: true,
-              cancelable: true,
-            })
-          );
-        },
-      },
-      {
-        key: "table",
-        title: "Table",
-        description: "Insert a table",
-        icon: <Icons.Table />,
-        command: ({ editor, range }: { editor: Editor; range: Range }) => {
-          editor
-            .chain()
-            .focus()
-            .deleteRange(range)
-            .insertContent(tableHTML, {
-              parseOptions: {
-                preserveWhitespace: false,
-              },
-            })
-            .run();
-        },
-      },
-    ]
-      .filter((item) =>
-        item.title.toLowerCase().startsWith(query.toLowerCase())
-      )
-      .slice(0, 10);
+    ];
+
+    // Filter based on query
+    const filteredGroups = commandGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) =>
+          item.title.toLowerCase().includes(query.toLowerCase())
+        ),
+      }))
+      .filter((group) => group.items.length > 0);
+
+    return filteredGroups;
   },
 
   render: (elementRef?: RefObject<Element> | null) => {

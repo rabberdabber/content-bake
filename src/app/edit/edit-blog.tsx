@@ -82,7 +82,7 @@ const Editor = () => {
         mode === "split-pane" && "max-w-[calc(100dvw-4rem)]"
       )}
     >
-      <div className="flex justify-end w-full space-x-4 mr-4">
+      <div className="sticky top-[4rem] flex justify-end w-full space-x-4 mr-4">
         <ToggleGroup
           iconsWithTooltip={[
             {

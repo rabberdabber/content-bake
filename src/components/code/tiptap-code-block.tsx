@@ -110,7 +110,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const [value, setValue] = React.useState(defaultLanguage);
 
   return (
-    <NodeViewWrapper className="relative max-w-full">
+    <NodeViewWrapper className="relative max-w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-md">
       <CollapsibleWrapper maxHeight={400}>
         <CodeBlockContent
           value={value}

@@ -1,4 +1,4 @@
-import {
+import React, {
   useEffect,
   useState,
   useRef,
@@ -13,6 +13,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import { suggestions } from "./tiptap-extensions/commands-suggestion";
 import { cn } from "@/lib/utils";
@@ -31,7 +32,7 @@ interface EditorCommandOutRef {
 export const EditorCommandOut = forwardRef<
   EditorCommandOutRef,
   EditorCommandOutProps
->(({ query, range, editor, popupContainer }, ref) => {
+>(({ query, range, editor }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -39,9 +40,18 @@ export const EditorCommandOut = forwardRef<
   const initialSelectionMade = useRef(false);
   const isKeyboardNavigation = useRef(false);
 
-  const filteredItems = suggestions
-    .items({ query })
-    .filter((item) => item.title.toLowerCase().includes(search.toLowerCase()));
+  const groupedItems = suggestions.items({ query });
+  const filteredGroups = groupedItems
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        item.title.toLowerCase().includes(search.toLowerCase())
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
+
+  // Flatten items for keyboard navigation
+  const filteredItems = filteredGroups.flatMap((group) => group.items);
 
   const selectItem = (key: string) => {
     const item = filteredItems.find((item) => item.key === key);
@@ -142,37 +152,40 @@ export const EditorCommandOut = forwardRef<
       />
       <CommandList ref={commandListRef}>
         <CommandEmpty>No command found.</CommandEmpty>
-        <CommandGroup>
-          {filteredItems.map((item) => {
-            return (
-              <CommandItem
-                key={item.key}
-                onSelect={() => selectItem(item.key)}
-                className={cn(
-                  "flex items-center space-x-2 gap-3 hover:bg-accent",
-                  item.key === selectedKey ? "bg-accent" : ""
-                )}
-                onMouseEnter={() => {
-                  isKeyboardNavigation.current = false;
-                  setSelectedKey(item.key);
-                }}
-                data-key={item.key}
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <span className="flex items-center justify-center w-8 h-8 border border-slate-300 p-1 rounded-sm">
-                    {item.icon}
-                  </span>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{item.title}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {item.description}
+        {filteredGroups.map((group, groupIndex) => (
+          <React.Fragment key={group.heading}>
+            {groupIndex > 0 && <CommandSeparator />}
+            <CommandGroup heading={group.heading}>
+              {group.items.map((item) => (
+                <CommandItem
+                  key={item.key}
+                  onSelect={() => selectItem(item.key)}
+                  className={cn(
+                    "flex items-center space-x-2 gap-3 hover:bg-accent",
+                    item.key === selectedKey ? "bg-accent" : ""
+                  )}
+                  onMouseEnter={() => {
+                    isKeyboardNavigation.current = false;
+                    setSelectedKey(item.key);
+                  }}
+                  data-key={item.key}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <span className="flex items-center justify-center w-8 h-8 border border-slate-300 p-1 rounded-sm">
+                      {item.icon}
                     </span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{item.title}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.description}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </CommandItem>
-            );
-          })}
-        </CommandGroup>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </React.Fragment>
+        ))}
       </CommandList>
     </Command>
   );

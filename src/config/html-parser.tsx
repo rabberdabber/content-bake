@@ -156,14 +156,16 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "img":
         return (
-          <Image
-            className={cn("rounded-md border", attribs.class)}
-            alt={attribs.alt || ""}
-            src={attribs.src as string}
-            objectFit="cover"
-            height={attribs.height ? Number(attribs.height) : 500}
-            width={attribs.width ? Number(attribs.width) : 500}
-          />
+          <div className="relative w-full flex justify-center">
+            <Image
+              className={cn("rounded-md border", attribs.class)}
+              alt={attribs.alt || ""}
+              src={attribs.src as string}
+              objectFit="contain"
+              height={attribs.height ? Number(attribs.height) : 500}
+              width={attribs.width ? Number(attribs.width) : 500}
+            />
+          </div>
         );
 
       case "hr":

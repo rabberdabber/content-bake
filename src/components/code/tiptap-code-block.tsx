@@ -77,7 +77,7 @@ const CodeBlockContent = ({
       <pre
         ref={contentRef}
         className={cn(
-          "relative overflow-x-auto",
+          "overflow-x-auto relative max-w-full border border-slate-200 dark:border-slate-700 rounded-md",
           !isExpanded && "max-h-[400px] overflow-hidden"
         )}
         spellCheck="false"
@@ -110,7 +110,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   const [value, setValue] = React.useState(defaultLanguage);
 
   return (
-    <NodeViewWrapper className="relative max-w-full border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 rounded-md">
+    <NodeViewWrapper>
       <CollapsibleWrapper maxHeight={400}>
         <CodeBlockContent
           value={value}

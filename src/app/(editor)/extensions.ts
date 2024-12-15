@@ -24,8 +24,11 @@ import CommandsExtension from "@/components/tiptap-extensions/commands";
 import CodeBlock from "@/components/code/tiptap-code-block";
 import { TabCommand } from "@/components/tiptap-extensions/tab-command";
 import YoutubeInput from "@/components/tiptap-extensions/embeds/youtube-input-extension";
+import ImageInput from "@/components/tiptap-extensions/image/image-input-extension";
 import { cn } from "@/lib/utils";
 import { CustomFocus } from "@/components/tiptap-extensions/custom-focus";
+import { CustomDocument } from "@/components/tiptap-extensions/custom-document";
+import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -119,6 +122,27 @@ const extensions = [
     },
     horizontalRule: false,
     gapcursor: false,
+    heading: {
+      levels: [1, 2, 3],
+      HTMLAttributes: {
+        class: ({ level }: { level: 1 | 2 | 3 }) => {
+          switch (level) {
+            case 1:
+              return cn("text-4xl font-bold tracking-tight self-center");
+            case 2:
+              return cn("text-3xl font-semibold tracking-tight self-center");
+            case 3:
+              return cn("text-2xl font-semibold tracking-tight self-center");
+            default:
+              return "";
+          }
+        },
+      },
+    },
+  }),
+  CustomDocument.configure({
+    defaultType: "heading",
+    defaultLevel: 1,
   }),
   Image.extend({
     HTMLAttributes: {
@@ -128,10 +152,10 @@ const extensions = [
       return {
         ...this.parent?.(),
         width: {
-          default: 512,
+          default: DEFAULT_IMAGE_GENERATION_CONFIG.width,
         },
         height: {
-          default: 512,
+          default: DEFAULT_IMAGE_GENERATION_CONFIG.height,
         },
       };
     },
@@ -143,6 +167,10 @@ const extensions = [
     placeholder: ({ node, pos, editor }) => {
       // Special placeholder for the first (title) node
       if (pos === 0) {
+        // If it's not already a heading, make it one
+        if (!editor.isActive("heading", { level: 1 })) {
+          editor.chain().focus().setNode("heading", { level: 1 }).run();
+        }
         return "Enter title...";
       }
 
@@ -168,6 +196,7 @@ const extensions = [
     mode: "deepest",
   }),
   YoutubeInput,
+  ImageInput,
 ];
 
 export default extensions;

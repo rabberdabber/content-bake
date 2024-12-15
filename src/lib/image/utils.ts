@@ -1,4 +1,16 @@
+import {
+  DEFAULT_IMAGE_GENERATION_CONFIG,
+  ImageGenerationConfig,
+} from "@/config/image-generation";
+
 const BASE_URL = "http://127.0.0.1:8000";
+
+export interface ImageGenerationResponse {
+  id: string;
+  url: string;
+  prompt: string;
+  model: ImageGenerationConfig["model"];
+}
 
 export const uploadImage = async (image: File | Blob) => {
   const imageId = crypto.randomUUID();
@@ -7,10 +19,13 @@ export const uploadImage = async (image: File | Blob) => {
   const formData = new FormData();
   formData.append("file", new Blob([imageBlob]), "uploaded-image.jpg");
 
-  const uploadResponse = await fetch(`${BASE_URL}/api/v1/upload/${imageId}`, {
-    method: "POST",
-    body: formData,
-  });
+  const uploadResponse = await fetch(
+    `${BASE_URL}/api/v1/images/upload/${imageId}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
 
   if (!uploadResponse.ok) {
     throw new Error("Failed to upload image");
@@ -21,34 +36,36 @@ export const uploadImage = async (image: File | Blob) => {
   return imageUrl;
 };
 
-export const generateAndUploadImage = async (prompt: string) => {
-  const response = await fetch(
-    `${BASE_URL}/api/v1/generate-image?model=flux-pro-1.1`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify({
-        prompt,
-        width: 512,
-        height: 512,
-        prompt_upsampling: false,
-        seed: 0,
-        safety_tolerance: 2,
-        output_format: "jpeg",
-      }),
-    }
-  );
+export const generateImageWithConfig = async (
+  prompt: string,
+  config?: Partial<ImageGenerationConfig>
+) => {
+  const finalConfig = { ...DEFAULT_IMAGE_GENERATION_CONFIG, ...config };
+
+  const response = await fetch(`${BASE_URL}/api/v1/ai/generate-image`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({
+      model: finalConfig.model,
+      prompt,
+      width: finalConfig.width,
+      height: finalConfig.height,
+      prompt_upsampling: finalConfig.promptUpsampling,
+      seed: 0,
+      safety_tolerance: finalConfig.safetyTolerance,
+      output_format: finalConfig.outputFormat,
+    }),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to generate image");
   }
 
-  // Get the image blob
-  const imageBlob = await response.blob();
+  const imageGenerationResponse =
+    (await response.json()) as ImageGenerationResponse;
 
-  const imageUrl = await uploadImage(imageBlob);
-  return imageUrl;
+  return imageGenerationResponse.url;
 };

@@ -28,7 +28,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h1
             className={cn(
-              "mt-2 scroll-m-20 text-4xl font-bold tracking-tight",
+              "mt-2 scroll-m-20 text-4xl font-bold tracking-tight self-center",
               attribs.class
             )}
           >
@@ -156,16 +156,14 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "img":
         return (
-          <div className="relative w-full flex justify-center">
-            <Image
-              className={cn("rounded-md border", attribs.class)}
-              alt={attribs.alt || ""}
-              src={attribs.src as string}
-              objectFit="contain"
-              height={attribs.height ? Number(attribs.height) : 500}
-              width={attribs.width ? Number(attribs.width) : 500}
-            />
-          </div>
+          <Image
+            className={cn("rounded-md border mx-auto", attribs.class)}
+            alt={attribs.alt || ""}
+            src={attribs.src as string}
+            objectFit="contain"
+            height={attribs.height ? Number(attribs.height) : 500}
+            width={attribs.width ? Number(attribs.width) : 500}
+          />
         );
 
       case "hr":

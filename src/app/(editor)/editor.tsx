@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { EditorContent, useEditor, Editor as EditorType } from "@tiptap/react";
 import EditorBubble from "./editor-bubble";
 import { Separator } from "@/components/ui/separator";
-import ImageUploadDialog from "@/components/dialogs/image-upload-dialog";
 import extensions from "./extensions";
 import { NodeSelector } from "./selectors/node-selector";
 import { LinkSelector } from "./selectors/link-selector";
@@ -112,18 +111,6 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   useEffect(() => {
     if (editor) {
       const editorElement = editor.view.dom;
-      editorElement.addEventListener("openImageDialog", () => {
-        setOpenImageDialog(true);
-      });
-      return () => {
-        editorElement.removeEventListener("openImageDialog", () => {});
-      };
-    }
-  }, [editor, openImageDialog]);
-
-  useEffect(() => {
-    if (editor) {
-      const editorElement = editor.view.dom;
       editorElement.addEventListener("openVideoDialog", () => {
         // TODO: create a dialog for video
         addVideo();
@@ -170,16 +157,6 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         className={cn(openImageDialog ? "blur-sm" : "")}
       />
       {!openImageDialog && <MediaResizer editor={editor} />}
-      <div className="relative mb-4 mt-4">
-        <ImageUploadDialog
-          image={image}
-          setImage={setImage}
-          open={openImageDialog}
-          setOpen={setOpenImageDialog}
-          onSubmit={() => setOpenImageDialog(false)}
-          onCancel={() => setOpenImageDialog(false)}
-        />
-      </div>
     </div>
   );
 };

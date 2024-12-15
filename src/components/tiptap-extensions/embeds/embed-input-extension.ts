@@ -1,7 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import EmbedInput from "./embed-input";
-import { Icons } from "@/components/icons";
 import type { EmbedType } from "./embed-input";
 
 export interface EmbedInputOptions {

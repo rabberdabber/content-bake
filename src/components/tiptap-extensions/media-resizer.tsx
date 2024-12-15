@@ -52,6 +52,10 @@ export const MediaResizer = ({ editor }: { editor: Editor | null }) => {
       keepRatio={true}
       resizable={true}
       throttleResize={0}
+      draggable={false}
+      snappable={true}
+      bounds={{ left: 0, top: 0, right: 0, bottom: 0 }}
+      className="media-resizer"
       onResize={({ target, width, height, delta }) => {
         if (delta[0]) target.style.width = `${width}px`;
         if (delta[1]) target.style.height = `${height}px`;

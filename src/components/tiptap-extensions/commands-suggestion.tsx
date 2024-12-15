@@ -157,13 +157,7 @@ export const suggestions = {
             description: "Upload and insert an image",
             icon: <Icons.image />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
-              editor.commands.deleteRange(range);
-              editor.view.dom.dispatchEvent(
-                new CustomEvent("openImageDialog", {
-                  bubbles: true,
-                  cancelable: true,
-                })
-              );
+              editor.chain().focus().deleteRange(range).setImageInput().run();
             },
           },
           {

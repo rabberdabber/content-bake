@@ -7,4 +7,5 @@ export const FOCUS_ALLOWED_NODES = [
   "table",
   "sandbox",
   "live-code-block",
+  "imageInput",
 ];

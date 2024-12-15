@@ -16,10 +16,6 @@ export const siteConfig = {
       title: "Sandbox",
       href: "/sandbox",
     },
-    {
-      title: "Image Upload",
-      href: "/image-upload",
-    },
   ],
   links: {
     linkedin: "https://www.linkedin.com/in/bereket-assefa-251a79178/",

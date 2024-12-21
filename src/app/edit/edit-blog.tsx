@@ -7,8 +7,6 @@ import { Editor as EditorType } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import ToggleGroup from "@/components/toggle-group";
-import parse from "html-react-parser";
-import { htmlParserOptions } from "@/config/html-parser";
 import { Separator } from "@/components/ui/separator";
 import DOMPurify from "dompurify";
 import type { EditorMode } from "./types";
@@ -82,7 +80,7 @@ const Editor = () => {
         mode === "split-pane" && "max-w-[calc(100dvw-4rem)]"
       )}
     >
-      <div className="sticky top-[4rem] flex justify-end w-full space-x-4 mr-4">
+      <div className="flex justify-end w-full px-4">
         <ToggleGroup
           iconsWithTooltip={[
             {
@@ -107,15 +105,17 @@ const Editor = () => {
         />
       </div>
       <div
-        className={`flex p-2 rounded-md ${
-          isSplitPane ? "flex-row rounded-md" : "flex-col"
-        } w-full gap-4 mb-10`}
+        className={cn(
+          "flex p-2 rounded-md flex-col w-full gap-4 mb-10",
+          isSplitPane && "flex-row rounded-md",
+          mode === "editor" && "overflow-hidden"
+        )}
       >
         <motion.div
           key="editor"
           {...getAnimationConfig(-1)}
           className={cn(
-            `border-2 flex-1 min-h-screen shadow-xl rounded-lg p-4 ${
+            `border-2 flex-1 shadow-xl rounded-lg p-4 overflow-y-auto max-h-[75dvh] ${
               isSplitPane ? "mr-2 min-w-[calc(50%-2rem)]" : "min-w-full w-full"
             }`,
             mode === "preview" && "hidden",

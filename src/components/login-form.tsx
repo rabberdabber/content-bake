@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, type SignInResponse } from "next-auth/react";
 import { loginSchema } from "@/app/schemas/login";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 
 export function LoginForm({
   className,
@@ -34,7 +35,6 @@ export function LoginForm({
     const password = formData.get("password");
 
     try {
-      // Validate with zod
       const validatedFields = loginSchema.parse({
         email,
         password,
@@ -44,16 +44,27 @@ export function LoginForm({
       const result = await signIn("credentials", {
         email: validatedFields.email,
         password: validatedFields.password,
-        callbackUrl: "/",
+        redirect: false, // Prevent automatic redirect to handle it ourselves
       });
 
       if (result?.error) {
-        toast.error("Invalid credentials");
+        // Server-side authentication error
+        toast.error("Login failed, check your credentials and try again");
+        return;
       }
-      // Successful login will automatically redirect or update session
+
+      // Successful login
+      toast.success("Login successful");
+      router.push("/");
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
+      if (error instanceof z.ZodError) {
+        // Client-side validation error
+        const errors = error.errors.map((err) => err.message);
+        errors.forEach((message) => toast.error(message));
+      } else {
+        // Unexpected error
+        toast.error("An unexpected error occurred");
+        console.error("Login error:", error);
       }
     } finally {
       setIsLoading(false);

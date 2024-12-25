@@ -56,10 +56,16 @@ export function SiteHeader() {
             </Link>
             <ThemeToggle />
             {session ? (
-              <IconButton onClick={() => signOut({ callbackUrl: "/" })}>
+              <div
+                className={buttonVariants({
+                  size: "icon",
+                  variant: "ghost",
+                })}
+                onClick={() => signOut({ callbackUrl: "/" })}
+              >
                 <Icons.logout className="h-5 w-5" />
                 <span className="sr-only">Sign out</span>
-              </IconButton>
+              </div>
             ) : (
               <> </>
             )}

@@ -14,9 +14,13 @@ const api = axios.create({
 });
 
 // Posts related API calls
+// TODO: use zod to validate API responses
 export const postsApi = {
   createPost: async (post: Post) => {
-    const response = await api.post("/posts/", post);
+    const response = await api.post("/posts/", {
+      ...post,
+      is_published: true,
+    });
     return response.data;
   },
 
@@ -45,14 +49,6 @@ export const postsApi = {
     const response = await api.post("/posts/", {
       ...draft,
       is_published: false,
-    });
-    return response.data;
-  },
-
-  // Publish a draft
-  publishPost: async (postId: string) => {
-    const response = await api.put(`/posts/${postId}`, {
-      is_published: true,
     });
     return response.data;
   },

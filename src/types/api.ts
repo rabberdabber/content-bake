@@ -12,7 +12,7 @@ export interface LoginResponse {
 
 export interface Post {
   id: string;
-  image?: string;
+  feature_image_url?: string;
   title: string;
   content: any; // TipTap JSON content
   tag?: string;

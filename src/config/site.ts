@@ -9,12 +9,12 @@ export const siteConfig = {
       href: "/",
     },
     {
-      title: "Create blog",
-      href: "/edit",
+      title: "Posts",
+      href: "/posts",
     },
     {
-      title: "Sandbox",
-      href: "/sandbox",
+      title: "Create Post",
+      href: "/edit",
     },
   ],
   links: {

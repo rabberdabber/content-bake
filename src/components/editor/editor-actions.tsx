@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
@@ -7,19 +8,19 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { postsApi } from "@/lib/api";
 import { useState } from "react";
-import { useLocalStorage } from "@mantine/hooks";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 
 interface EditorActionsProps {
   editor: Editor | null;
+  featuredImage: string;
 }
 
-export function EditorActions({ editor }: EditorActionsProps) {
-  const [content, setContent] = useLocalStorage({
-    key: "editor-content",
-    defaultValue: "",
-  });
+export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
+  const [content, setContent] = useLocalStorage("editor-content", "");
+  const [_, setFeaturedImage] = useLocalStorage("featured-image", "");
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const router = useRouter();
 
   return (
     <>
@@ -67,6 +68,11 @@ export function EditorActions({ editor }: EditorActionsProps) {
         className="gap-2"
         disabled={isPublishing || !editor}
         onClick={async () => {
+          if (!featuredImage) {
+            toast.error("Please upload a featured image");
+            return;
+          }
+
           try {
             setIsPublishing(true);
             const content = editor?.getJSON() || "";
@@ -80,6 +86,7 @@ export function EditorActions({ editor }: EditorActionsProps) {
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               author_id: "1",
+              feature_image_url: featuredImage,
             });
             toast.success("Post published successfully!");
           } catch (error) {
@@ -87,6 +94,8 @@ export function EditorActions({ editor }: EditorActionsProps) {
           } finally {
             setIsPublishing(false);
             setContent("");
+            setFeaturedImage("");
+            router.push("/posts");
           }
         }}
       >

@@ -1,13 +1,12 @@
 "use client";
 
+import React, { useRef, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import Image from "next/image";
 import { Editor as EditorType } from "@tiptap/react";
 import type { EditorMode } from "./types";
 import { sanitizeConfig } from "@/config/sanitize-config";
-import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import ToggleGroup from "@/components/toggle-group";
 import {
@@ -15,18 +14,17 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { Separator } from "@/components/ui/separator";
 import BlogPreview from "@/components/blog/blog-preview";
 import { EditorActions } from "@/components/editor/editor-actions";
-import { cn } from "@/lib/utils";
-import DOMPurify from "dompurify";
-import { useLocalStorage } from "@mantine/hooks";
 import {
   useUploader,
   useFileUpload,
   useDropZone,
 } from "@/components/tiptap-extensions/image/hooks";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
+import { useLocalStorage } from "@mantine/hooks";
+import { useScroll } from "@/lib/hooks/use-scroll";
 
 const TipTapEditor = dynamic(() => import("@/app/(editor)/editor"), {
   ssr: false,
@@ -38,7 +36,10 @@ const Editor = () => {
     key: "editor-content",
     defaultValue: "",
   });
-  const shouldReduceMotion = useReducedMotion();
+  const [featuredImage, setFeaturedImage] = useLocalStorage({
+    key: "featured-image",
+    defaultValue: "",
+  });
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -49,14 +50,9 @@ const Editor = () => {
   const editorRef = useRef<EditorType>(null);
   const blogRef = useRef<HTMLDivElement>(null);
 
-  const [featureImage, setFeatureImage] = useLocalStorage({
-    key: "feature-image",
-    defaultValue: "",
-  });
-
   const { loading, uploadFile } = useUploader({
     onUpload: (url) => {
-      setFeatureImage(url);
+      setFeaturedImage(url);
     },
   });
 
@@ -67,36 +63,7 @@ const Editor = () => {
       uploader: uploadFile,
     });
 
-  const getAnimationConfig = (direction: number) => ({
-    initial: {
-      opacity: shouldReduceMotion ? 1 : 0,
-      x: shouldReduceMotion ? 0 : direction * 20,
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        type: "spring",
-        bounce: 0.3,
-        stiffness: 100,
-        damping: 10,
-        mass: 0.5,
-        duration: shouldReduceMotion ? 0 : 0.7,
-      },
-    },
-    exit: {
-      opacity: shouldReduceMotion ? 1 : 0,
-      x: shouldReduceMotion ? 0 : direction * 20,
-      transition: {
-        type: "spring",
-        bounce: 0.3,
-        stiffness: 100,
-        damping: 10,
-        mass: 0.5,
-        duration: shouldReduceMotion ? 0 : 0.7,
-      },
-    },
-  });
+  const scrolled = useScroll(20);
 
   const onChangeMode = (newMode: EditorMode) => {
     setMode(newMode);
@@ -130,7 +97,15 @@ const Editor = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Editor Header */}
-      <div className="flex items-center justify-between border border-border/40 p-2 bg-foreground/10 rounded-t-lg m-0">
+      <div
+        className={cn(
+          "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+          "transition-all duration-200",
+          scrolled
+            ? "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40"
+            : "bg-foreground/10"
+        )}
+      >
         <ToggleGroup
           iconsWithTooltip={[
             {
@@ -154,11 +129,12 @@ const Editor = () => {
           ]}
         />
         <div className="flex gap-2 justify-end w-full">
-          <EditorActions editor={editorRef.current} />
+          <EditorActions
+            editor={editorRef.current}
+            featuredImage={featuredImage}
+          />
         </div>
       </div>
-
-      {/* Feature Image Upload Area - Moved here */}
       <div
         className={cn(
           "relative border-2 border-dashed rounded-none border-t-0 p-4 transition-colors",
@@ -182,10 +158,10 @@ const Editor = () => {
           }}
         />
 
-        {featureImage ? (
+        {featuredImage ? (
           <div className="relative max-w-xl mx-auto w-full aspect-[4/1] rounded-lg overflow-hidden">
             <Image
-              src={featureImage}
+              src={featuredImage}
               alt="Feature image"
               fill
               className="object-cover"
@@ -193,7 +169,7 @@ const Editor = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setFeatureImage("");
+                setFeaturedImage("");
               }}
               className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
             >

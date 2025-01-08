@@ -26,33 +26,63 @@ export default function Page() {
           {posts.map((post, index) => (
             <article
               key={post.id}
-              className="group relative flex flex-col space-y-2 hover:shadow-md border border-muted rounded-xl max-h-[25rem]"
+              className="group relative flex flex-col bg-card hover:bg-card/50 border border-muted 
+              rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
             >
-              {post.image && (
-                <div className="w-full h-[40%] flex justify-center items-center">
+              {post.feature_image_url && (
+                <div className="relative w-full pt-[56.25%]">
+                  {" "}
+                  {/* 16:9 aspect ratio */}
                   <Image
-                    src={post.image}
+                    src={post.feature_image_url}
                     alt={post.title}
-                    width={504}
-                    height={152}
-                    className="block w-full h-full rounded-md border bg-muted transition-colors object-cover"
+                    fill
+                    className="absolute inset-0 object-cover transition-transform duration-300 
+                    group-hover:scale-105"
                     priority={index <= 1}
                   />
                 </div>
               )}
-              <div className="flex flex-col justify-between h-56 p-2">
-                <h2 className="text-2xl font-extrabold">{post.title}</h2>
-                <div className="flex flex-col gap-2 mt-auto">
-                  {post.excerpt && (
-                    <p className="text-muted-foreground line-clamp-4 text-ellipsis">
-                      {post.excerpt}
-                    </p>
-                  )}
+              <div className="flex flex-col flex-1 p-4 space-y-4">
+                {post.tag && (
+                  <div className="flex flex-wrap gap-2">
+                    {post.tag && (
+                      <span
+                        key={post.tag}
+                        className="px-2 py-1 text-xs font-medium rounded-full 
+                        bg-primary/10 text-primary"
+                      >
+                        {post.tag}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <h2
+                  className="text-xl font-bold leading-tight line-clamp-2 
+                  group-hover:text-primary transition-colors"
+                >
+                  {post.title}
+                </h2>
+
+                {post.excerpt && (
+                  <p className="text-sm text-muted-foreground line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between mt-auto pt-4">
                   {post.created_at && (
-                    <p className="text-sm font-extralight text-muted-foreground mb-1">
+                    <time className="text-sm text-muted-foreground">
                       {formatDate(new Date(post.created_at), "MMMM dd, yyyy")}
-                    </p>
+                    </time>
                   )}
+                  <span
+                    className="text-sm font-medium text-primary opacity-0 
+                    group-hover:opacity-100 transition-opacity"
+                  >
+                    Read more →
+                  </span>
                 </div>
               </div>
               <Link href={`/posts/${post.id}`} className="absolute inset-0">

@@ -28,7 +28,6 @@ import {
   Check,
   MonitorPlay,
   Pencil,
-  Columns2,
   RefreshCcw,
   Code,
   Undo,
@@ -55,6 +54,16 @@ import {
   Sparkles,
   ImageIcon,
   Loader2,
+  Trash,
+  PlusIcon,
+  SplitSquareHorizontal,
+  Columns2,
+  TableIcon,
+  RemoveFormatting,
+  GripVertical,
+  LogOut,
+  LogIn,
+  Save,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -74,7 +83,6 @@ export const Icons = {
   Heading6,
   List,
   ListOrdered,
-  Table,
   Quote,
   Minus,
   CornerDownLeft,
@@ -82,6 +90,7 @@ export const Icons = {
   Undo,
   Redo,
   Droplet,
+  Table: TableIcon,
   upload: Upload,
   link: Link,
   send: Send,
@@ -113,6 +122,15 @@ export const Icons = {
   sparkles: Sparkles,
   imageIcon: ImageIcon,
   loader: Loader2,
+  trash: Trash,
+  plus: PlusIcon,
+  splitSquareHorizontal: SplitSquareHorizontal,
+  columns2: Columns2,
+  format: RemoveFormatting,
+  gripVertical: GripVertical,
+  logout: LogOut,
+  login: LogIn,
+  save: Save,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

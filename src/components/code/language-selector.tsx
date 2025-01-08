@@ -43,22 +43,29 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[min-content]"
+          className="w-[min-content] bg-background border border-input hover:bg-accent hover:text-accent-foreground"
         >
-          {value
-            ? languages
-                .find((lang) => lang === value)
-                ?.charAt(0)
-                .toUpperCase() + value.slice(1)
-            : "Select Language..."}
+          <span className="text-foreground">
+            {value
+              ? languages
+                  .find((lang) => lang === value)
+                  ?.charAt(0)
+                  .toUpperCase() + value.slice(1)
+              : "Select Language..."}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search Language..." />
+      <PopoverContent className="w-[200px] p-0 bg-popover border border-border">
+        <Command className="bg-transparent">
+          <CommandInput
+            placeholder="Search Language..."
+            className="border-none focus:ring-0"
+          />
           <CommandList>
-            <CommandEmpty>No Language found.</CommandEmpty>
+            <CommandEmpty className="text-muted-foreground">
+              No Language found.
+            </CommandEmpty>
             <CommandGroup>
               {languages.map((lang, index) => (
                 <CommandItem
@@ -69,6 +76,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                     setValue(lang);
                     setOpen(false);
                   }}
+                  className="text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <Check
                     className={cn(

@@ -1,57 +1,65 @@
-import Image from "next/image";
 import Link from "next/link";
-import { formatDate } from "date-fns";
+import { Pencil, BookOpen, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import { getBlogPostList } from "../file-helper";
-
-export default async function Page() {
-  const posts = await getBlogPostList();
-
+export default function Home() {
   return (
-    <div className="min-h-screen container max-w-4xl py-6 lg:py-10">
-      {posts?.length ? (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {posts.map((post, index) => (
-            <article
-              key={post.title}
-              className="group relative flex flex-col space-y-2 hover:shadow-md border border-muted rounded-xl max-h-[25rem]"
+    <main className="min-h-screen bg-gradient-to-b from-background to-muted">
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center text-center">
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+          Welcome to Your Writing Space
+        </h1>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12">
+          Create, edit, and share your stories with our powerful and intuitive
+          blog editor.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 mb-16">
+          <Link href="/edit">
+            <Button size="lg" className="gap-2">
+              <Pencil className="w-4 h-4" />
+              Start Writing
+            </Button>
+          </Link>
+          <Link href="/posts">
+            <Button variant="outline" size="lg" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Read Posts
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-4xl">
+          {[
+            {
+              icon: <Pencil className="w-6 h-6 mb-4" />,
+              title: "Rich Text Editor",
+              description:
+                "Write and format your content with our powerful WYSIWYG editor",
+            },
+            {
+              icon: <Sparkles className="w-6 h-6 mb-4" />,
+              title: "Real-time Preview",
+              description:
+                "See how your blog post will look as you write with live preview",
+            },
+            {
+              icon: <BookOpen className="w-6 h-6 mb-4" />,
+              title: "Auto-saving",
+              description: "Never lose your work with automatic draft saving",
+            },
+          ].map((feature, i) => (
+            <div
+              key={i}
+              className="p-6 rounded-lg border bg-card text-card-foreground"
             >
-              {post.image && (
-                <div className="w-full h-[40%] flex justify-center items-center">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    width={504}
-                    height={152}
-                    className="block w-full h-full rounded-md border bg-muted transition-colors object-cover"
-                    priority={index <= 1}
-                  />
-                </div>
-              )}
-              <div className="flex flex-col justify-between h-56 p-2">
-                <h2 className="text-2xl font-extrabold">{post.title}</h2>
-                <div className="flex flex-col gap-2 mt-auto">
-                  {post.abstract && (
-                    <p className="text-muted-foreground line-clamp-4 text-ellipsis">
-                      {post.abstract}
-                    </p>
-                  )}
-                  {post.publishedOn && (
-                    <p className="text-sm font-extralight text-muted-foreground mb-1">
-                      {formatDate(post.publishedOn, "MMMM dd, yyyy")}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <Link href={`/posts/${post.slug}`} className="absolute inset-0">
-                <span className="sr-only">View Article</span>
-              </Link>
-            </article>
+              {feature.icon}
+              <h2 className="text-xl font-semibold mb-2">{feature.title}</h2>
+              <p className="text-muted-foreground">{feature.description}</p>
+            </div>
           ))}
         </div>
-      ) : (
-        <p>No posts published.</p>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

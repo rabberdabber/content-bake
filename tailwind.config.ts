@@ -39,10 +39,12 @@ const config = {
     },
     extend: {
       colors: {
-        "page-background-light": "hsl(50deg 100% 94%)",
-        "page-background-dark": "transparent",
-        "page-border-light": "transparent",
-        "page-border-dark": "hsl(256deg 30% 50% / 0.2)",
+        "page-background-light": "white", // Softer light background
+        "page-background-dark": "hsl(220deg 20% 20%)", // Rich dark gray background
+        "page-border-light": "white", // Slightly darker for visibility
+        "page-border-dark": "hsl(220deg 30% 40%)", // Softer contrast for borders
+        "prose-text-light": "#333333", // Dark gray text for light mode
+        "prose-text-dark": "#EDEDED", // Light gray text for dark mode
         "content-width": "55rem",
         "outer-content-width": "80rem",
         "viewport-padding": "16px",
@@ -129,6 +131,7 @@ const config = {
       typography: {
         DEFAULT: {
           css: {
+            color: "var(--prose-text-light)", // Use light text in default mode
             pre: {
               backgroundColor: "#282C34",
               color: "#ABB2BF",
@@ -186,6 +189,7 @@ const config = {
         },
         dark: {
           css: {
+            color: "var(--prose-text-dark)", // Use dark mode text color
             pre: {
               backgroundColor: "#FAFAFA",
               color: "#333333",

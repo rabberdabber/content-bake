@@ -3,9 +3,9 @@ export const FOCUS_ALLOWED_NODES = [
   "image",
   "youtube",
   "video",
-  "codeBlock",
+  // "codeBlock",
   "table",
-  "sandbox",
-  "live-code-block",
+  // "sandbox",
+  // "live-code-block",
   "imageInput",
 ];

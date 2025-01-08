@@ -159,10 +159,12 @@ export const EditorCommandOut = forwardRef<
               {group.items.map((item) => (
                 <CommandItem
                   key={item.key}
+                  value={item.key}
                   onSelect={() => selectItem(item.key)}
                   className={cn(
-                    "flex items-center space-x-2 gap-3 hover:bg-accent",
-                    item.key === selectedKey ? "bg-accent" : ""
+                    "flex items-center space-x-2 gap-3 transition-colors duration-200 hover:bg-transparent",
+                    item.key === selectedKey &&
+                      "bg-accent data-[selected]:bg-accent"
                   )}
                   onMouseEnter={() => {
                     isKeyboardNavigation.current = false;

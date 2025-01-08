@@ -12,7 +12,6 @@ import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
-import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -24,11 +23,17 @@ import CommandsExtension from "@/components/tiptap-extensions/commands";
 import CodeBlock from "@/components/code/tiptap-code-block";
 import { TabCommand } from "@/components/tiptap-extensions/tab-command";
 import YoutubeInput from "@/components/tiptap-extensions/embeds/youtube-input-extension";
-import ImageInput from "@/components/tiptap-extensions/image/image-input-extension";
+import ImageInput from "@/components/tiptap-extensions/image/image-uploader-extension";
+import AIImageGeneratorExtension from "@/components/tiptap-extensions/ai-image/ai-image-extension";
+import TextAlign from "@tiptap/extension-text-align";
 import { cn } from "@/lib/utils";
 import { CustomFocus } from "@/components/tiptap-extensions/custom-focus";
 import { CustomDocument } from "@/components/tiptap-extensions/custom-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
+import { DeletableImage } from "@/components/tiptap-extensions/nodes/deletable-image";
+import { DeletableTable } from "@/components/tiptap-extensions/nodes/deletable-table";
+import GlobalDragHandle from "tiptap-extension-global-drag-handle";
+import AIContentGeneratorExtension from "@/components/tiptap-extensions/ai-content/ai-content-extension";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -52,8 +57,11 @@ const CustomTableCell = TableCell.extend({
 });
 
 const extensions = [
-  GlobalDragHandle,
-  Table.configure({
+  Table.extend({
+    addNodeView() {
+      return ReactNodeViewRenderer(DeletableTable);
+    },
+  }).configure({
     resizable: true,
   }),
   TableRow,
@@ -105,13 +113,6 @@ const extensions = [
         class: cn("border-l-4 border-primary"),
       },
     },
-    // codeBlock: {
-    //   HTMLAttributes: {
-    //     class: cn(
-    //       "rounded-md bg-muted text-muted-foreground border p-5 font-mono font-medium"
-    //     ),
-    //   },
-    // },
     codeBlock: false,
     dropcursor: false,
     code: {
@@ -125,16 +126,31 @@ const extensions = [
     heading: {
       levels: [1, 2, 3],
       HTMLAttributes: {
-        class: ({ level }: { level: 1 | 2 | 3 }) => {
+        class: ({
+          level,
+          HTMLAttributes,
+        }: {
+          level: 1 | 2 | 3;
+          HTMLAttributes?: Record<string, any>;
+        }) => {
           switch (level) {
             case 1:
-              return cn("text-4xl font-bold tracking-tight self-center");
+              return cn(
+                "text-4xl font-bold tracking-tight",
+                HTMLAttributes?.class
+              );
             case 2:
-              return cn("text-3xl font-semibold tracking-tight self-center");
+              return cn(
+                "text-3xl font-semibold tracking-tight",
+                HTMLAttributes?.class
+              );
             case 3:
-              return cn("text-2xl font-semibold tracking-tight self-center");
+              return cn(
+                "text-2xl font-semibold tracking-tight",
+                HTMLAttributes?.class
+              );
             default:
-              return "";
+              return HTMLAttributes?.class || "";
           }
         },
       },
@@ -145,6 +161,10 @@ const extensions = [
     defaultLevel: 1,
   }),
   Image.extend({
+    group: "block",
+    addNodeView() {
+      return ReactNodeViewRenderer(DeletableImage);
+    },
     HTMLAttributes: {
       class: cn("rounded-md border"),
     },
@@ -169,7 +189,16 @@ const extensions = [
       if (pos === 0) {
         // If it's not already a heading, make it one
         if (!editor.isActive("heading", { level: 1 })) {
-          editor.chain().focus().setNode("heading", { level: 1 }).run();
+          editor
+            .chain()
+            .focus()
+            .setNode("heading", {
+              level: 1,
+              HTMLAttributes: {
+                class: cn("text-center border-blue-500"),
+              },
+            })
+            .run();
         }
         return "Enter title...";
       }
@@ -190,13 +219,34 @@ const extensions = [
         "relative w-full aspect-video my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800",
     },
   }),
-  Video,
+  Video.configure({
+    HTMLAttributes: {
+      class: cn(
+        "relative w-full aspect-video my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+      ),
+      style: {
+        width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
+        height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
+      },
+    },
+  }),
   CustomFocus.configure({
-    className: "rounded shadow-[0_0_0_2px_green]",
+    className: cn("rounded shadow-[0_0_0_2px_green]"),
     mode: "deepest",
+    width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
+    height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
   }),
   YoutubeInput,
   ImageInput,
+  AIImageGeneratorExtension,
+  TextAlign.configure({
+    types: ["heading", "paragraph"],
+  }),
+  GlobalDragHandle.configure({
+    dragHandleWidth: 20,
+    scrollTreshold: 100,
+  }),
+  AIContentGeneratorExtension,
 ];
 
 export default extensions;

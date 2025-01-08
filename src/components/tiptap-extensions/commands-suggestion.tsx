@@ -5,34 +5,44 @@ import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance, Props, type GetReferenceClientRect } from "tippy.js";
 import { EditorCommandOut } from "../editor_command";
 
-export const tableHTML = `
-  <table style="width:100%">
-    <tr>
-      <th>Firstname</th>
-      <th>Lastname</th>
-      <th>Age</th>
-    </tr>
-    <tr>
-      <td>Jill</td>
-      <td>Smith</td>
-      <td>50</td>
-    </tr>
-    <tr>
-      <td>Eve</td>
-      <td>Jackson</td>
-      <td>94</td>
-    </tr>
-    <tr>
-      <td>John</td>
-      <td>Doe</td>
-      <td>80</td>
-    </tr>
-  </table>
-`;
+export const tableHTML = `<table><tbody><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody></table>`;
 
 export const suggestions = {
   items: ({ query }: { query: string }) => {
     const commandGroups = [
+      {
+        heading: "AI",
+        items: [
+          {
+            key: "aiContent",
+            title: "AI Content Generation",
+            description: "Generate content using AI",
+            icon: <Icons.sparkles />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setAIContentGenerator()
+                .run();
+            },
+          },
+          {
+            key: "aiImage",
+            title: "AI Image Generation",
+            description: "Generate an image using AI",
+            icon: <Icons.sparkles />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setAIImageGenerator()
+                .run();
+            },
+          },
+        ],
+      },
       {
         heading: "Text Formatting",
         items: [
@@ -153,11 +163,16 @@ export const suggestions = {
         items: [
           {
             key: "image",
-            title: "Image",
-            description: "Upload and insert an image",
+            title: "Upload Image",
+            description: "Upload an image from your device",
             icon: <Icons.image />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
-              editor.chain().focus().deleteRange(range).setImageInput().run();
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setImageUploader()
+                .run();
             },
           },
           {
@@ -206,11 +221,7 @@ export const suggestions = {
                 .chain()
                 .focus()
                 .deleteRange(range)
-                .insertContent(tableHTML, {
-                  parseOptions: {
-                    preserveWhitespace: false,
-                  },
-                })
+                .insertTable({ rows: 3, cols: 3 })
                 .run();
             },
           },

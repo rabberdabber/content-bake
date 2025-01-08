@@ -1,21 +1,21 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import { ImageComponent } from "./image-uploader-generator";
+import { AIImageGenerator } from "./ai-image-generator";
 
-export interface ImageInputOptions {
+export interface AIImageGeneratorOptions {
   HTMLAttributes: Record<string, any>;
 }
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
-    imageInput: {
-      setImageInput: () => ReturnType;
+    aiImageGenerator: {
+      setAIImageGenerator: () => ReturnType;
     };
   }
 }
 
-const ImageInputExtension = Node.create<ImageInputOptions>({
-  name: "imageInput",
+const AIImageGeneratorExtension = Node.create<AIImageGeneratorOptions>({
+  name: "aiImageGenerator",
 
   group: "block",
 
@@ -30,7 +30,7 @@ const ImageInputExtension = Node.create<ImageInputOptions>({
   parseHTML() {
     return [
       {
-        tag: 'div[data-type="image-input"]',
+        tag: 'div[data-type="ai-image-generator"]',
       },
     ];
   },
@@ -38,17 +38,17 @@ const ImageInputExtension = Node.create<ImageInputOptions>({
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes(HTMLAttributes, { "data-type": "image-input" }),
+      mergeAttributes(HTMLAttributes, { "data-type": "ai-image-generator" }),
     ];
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(ImageComponent);
+    return ReactNodeViewRenderer(AIImageGenerator);
   },
 
   addCommands() {
     return {
-      setImageInput:
+      setAIImageGenerator:
         () =>
         ({ commands }) => {
           return commands.insertContent({
@@ -59,4 +59,4 @@ const ImageInputExtension = Node.create<ImageInputOptions>({
   },
 });
 
-export default ImageInputExtension;
+export default AIImageGeneratorExtension;

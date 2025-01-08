@@ -18,6 +18,11 @@ const nextConfig = {
         hostname: "delivery-eu1.bfl.ai",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+        port: "",
+      },
     ],
   },
   webpack: (config) => {

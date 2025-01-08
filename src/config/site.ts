@@ -1,8 +1,8 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Next.js",
-  description: "Bite Sized Blog by bake.",
+  name: "Bake's CMS",
+  description: "Bake's Content Management System",
   mainNav: [
     {
       title: "Home",

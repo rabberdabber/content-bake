@@ -10,6 +10,7 @@ import { cn } from "../lib/utils";
 import Sandbox from "@/components/code/live-code-block";
 import CodeBlock from "@/components/code/code-block";
 import VideoPlayer from "@/components/video-player";
+import { DEFAULT_IMAGE_GENERATION_CONFIG } from "./image-generation";
 
 export const htmlParserOptions: HTMLReactParserOptions = {
   replace({
@@ -155,15 +156,31 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         );
 
       case "img":
+        const width = attribs.width
+          ? Number(attribs.width)
+          : DEFAULT_IMAGE_GENERATION_CONFIG.width;
+        const height = attribs.height
+          ? Number(attribs.height)
+          : DEFAULT_IMAGE_GENERATION_CONFIG.height;
         return (
-          <Image
-            className={cn("rounded-md border mx-auto", attribs.class)}
-            alt={attribs.alt || ""}
-            src={attribs.src as string}
-            objectFit="contain"
-            height={attribs.height ? Number(attribs.height) : 500}
-            width={attribs.width ? Number(attribs.width) : 500}
-          />
+          <div
+            className="flex justify-center items-center mx-auto p-4 m-4"
+            style={{ width, height }}
+          >
+            <Image
+              className={cn("rounded-md", attribs.class)}
+              alt={attribs.alt || ""}
+              src={attribs.src as string}
+              style={{
+                objectFit: "contain",
+                width: "100%",
+                height: "100%",
+              }}
+              width={width}
+              height={height}
+              priority
+            />
+          </div>
         );
 
       case "hr":
@@ -213,7 +230,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <CodeBlock
             className={cn(
-              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem]",
+              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem] mb-2",
               attribs.class
             )}
           >
@@ -235,7 +252,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
       case "live-code-block":
         if (attribs["data-is-widget"] !== undefined) {
           return (
-            <div className="mt-2">
+            <div className="mb-2">
               <Sandbox
                 showPreview
                 previewOnly
@@ -247,24 +264,32 @@ export const htmlParserOptions: HTMLReactParserOptions = {
           );
         }
         return (
-          <div className="mt-2">
+          <div className="mb-2">
             <Sandbox showEditor showPreview />
           </div>
         );
       case "video":
         return (
-          <VideoPlayer
-            src={attribs.src as string}
-            width={attribs.width ? Number(attribs.width) : 500}
-            height={attribs.height ? Number(attribs.height) : 500}
-          />
+          <div
+            className="mb-2"
+            style={{
+              width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
+              height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
+            }}
+          >
+            <VideoPlayer
+              src={attribs.src as string}
+              width={attribs.width ? Number(attribs.width) : 500}
+              height={attribs.height ? Number(attribs.height) : 500}
+            />
+          </div>
         );
       case "div":
         if (attribs["data-youtube-video"] !== undefined) {
           const iframe = children[0] as Element;
           if (iframe && iframe.name === "iframe") {
             return (
-              <div className="relative w-full aspect-video my-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+              <div className="relative w-full aspect-video mb-4 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
                   src={iframe.attribs.src}

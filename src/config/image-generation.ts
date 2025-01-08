@@ -16,13 +16,15 @@ export type ImageGenerationConfig = {
   promptUpsampling: boolean;
   outputFormat: ImageGenerationOutputFormatType;
   safetyTolerance: number;
+  raw: boolean;
 };
 
 export const DEFAULT_IMAGE_GENERATION_CONFIG = {
   model: "flux-pro-1.1-ultra",
   height: 512,
-  width: 1000,
+  width: 700,
   promptUpsampling: false,
   outputFormat: "jpeg",
   safetyTolerance: 2,
+  raw: true,
 } satisfies ImageGenerationConfig;

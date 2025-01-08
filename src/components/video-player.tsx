@@ -1,3 +1,4 @@
+import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import React from "react";
 
 type VideoPlayerProps = {
@@ -6,7 +7,11 @@ type VideoPlayerProps = {
   height: number;
 };
 
-const VideoPlayer = ({ src, width = 500, height = 500 }: VideoPlayerProps) => {
+const VideoPlayer = ({
+  src,
+  width = DEFAULT_IMAGE_GENERATION_CONFIG.width,
+  height = DEFAULT_IMAGE_GENERATION_CONFIG.height,
+}: VideoPlayerProps) => {
   return (
     <video width={width} height={height} controls preload="none">
       <source src={src} type="video/mp4" />

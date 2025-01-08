@@ -2,10 +2,13 @@ import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
 import { Decoration, DecorationSet } from "@tiptap/pm/view";
 import { FOCUS_ALLOWED_NODES } from "@/config/focus-nodes";
+import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 
 export interface FocusOptions {
   className: string;
   mode: "deepest" | "shallowest" | "all";
+  width?: number;
+  height?: number;
 }
 
 export const CustomFocus = Extension.create<FocusOptions>({
@@ -79,6 +82,7 @@ export const CustomFocus = Extension.create<FocusOptions>({
               decorations.push(
                 Decoration.node(pos, pos + node.nodeSize, {
                   class: this.options.className,
+                  style: `min-width: ${DEFAULT_IMAGE_GENERATION_CONFIG.width}px; min-height: ${DEFAULT_IMAGE_GENERATION_CONFIG.height}px;`,
                 })
               );
             });

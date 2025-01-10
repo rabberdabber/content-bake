@@ -8,27 +8,30 @@ import { Editor as EditorType } from "@tiptap/react";
 import type { EditorMode } from "./types";
 import { sanitizeConfig } from "@/config/sanitize-config";
 import { Icons } from "@/components/icons";
-import ToggleGroup from "@/components/toggle-group";
+import ToggleGroup from "@/components/ui/toggle-group";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import BlogPreview from "@/components/blog/blog-preview";
-import { EditorActions } from "@/components/editor/editor-actions";
+import BlogPreview from "@/features/editor/components/preview/blog-preview";
+import { EditorActions } from "@/features/editor/components/core/editor-actions";
 import {
   useUploader,
   useFileUpload,
   useDropZone,
-} from "@/components/tiptap-extensions/image/hooks";
+} from "@/hooks/image/file-hooks";
 import { cn } from "@/lib/utils";
 import DOMPurify from "dompurify";
 import { useLocalStorage } from "@mantine/hooks";
 import { useScroll } from "@/lib/hooks/use-scroll";
 
-const TipTapEditor = dynamic(() => import("@/app/(editor)/editor"), {
-  ssr: false,
-});
+const TipTapEditor = dynamic(
+  () => import("@/features/editor/components/core/editor"),
+  {
+    ssr: false,
+  }
+);
 
 const Editor = () => {
   const [isClient, setIsClient] = useState(false);
@@ -159,7 +162,7 @@ const Editor = () => {
         />
 
         {featuredImage ? (
-          <div className="relative max-w-xl mx-auto w-full aspect-[4/1] rounded-lg overflow-hidden">
+          <div className="relative mx-auto w-full aspect-[4/1] rounded-lg overflow-hidden">
             <Image
               src={featuredImage}
               alt="Feature image"

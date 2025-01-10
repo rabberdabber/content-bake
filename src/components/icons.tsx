@@ -52,6 +52,7 @@ import {
   Cog,
   XIcon,
   Sparkles,
+  Wand2,
   ImageIcon,
   Loader2,
   Trash,
@@ -64,11 +65,18 @@ import {
   LogOut,
   LogIn,
   Save,
+  Bot,
+  User,
+  AlignHorizontalDistributeStart,
+  AlignHorizontalDistributeCenter,
+  AlignHorizontalDistributeEnd,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
+  bot: Bot,
+  user: User,
   Bold,
   Italic,
   Strikethrough,
@@ -120,6 +128,7 @@ export const Icons = {
   widget: Cog,
   x: XIcon,
   sparkles: Sparkles,
+  wand2: Wand2,
   imageIcon: ImageIcon,
   loader: Loader2,
   trash: Trash,
@@ -131,6 +140,9 @@ export const Icons = {
   logout: LogOut,
   login: LogIn,
   save: Save,
+  alignHorizontalDistributeStart: AlignHorizontalDistributeStart,
+  alignHorizontalDistributeCenter: AlignHorizontalDistributeCenter,
+  alignHorizontalDistributeEnd: AlignHorizontalDistributeEnd,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

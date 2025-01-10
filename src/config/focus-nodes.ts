@@ -1,11 +1,13 @@
 // Define which nodes should receive focus styling
 export const FOCUS_ALLOWED_NODES = [
-  "image",
   "youtube",
   "video",
+  "imageBlock",
   // "codeBlock",
   "table",
   // "sandbox",
   // "live-code-block",
   "imageInput",
+  "aiImageGenerator",
+  "aiContentGenerator",
 ];

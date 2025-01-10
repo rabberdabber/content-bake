@@ -1,11 +1,11 @@
 import { useEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 
-import extensions from "@/app/(editor)/extensions";
+import extensions from "@/features/editor/components/extensions";
 import useLocalStorage from "./use-local-storage";
 import { sanitizeConfig } from "@/config/sanitize-config";
 import DOMPurify from "dompurify";
-import { handleCommandNavigation } from "@/components/tiptap-extensions/commands-suggestion";
+import { handleCommandNavigation } from "@/features/editor/components/commands";
 import { uploadImage } from "../image/utils";
 import { toast } from "sonner";
 import { useState } from "react";

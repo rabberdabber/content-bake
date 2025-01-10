@@ -82,7 +82,7 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       className,
       tooltip,
       tooltipShortcut,
-      activeClassname,
+      activeClassname = "bg-neutral-200 dark:bg-neutral-800",
       active,
       ...rest
     },

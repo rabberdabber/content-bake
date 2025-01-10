@@ -1,9 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { formatDate } from "date-fns";
 import { postsApi } from "@/lib/api";
 import { Post } from "@/types/api";
-import BlogPreview from "@/components/blog/blog-preview";
+import BlogPreview from "@/features/editor/components/preview/blog-preview"; // TODO: change to blog preview from posts
 
 export default function PostPage({ params }: { params: { id: string } }) {
   const [post, setPost] = useState<Post | null>(null);

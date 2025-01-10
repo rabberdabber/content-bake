@@ -7,8 +7,8 @@ import {
 } from "html-react-parser";
 
 import { cn } from "../lib/utils";
-import Sandbox from "@/components/code/live-code-block";
-import CodeBlock from "@/components/code/code-block";
+import Sandbox from "@/features/editor/components/core/code/live-code-block";
+import CodeBlock from "@/features/editor/components/core/code/code-block";
 import VideoPlayer from "@/components/video-player";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "./image-generation";
 
@@ -156,28 +156,52 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         );
 
       case "img":
-        const width = attribs.width
-          ? Number(attribs.width)
-          : DEFAULT_IMAGE_GENERATION_CONFIG.width;
-        const height = attribs.height
-          ? Number(attribs.height)
-          : DEFAULT_IMAGE_GENERATION_CONFIG.height;
+        const parseSize = (
+          size: string | undefined,
+          defaultSize: number
+        ): number => {
+          if (!size) return defaultSize;
+          // If it's a percentage, convert it to pixels using the default size
+          if (size.endsWith("%")) {
+            const percentage = Number(size.replace("%", ""));
+            return (percentage / 100) * defaultSize;
+          }
+          // Otherwise parse as number
+          return Number(size) || defaultSize;
+        };
+
+        const width = parseSize(
+          attribs["data-width"],
+          DEFAULT_IMAGE_GENERATION_CONFIG.width
+        );
+        const height = DEFAULT_IMAGE_GENERATION_CONFIG.height;
+        const align = attribs["data-align"] || "center";
+
         return (
           <div
-            className="flex justify-center items-center mx-auto p-4 m-4"
-            style={{ width, height }}
+            className={cn(
+              "flex justify-center items-center p-4 m-4",
+              align === "left" && "mr-auto",
+              align === "right" && "ml-auto",
+              align === "center" && "mx-auto"
+            )}
+            style={{
+              width: attribs["data-width"]?.endsWith("%")
+                ? attribs["data-width"]
+                : `${width}px`,
+            }}
           >
             <Image
               className={cn("rounded-md", attribs.class)}
               alt={attribs.alt || ""}
               src={attribs.src as string}
-              style={{
-                objectFit: "contain",
-                width: "100%",
-                height: "100%",
-              }}
               width={width}
               height={height}
+              style={{
+                width: "100%",
+                height: "auto",
+                objectFit: "cover",
+              }}
               priority
             />
           </div>

@@ -5,8 +5,9 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { generateImageWithConfig } from "@/lib/image/utils";
+import { dynamicBlurDataUrl, generateImageWithConfig } from "@/lib/image/utils";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function AIImageGenerator({
   node,
@@ -20,25 +21,24 @@ export function AIImageGenerator({
     { role: "user" | "ai"; content: string }[]
   >([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
 
-  const replaceWithImage = useCallback(
-    (imageUrl: string) => {
-      if (editor) {
-        editor
-          .chain()
-          .setImageBlock({ src: imageUrl })
-          .deleteRange({ from: getPos(), to: getPos() })
-          .focus()
-          .run();
-        toast.success(`Image generated successfully.`);
-      }
-    },
-    [editor, getPos]
-  );
+  const handleInsertImage = useCallback(() => {
+    if (editor && previewImage) {
+      editor
+        .chain()
+        .setImageBlock({ src: previewImage })
+        .deleteRange({ from: getPos(), to: getPos() })
+        .focus()
+        .run();
+      toast.success(`Image inserted successfully.`);
+    }
+  }, [editor, getPos, previewImage, deleteNode]);
 
   const handleAIGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,10 +50,16 @@ export function AIImageGenerator({
     try {
       const imageUrl = await generateImageWithConfig(aiPrompt);
       if (imageUrl) {
-        replaceWithImage(imageUrl);
+        setPreviewImage(imageUrl);
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "ai", content: "Image generated successfully!" },
+        ]);
+        setBlurDataUrl(await dynamicBlurDataUrl(imageUrl));
       }
     } catch (error) {
       console.error("Error generating image:", error);
+      toast.error("Failed to generate image. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -107,9 +113,24 @@ export function AIImageGenerator({
                           <Icons.user className="h-3 w-3" />
                         )}
                       </span>
-                      <div className="flex-1">
-                        <p className="leading-relaxed">{msg.content}</p>
-                      </div>
+                      {msg.role === "ai" && previewImage ? (
+                        <div className="relative w-32 h-32">
+                          <Image
+                            src={previewImage}
+                            alt="Generated preview"
+                            fill
+                            className="rounded-lg border object-cover"
+                            blurDataURL={blurDataUrl || undefined}
+                            placeholder={blurDataUrl ? "blur" : undefined}
+                            sizes="128px"
+                            priority
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex-1">
+                          <p className="leading-relaxed">{msg.content}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -125,10 +146,21 @@ export function AIImageGenerator({
                 className="min-h-[120px] resize-none bg-background/50 backdrop-blur-sm"
                 disabled={isGenerating}
               />
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {previewImage && (
+                  <Button
+                    type="button"
+                    onClick={handleInsertImage}
+                    className="gap-2"
+                    variant="secondary"
+                  >
+                    <Icons.plus className="h-4 w-4" />
+                    Insert Image
+                  </Button>
+                )}
                 <Button
                   type="submit"
-                  className="gap-2 w-full sm:w-auto"
+                  className="gap-2"
                   disabled={isGenerating || !aiPrompt.trim()}
                 >
                   {isGenerating ? (

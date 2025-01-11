@@ -1,9 +1,6 @@
-import { useCompletion } from 'ai/react';
+import { useCompletion } from "ai/react";
 
-
-export function useContentGeneration() {
-
-
+export function useContentGeneration(id: string) {
   const {
     completion,
     input,
@@ -11,15 +8,15 @@ export function useContentGeneration() {
     handleSubmit,
     isLoading,
     error,
+    stop,
   } = useCompletion({
     api: `${process.env.NEXT_PUBLIC_API_URL}/ai/generate-content-v2`,
     headers: {
-      Accept: "text/event-stream"
+      Accept: "text/event-stream",
     },
     streamProtocol: "text",
+    id,
   });
-
-  console.log("completion", completion);
 
   return {
     completion,
@@ -28,5 +25,6 @@ export function useContentGeneration() {
     handleSubmit,
     isLoading,
     error,
+    stop,
   };
-} 
+}

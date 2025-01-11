@@ -20,6 +20,7 @@ import { Icons } from "@/components/icons";
 import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance, Props, type GetReferenceClientRect } from "tippy.js";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface EditorCommandOutProps {
   query: string;
@@ -210,12 +211,10 @@ export const suggestions = {
             description: "Generate content using AI",
             icon: <Icons.sparkles />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
-              editor
-                .chain()
-                .focus()
-                .deleteRange(range)
-                .setAIContentGenerator()
-                .run();
+              editor.chain().focus().deleteRange(range).run();
+
+              // Dispatch custom event after setting the node
+              window.dispatchEvent(new CustomEvent("openAIContentDialog"));
             },
           },
           {

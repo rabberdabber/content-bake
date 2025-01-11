@@ -1,3 +1,5 @@
+import { Node } from "prosemirror-model";
+import { Extensions, getSchema, JSONContent } from "@tiptap/core";
 import { Editor } from "@tiptap/react";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -49,4 +51,17 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
   return container;
 };
 
-export default getRenderContainer;
+export const validateSchema = (
+  doc: JSONContent,
+  extensions: Extensions
+): boolean => {
+  try {
+    const schema = getSchema(extensions);
+    console.log(schema);
+    const contentNode = Node.fromJSON(schema, doc);
+    contentNode.check();
+    return true;
+  } catch (e) {
+    return false;
+  }
+};

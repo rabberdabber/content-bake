@@ -30,7 +30,7 @@ import { CustomFocus } from "./nodes/custom-focus";
 import { CustomDocument } from "./nodes/custom-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import { DeletableTable } from "./nodes/deletable-table";
-import AIContentGeneratorExtension from "./ai/content";
+// import AIContentGeneratorExtension from "./ai/content";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import ImageBlockView from "./media/image/image-block";
 
@@ -223,7 +223,7 @@ const extensions = [
     dragHandleWidth: 20,
     scrollTreshold: 100,
   }),
-  AIContentGeneratorExtension,
+  // AIContentGeneratorExtension,
   ImageBlockView,
 ];
 

@@ -1,6 +1,6 @@
 "use client";
 import "@/styles/index.css";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { EditorContent, Editor as EditorType } from "@tiptap/react";
 import EditorBubble from "../toolbar/editor-bubble";
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +10,7 @@ import { TextButtons } from "../toolbar/selectors/text-buttons";
 import { ColorSelector } from "../toolbar/selectors/color-selector";
 import useBlockEditor from "@/lib/hooks/use-editor";
 import { ImageBlockMenu } from "../toolbar/image-block-menu";
+import { AIContentGenerator } from "./ai/content-generator";
 
 export type TipTapEditorType = EditorType;
 
@@ -20,58 +21,52 @@ type EditorProps = {
 
 const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   const { editor } = useBlockEditor({ setEditorContent });
-  const [image, setImage] = useState<string | File | null>(null);
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
-  const [openVideoDialog, setOpenVideoDialog] = useState(false);
+  const [openAIContentDialog, setOpenAIContentDialog] = useState(false);
+  const [chatId, setChatId] = useState<string | null>(null);
   const menuContainerRef = useRef(null);
+
   useEffect(() => {
     if (editor) {
       editorRef.current = editor;
     }
   }, [editor]);
 
-  useEffect(() => {
-    if (editor && image) {
-      editor
-        .chain()
-        .focus()
-        .setImage({
-          src:
-            typeof image === "string"
-              ? image
-              : URL.createObjectURL(image as File),
-        })
-        .run();
-    }
-  }, [image]);
+  const handleClose = useCallback(() => {
+    setOpenAIContentDialog(false);
+    setChatId(null);
+  }, []);
 
   useEffect(() => {
-    if (editor) {
-      const editorElement = editor.view.dom;
-      editorElement.addEventListener("openVideoDialog", () => {
-        // TODO: create a dialog for video
-        addVideo();
-      });
-      return () => {
-        editorElement.removeEventListener("openVideoDialog", () => {});
-      };
-    }
-  }, [editor, openVideoDialog]);
+    const handleOpenDialog = () => {
+      setOpenAIContentDialog(true);
+      setChatId(crypto.randomUUID());
+    };
+    window.addEventListener("openAIContentDialog", handleOpenDialog);
+
+    // Handle Escape key
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && openAIContentDialog) {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("openAIContentDialog", handleOpenDialog);
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [openAIContentDialog]);
 
   if (!editor) {
     return null;
   }
 
-  const addVideo = () => {
-    const url = prompt("Enter Video URL");
-
-    if (url) {
-      editor?.commands.setVideo(url);
-    }
-  };
-
+  console.log(JSON.stringify(editor.getJSON(), null, 2));
+  console.table(editor.schema.spec.nodes);
   return (
     <div className="flex h-full" ref={menuContainerRef}>
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
@@ -105,6 +100,15 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
         </EditorBubble>
         <EditorContent editor={editor} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        {chatId && (
+          <AIContentGenerator
+            editor={editor}
+            open={openAIContentDialog}
+            setOpen={setOpenAIContentDialog}
+            chatId={chatId}
+            handleClose={handleClose}
+          />
+        )}
       </div>
     </div>
   );

@@ -102,7 +102,7 @@ const Editor = () => {
       {/* Editor Header */}
       <div
         className={cn(
-          "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+          "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40 mt-16",
           "transition-all duration-200",
           scrolled
             ? "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40"

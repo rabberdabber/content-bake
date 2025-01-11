@@ -71,26 +71,43 @@ export function AIContentGenerator({
   const parsedContent = useMemo(() => {
     if (!completion) return null;
 
-    // Split the completion by line numbers (e.g., "1:{}", "2:{}", etc.)
-    console.log("completion", completion);
-    const jsonStrings = completion.split(/\d+:/);
-    console.log("jsonStrings", jsonStrings);
-    // Filter out empty strings and try to parse each JSON
-    const validJsons = jsonStrings
-      .filter((str) => str.trim())
-      .map((str) => {
-        try {
-          return json5.parse(str.trim());
-        } catch (e) {
-          return null;
-        }
-      })
-      .filter((json) => json !== null);
+    try {
+      const lines = completion.split("\n");
+      const lastContentLine = lines
+        .filter((line) => line.trim())
+        .filter((line) => {
+          try {
+            const parsed = json5.parse(line);
+            return !parsed.done && !parsed.error;
+          } catch {
+            return false;
+          }
+        })
+        .pop();
 
-    console.log("validJsons", validJsons);
+      if (!lastContentLine) return null;
 
-    // Return the last valid JSON or null if none found
-    return validJsons.length > 0 ? validJsons[validJsons.length - 1] : null;
+      const content = json5.parse(lastContentLine);
+
+      // Process code blocks to fix newlines
+      if (content.content) {
+        content.content.forEach((node) => {
+          if (node.type === "codeBlock" && Array.isArray(node.content)) {
+            // Handle case where content is an array of TextNodes
+            node.content.forEach((textNode) => {
+              if (textNode.type === "text") {
+                textNode.text = textNode.text.replace(/\\n/g, "\n");
+              }
+            });
+          }
+        });
+      }
+
+      return content;
+    } catch (e) {
+      console.error("Error parsing content:", e);
+      return null;
+    }
   }, [completion]);
 
   const insertContent = useCallback(() => {
@@ -99,6 +116,7 @@ export function AIContentGenerator({
     handleClose();
   }, [editor, parsedContent, handleClose]);
 
+  console.log("parsedContent", JSON.stringify(parsedContent, null, 2));
   return (
     <Dialog
       open={open}
@@ -111,7 +129,7 @@ export function AIContentGenerator({
           <DialogTitle>Generate Content with AI</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-hidden mr-2">
           {/* Form Section */}
           <form onSubmit={handleSubmit} className="flex-none space-y-2">
             <Textarea

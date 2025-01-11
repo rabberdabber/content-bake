@@ -69,7 +69,7 @@ const BlogPreview = memo(
             const generatedHTML = generateHTML(content, extensions);
             debouncedSetHtmlContent(generatedHTML);
           } catch (e) {
-            console.error("Error in BlogPreview", e);
+            console.error("Error in BlogPreview for content:", content, e);
           }
         } else {
           debouncedSetHtmlContent(content);

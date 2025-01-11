@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useEditor } from "@tiptap/react";
+import { JSONContent, useEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 
 import extensions from "@/features/editor/components/extensions";
@@ -17,7 +17,7 @@ declare global {
   }
 }
 
-const defaultContent = {
+const defaultContent: JSONContent = {
   type: "doc",
   content: [
     {
@@ -46,7 +46,7 @@ const defaultContent = {
   ],
 };
 
-const apiContent = {
+const apiContent: JSONContent = {
   type: "doc",
   content: [
     {
@@ -58,7 +58,7 @@ const apiContent = {
       content: [
         {
           type: "text",
-          text: "Building a CRUD API with Django",
+          text: "Fibonacci Sequence in Python",
         },
       ],
     },
@@ -70,20 +70,7 @@ const apiContent = {
       content: [
         {
           type: "text",
-          text: "Django, a high-level Python web framework, has been widely adopted due to its simplicity and robustness. One common application of Django is to build RESTful APIs, such as CRUD (Create, Read, Update, Delete) APIs. In this tutorial, we will walk through the steps to create a basic CRUD API using Django and Django Rest Framework.",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 1: Setting Up Your Django Project",
+          text: "The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. It's a popular sequence in mathematics and computer science due to its simple definition and properties.",
         },
       ],
     },
@@ -95,255 +82,19 @@ const apiContent = {
       content: [
         {
           type: "text",
-          text: "First, ensure you have Django and Django Rest Framework installed. You can do this by running the commands:",
+          text: "Here is a simple Python function to generate the Fibonacci sequence:",
         },
       ],
     },
     {
-      type: "paragraph",
+      type: "codeBlock",
       attrs: {
-        textAlign: "left",
+        language: "python",
       },
-      content: [
-        {
-          type: "text",
-          text: "```shell\npip install django\ndjango-admin startproject myproject\ncd myproject\npip install djangorestframework\n```",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
+      content: {
+        type: "text",
+        text: "def fibonacci(n):\\n    sequence = []\\n    a, b = 0, 1\\n    while len(sequence) < n:\\n        sequence.append(a)\\n        a, b = b, a + b\\n    return sequence\\n\\n# Example usage: Get the first 10 Fibonacci numbers\\nprint(fibonacci(10))",
       },
-      content: [
-        {
-          type: "text",
-          text: "After installing the packages, open your Django project and modify the settings.py file to include your app and rest_framework in the INSTALLED_APPS list:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```python\nINSTALLED_APPS = [\n    ...\n    'rest_framework',\n    'myapp',\n]\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 2: Creating a Django App",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "Next, create a new Django app where your API will reside. Run the command:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```shell\npython manage.py startapp myapp\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 3: Defining Your Model",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "In the models.py file of your app, define the model you want your API to CRUD. For this example, we'll create a simple Book model:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```python\nfrom django.db import models\n\nclass Book(models.Model):\n    title = models.CharField(max_length=100)\n    author = models.CharField(max_length=100)\n    published_date = models.DateField()\n    isbn = models.CharField(max_length=13)\n\n    def __str__(self):\n        return self.title\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 4: Creating a Serializer",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "The next step is to create a serializer for the Book model. In serializers.py, create:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```python\nfrom rest_framework import serializers\nfrom .models import Book\n\nclass BookSerializer(serializers.ModelSerializer):\n    class Meta:\n        model = Book\n        fields = '__all__'\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 5: Defining Views",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "Next, define the views for your CRUD operations in views.py:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```python\nfrom rest_framework import generics\nfrom .models import Book\nfrom .serializers import BookSerializer\n\nclass BookListCreate(generics.ListCreateAPIView):\n    queryset = Book.objects.all()\n    serializer_class = BookSerializer\n\nclass BookDetail(generics.RetrieveUpdateDestroyAPIView):\n    queryset = Book.objects.all()\n    serializer_class = BookSerializer\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Step 6: Configuring URLs",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "Finally, map the views to URLs in urls.py:",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "```python\nfrom django.urls import path\nfrom .views import BookListCreate, BookDetail\n\nurlpatterns = [\n    path('books/', BookListCreate.as_view(), name='book-list-create'),\n    path('books/<int:pk>/', BookDetail.as_view(), name='book-detail'),\n]\n```",
-        },
-      ],
-    },
-    {
-      type: "heading",
-      attrs: {
-        textAlign: "left",
-        level: 2,
-      },
-      content: [
-        {
-          type: "text",
-          text: "Conclusion",
-        },
-      ],
-    },
-    {
-      type: "paragraph",
-      attrs: {
-        textAlign: "left",
-      },
-      content: [
-        {
-          type: "text",
-          text: "You now have a basic CRUD API setup using Django and Django Rest Framework. This setup allows you to create, read, update, and delete Book instances. Explore more by customizing your models, serializers, and views for your specific needs.",
-        },
-      ],
     },
   ],
 };
@@ -379,9 +130,9 @@ const useBlockEditor = ({
       }
     },
     onUpdate: ({ editor }) => {
-      const newContent = editor.getJSON();
-      onContentUpdate(JSON.stringify(newContent));
-      setContent(JSON.stringify(newContent));
+      const newContent = editor.getHTML();
+      onContentUpdate(newContent);
+      setContent(newContent);
     },
     extensions: [...extensions],
     content: content,

@@ -98,11 +98,11 @@ const Editor = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="relative container mx-auto px-4 py-6">
       {/* Editor Header */}
       <div
         className={cn(
-          "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40 mt-16",
+          "sticky top-0 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40 mt-16",
           "transition-all duration-200",
           scrolled
             ? "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40"

@@ -92,6 +92,7 @@ const extensions = [
     defaultProtocol: "https",
   }),
   StarterKit.configure({
+    document: false,
     bulletList: {
       HTMLAttributes: {
         class: cn("list-disc list-outside leading-3 -mt-2"),

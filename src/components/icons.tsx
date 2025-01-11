@@ -70,6 +70,8 @@ import {
   AlignHorizontalDistributeStart,
   AlignHorizontalDistributeCenter,
   AlignHorizontalDistributeEnd,
+  Settings,
+  SquarePen,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -143,6 +145,8 @@ export const Icons = {
   alignHorizontalDistributeStart: AlignHorizontalDistributeStart,
   alignHorizontalDistributeCenter: AlignHorizontalDistributeCenter,
   alignHorizontalDistributeEnd: AlignHorizontalDistributeEnd,
+  post: SquarePen,
+  settings: Settings,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

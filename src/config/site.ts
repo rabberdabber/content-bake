@@ -7,14 +7,22 @@ export const siteConfig = {
     {
       title: "Home",
       href: "/",
+      protected: false,
     },
     {
       title: "Posts",
       href: "/posts",
+      protected: false,
     },
     {
       title: "Create Post",
       href: "/edit",
+      protected: true,
+    },
+    {
+      title: "Dashboard",
+      href: "/dashboard",
+      protected: true,
     },
   ],
   links: {

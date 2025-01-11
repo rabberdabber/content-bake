@@ -1,0 +1,56 @@
+"use client";
+
+import * as React from "react";
+
+import { Icons } from "@/components/icons";
+
+import { NavMain } from "@/components/nav-main";
+import { Sidebar, SidebarContent, SidebarRail } from "@/components/ui/sidebar";
+
+const data = {
+  user: {
+    name: "Bake",
+    email: "bereketsiyum@gmail.com",
+    avatar: "/profile.png",
+  },
+  navMain: [
+    {
+      title: "Posts",
+      url: "/posts",
+      icon: Icons.post,
+      isActive: true,
+      items: [
+        {
+          title: "Published",
+          url: "#",
+        },
+        {
+          title: "Drafts",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Settings",
+      url: "#",
+      icon: Icons.settings,
+      items: [
+        {
+          title: "General",
+          url: "#",
+        },
+      ],
+    },
+  ],
+};
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return (
+    <Sidebar collapsible="icon" {...props} className="pt-16">
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+      </SidebarContent>
+      <SidebarRail />
+    </Sidebar>
+  );
+}

@@ -9,12 +9,13 @@ import { Icons } from "@/components/icons";
 import { MainNav } from "@/components/main-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import IconButton from "./ui/icon-button";
+import { NavUser } from "./nav-user";
 
 export function SiteHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="bg-background sticky top-0 z-40 w-full border-b">
+    <header className="bg-background fixed top-0 z-40 w-full border-b">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <MainNav items={siteConfig.mainNav} />
         <div className="flex flex-1 items-center justify-end space-x-4">
@@ -55,21 +56,17 @@ export function SiteHeader() {
               </div>
             </Link>
             <ThemeToggle />
+
             {session ? (
-              <div className="flex items-center gap-2">
-                <div
-                  className={buttonVariants({
-                    size: "icon",
-                    variant: "ghost",
-                  })}
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                >
-                  <Icons.logout className="h-5 w-5" />
-                  <span className="sr-only">Sign out</span>
-                </div>
-              </div>
+              <NavUser
+                user={{
+                  name: session.user.full_name,
+                  email: session.user.email,
+                  avatar: "/profile.png",
+                }}
+              />
             ) : (
-              <> </>
+              <></>
             )}
           </nav>
         </div>

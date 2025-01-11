@@ -39,12 +39,12 @@ const config = {
     },
     extend: {
       colors: {
-        "page-background-light": "white", // Softer light background
-        "page-background-dark": "hsl(220deg 20% 20%)", // Rich dark gray background
-        "page-border-light": "white", // Slightly darker for visibility
-        "page-border-dark": "hsl(220deg 30% 40%)", // Softer contrast for borders
-        "prose-text-light": "#333333", // Dark gray text for light mode
-        "prose-text-dark": "#EDEDED", // Light gray text for dark mode
+        "page-background-light": "white",
+        "page-background-dark": "hsl(220deg 20% 20%)",
+        "page-border-light": "white",
+        "page-border-dark": "hsl(220deg 30% 40%)",
+        "prose-text-light": "#333333",
+        "prose-text-dark": "#EDEDED",
         "content-width": "55rem",
         "outer-content-width": "80rem",
         "viewport-padding": "16px",
@@ -83,6 +83,16 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sidebar: {
+          DEFAULT: "hsl(var(background))",
+          foreground: "hsl(var(foreground))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          ring: "hsl(var(--sidebar-ring))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -91,12 +101,20 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: "0",
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: "0",
+          },
         },
       },
       animation: {
@@ -104,20 +122,11 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       boxShadow: {
-        "page-light": `
-          0px 1px 2px hsl(50deg 60% 50% / 0.25),
-          0px 3px 6px hsl(50deg 60% 50% / 0.25),
-          0px 9px 18px hsl(50deg 60% 50% / 0.25),
-          0px 18px 36px hsl(50deg 60% 50% / 0.25),
-          0px 54px 108px hsl(50deg 60% 50% / 0.25)
-        `,
+        "page-light":
+          "`\\n          0px 1px 2px hsl(50deg 60% 50% / 0.25),\\n          0px 3px 6px hsl(50deg 60% 50% / 0.25),\\n          0px 9px 18px hsl(50deg 60% 50% / 0.25),\\n          0px 18px 36px hsl(50deg 60% 50% / 0.25),\\n          0px 54px 108px hsl(50deg 60% 50% / 0.25)\\n        `",
         "page-dark": "none",
-        "card-light": `
-          0px 1px 2px hsl(50deg 20% 50% / 0.2),
-          0px 2px 4px hsl(50deg 20% 50% / 0.2),
-          0px 4px 8px hsl(50deg 20% 50% / 0.2),
-          0px 8px 16px hsl(50deg 20% 50% / 0.2)
-        `,
+        "card-light":
+          "`\\n          0px 1px 2px hsl(50deg 20% 50% / 0.2),\\n          0px 2px 4px hsl(50deg 20% 50% / 0.2),\\n          0px 4px 8px hsl(50deg 20% 50% / 0.2),\\n          0px 8px 16px hsl(50deg 20% 50% / 0.2)\\n        `",
         "card-dark": "none",
       },
       spacing: {
@@ -131,7 +140,7 @@ const config = {
       typography: {
         DEFAULT: {
           css: {
-            color: "var(--prose-text-light)", // Use light text in default mode
+            color: "var(--prose-text-light)",
             pre: {
               backgroundColor: "#282C34",
               color: "#ABB2BF",
@@ -139,16 +148,16 @@ const config = {
                 fontSize: "1rem",
               },
             },
-            "h2 a": linkHeadingStyles,
-            "h3 a": linkHeadingStyles,
-            "h4 a": linkHeadingStyles,
-            "h5 a": linkHeadingStyles,
-            "h6 a": linkHeadingStyles,
+            "h2 a": "linkHeadingStyles",
+            "h3 a": "linkHeadingStyles",
+            "h4 a": "linkHeadingStyles",
+            "h5 a": "linkHeadingStyles",
+            "h6 a": "linkHeadingStyles",
             "h3 a:has(code)": {
-              boxShadow: `0 0 0 0.3rem transparent`,
+              boxShadow: "`0 0 0 0.3rem transparent`",
               "&:hover": {
-                background: colors.teal[900],
-                boxShadow: `0 0 0 0.3rem ${colors.teal[900]}`,
+                background: "colors.teal[900],",
+                boxShadow: "`0 0 0 0.3rem ${colors.teal[900]}`",
               },
             },
             figure: {
@@ -156,30 +165,38 @@ const config = {
             },
             blockquote: {
               fontSize: "90%",
-              color: colors.zinc[500],
-              borderLeftColor: colors.zinc[700],
-              "p::before": { display: "none" },
-              "p::after": { display: "none" },
+              color: "colors.zinc[500],",
+              borderLeftColor: "colors.zinc[700],",
+              "p::before": {
+                display: "none",
+              },
+              "p::after": {
+                display: "none",
+              },
             },
             a: {
               textDecoration: "none",
-              borderBottom: `1px solid ${colors.pink[300]}`,
-              color: colors.pink[200],
+              borderBottom: "`1px solid ${colors.pink[300]}`",
+              color: "colors.pink[200],",
               borderRadius: 1,
               transitionProperty: "color, border-color, background, box-shadow",
               transitionDuration: "0.18s",
-              boxShadow: `0 0 0 0.2rem transparent`,
+              boxShadow: "`0 0 0 0.2rem transparent`",
               "&:hover": {
-                color: `${colors.zinc[900]}`,
-                borderBottomColor: `${colors.pink[200]}`,
-                background: colors.pink[200],
-                boxShadow: `0 0 0 0.2rem ${colors.pink[200]}`,
+                color: "`${colors.zinc[900]}`",
+                borderBottomColor: "`${colors.pink[200]}`",
+                background: "colors.pink[200],",
+                boxShadow: "`0 0 0 0.2rem ${colors.pink[200]}`",
               },
             },
             code: {
               color: "#86e1fc",
-              "&::before": { content: `unset !important` },
-              "&::after": { content: `unset !important` },
+              "&::before": {
+                content: "`unset !important`",
+              },
+              "&::after": {
+                content: "`unset !important`",
+              },
               fontWeight: "normal",
             },
             "a code": {
@@ -189,7 +206,7 @@ const config = {
         },
         dark: {
           css: {
-            color: "var(--prose-text-dark)", // Use dark mode text color
+            color: "var(--prose-text-dark)",
             pre: {
               backgroundColor: "#FAFAFA",
               color: "#333333",

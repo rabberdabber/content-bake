@@ -21,7 +21,7 @@ export function NavUser({
   user: {
     name: string;
     email: string;
-    avatar: string | null;
+    avatar: string;
   };
 }) {
   const isMobile = !useMediaQuery(breakpoints.md);
@@ -29,9 +29,9 @@ export function NavUser({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="rounded-lg max-w-fit">
+        <Button variant="ghost" className="rounded-lg max-w-fit gap-1">
           <Avatar className="h-8 w-8 rounded-full">
-            <AvatarImage src={user.avatar || "/profile.png"} alt={user.name} />
+            <AvatarImage src={user.avatar} alt={user.name} />
             <AvatarFallback className="rounded-lg">Bake</AvatarFallback>
           </Avatar>
           <Icons.chevronDown className="ml-auto size-4" />
@@ -39,18 +39,15 @@ export function NavUser({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-        side={isMobile ? "bottom" : "right"}
+        side={"bottom"}
         align="end"
         sideOffset={4}
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage
-                src={user.avatar || "/profile.png"}
-                alt={user.name}
-              />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="rounded-lg">User</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{user.name}</span>

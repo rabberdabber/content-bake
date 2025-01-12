@@ -19,11 +19,6 @@ export const siteConfig = {
       href: "/edit",
       protected: true,
     },
-    {
-      title: "Dashboard",
-      href: "/dashboard",
-      protected: true,
-    },
   ],
   links: {
     linkedin: "https://www.linkedin.com/in/bereket-assefa-251a79178/",

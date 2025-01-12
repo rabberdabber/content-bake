@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Pencil, BookOpen, Sparkles } from "lucide-react";
+import { Pencil, BookOpen, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
 
 export default function Home() {
   return (
@@ -15,15 +16,21 @@ export default function Home() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-16">
-          <Link href="/edit">
+          <Link href="/login">
             <Button size="lg" className="gap-2">
-              <Pencil className="w-4 h-4" />
-              Start Writing
+              <Icons.arrowRight className="w-4 h-4" />
+              Login to Get Started
             </Button>
           </Link>
           <Link href="/posts">
             <Button variant="outline" size="lg" className="gap-2">
-              <BookOpen className="w-4 h-4" />
+              <Icons.pencil className="w-4 h-4" />
+              Editor Demo
+            </Button>
+          </Link>
+          <Link href="/posts">
+            <Button variant="secondary" size="lg" className="gap-2">
+              <Icons.bookOpen className="w-4 h-4" />
               Read Posts
             </Button>
           </Link>

@@ -72,11 +72,21 @@ import {
   AlignHorizontalDistributeEnd,
   Settings,
   SquarePen,
+  ChevronRight,
+  PanelLeftOpen,
+  PanelLeftClose,
+  FileQuestion,
+  ArrowRight,
+  BookOpen,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
+  pencil: Pencil,
+  fileQuestion: FileQuestion,
+  arrowRight: ArrowRight,
+  bookOpen: BookOpen,
   bot: Bot,
   user: User,
   Bold,
@@ -121,6 +131,7 @@ export const Icons = {
   create: Plus,
   chevronUp: ChevronUp,
   chevronDown: ChevronDown,
+  chevronRight: ChevronRight,
   download: Download,
   bold: BoldIcon,
   italic: ItalicIcon,
@@ -147,6 +158,8 @@ export const Icons = {
   alignHorizontalDistributeEnd: AlignHorizontalDistributeEnd,
   post: SquarePen,
   settings: Settings,
+  panelLeftClose: PanelLeftClose,
+  panelLeftOpen: PanelLeftOpen,
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path

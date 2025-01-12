@@ -21,12 +21,17 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "Create Post",
+          url: "/edit",
+          icon: Icons.create,
+        },
+        {
           title: "Published",
-          url: "#",
+          url: "/posts",
         },
         {
           title: "Drafts",
-          url: "#",
+          url: "/drafts",
         },
       ],
     },
@@ -46,7 +51,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props} className="pt-16">
+    <Sidebar collapsible="icon" {...props} className="mt-16">
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>

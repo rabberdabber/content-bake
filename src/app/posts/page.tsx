@@ -1,29 +1,21 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDate } from "date-fns";
-
+import { Suspense } from "react";
 import { postsApi } from "@/lib/api";
+import { Spinner } from "@/components/ui/spinner";
 import { Post } from "@/types/api";
-import { useEffect } from "react";
-import { useState } from "react";
 
-export default function Page() {
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const posts = await postsApi.getPosts();
-      posts.data && setPosts(posts.data);
-    };
-    fetchPosts();
-  }, []);
+// Create a separate Posts component for the async data fetching
+async function Posts() {
+  const posts = await postsApi.getPosts();
+  const postsData = (posts.data || []) as Post[];
 
   return (
-    <div className="min-h-screen container max-w-4xl py-6 lg:py-10">
-      {posts?.length ? (
+    <>
+      {postsData.length ? (
         <div className="grid gap-5 sm:grid-cols-2">
-          {posts.map((post, index) => (
+          {postsData.map((post, index) => (
             <article
               key={post.id}
               className="group relative flex flex-col bg-card hover:bg-card/50 border border-muted 
@@ -94,6 +86,23 @@ export default function Page() {
       ) : (
         <p>No posts published.</p>
       )}
+    </>
+  );
+}
+
+// Main page component
+export default function Page() {
+  return (
+    <div className="min-h-screen container max-w-4xl py-6 lg:py-10">
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Spinner />
+          </div>
+        }
+      >
+        <Posts />
+      </Suspense>
     </div>
   );
 }

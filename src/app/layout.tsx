@@ -9,6 +9,7 @@ import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/session-provider";
+import { SiteFooter } from "@/components/site-footer";
 
 const merriweather = Merriweather({
   subsets: ["latin"],
@@ -63,21 +64,22 @@ export default function RootLayout({ children }: RootLayoutProps) {
           roboto.variable
         )}
       >
-        <NextAuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextAuthProvider>
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />
-              <div className="flex-1">{children}</div>
+              <div className="min-h-screen">{children}</div>
+              <SiteFooter />
             </div>
-            <TailwindIndicator />
-            <Toaster />
-          </ThemeProvider>
-        </NextAuthProvider>
+          </NextAuthProvider>
+          <TailwindIndicator />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

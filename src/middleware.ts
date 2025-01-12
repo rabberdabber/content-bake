@@ -1,8 +1,35 @@
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-export default withAuth({
-  // Matches the pages config in `[...nextauth]`
-  pages: {
-    signIn: "/auth/signin",
+export default withAuth(
+  function middleware(req) {
+    // If user is authenticated and trying to access the home page:
+    if (req.nextUrl.pathname === "/" && req.nextauth.token) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+    return NextResponse.next();
   },
-});
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        // Allow public access to home and /posts
+        if (req.nextUrl.pathname === "/" || req.nextUrl.pathname === "/posts") {
+          return true;
+        }
+        // Require superuser for everything else
+        return token?.is_superuser || false;
+      },
+    },
+    pages: {
+      signIn: "/auth/signin",
+    },
+  }
+);
+
+export const config = {
+  matcher: [
+    "/",
+    "/posts",
+    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
+  ],
+};

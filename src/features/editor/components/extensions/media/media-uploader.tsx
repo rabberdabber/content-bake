@@ -7,57 +7,68 @@ import {
   useUploader,
 } from "@/hooks/image/file-hooks";
 import { cn } from "@/lib/utils";
-import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
+
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import type { MediaType } from "./types";
 
 const ACCEPT_TYPES = {
-  image: ".jpg,.jpeg,.png,.webp,.gif",
-  video: ".mp4,.webm,.ogg",
-};
+  image: {
+    mime: "image/*",
+    extensions: ".jpg,.jpeg,.png,.webp,.gif",
+  },
+  video: {
+    mime: "video/*",
+    extensions: ".mp4,.webm,.ogg",
+  },
+} as const;
 
 const MEDIA_ICONS = {
-  image: Icons.imageIcon,
+  image: Icons.image,
   video: Icons.video,
-};
+} as const;
 
-export function MediaUploader({ node, deleteNode, editor }: NodeViewProps) {
-  const mediaType = (node.attrs.type || "image") as keyof typeof MEDIA_ICONS;
+export function MediaUploader({
+  node,
+  deleteNode,
+  editor,
+  getPos,
+}: NodeViewProps) {
+  const mediaType = (node.attrs.type || "image") as MediaType;
   const MediaIcon = MEDIA_ICONS[mediaType];
 
-  const replaceWithMedia = (mediaUrl: string) => {
-    if (editor) {
-      editor
-        .chain()
-        .focus()
-        .command(({ tr, dispatch }) => {
-          if (dispatch) {
-            toast.success(`${mediaType} uploaded successfully`);
-            const nodeType = editor.schema.nodes[mediaType];
-            tr.replaceWith(
-              tr.selection.from,
-              tr.selection.from + 1,
-              nodeType.create({
+  const replaceWithMedia = useCallback(
+    (mediaUrl: string, dimensions?: { width: number; height: number }) => {
+      if (editor) {
+        const command =
+          mediaType === "image"
+            ? editor.chain().setImageBlock({
                 src: mediaUrl,
-                alt: `Uploaded ${mediaType}`,
-                width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
-                height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
+                ...(dimensions && {
+                  width: dimensions.width,
+                  height: dimensions.height,
+                }),
               })
-            );
-          }
-          return true;
-        })
-        .run();
-      deleteNode?.();
-    }
-  };
+            : editor.chain().setVideo(mediaUrl);
 
-  const { loading, uploadFile } = useUploader({ onUpload: replaceWithMedia });
+        command.deleteRange({ from: getPos(), to: getPos() }).focus().run();
+
+        toast.success(`${mediaType} uploaded successfully.`);
+      }
+    },
+    [editor, getPos, mediaType]
+  );
+
+  const { loading, uploadFile } = useUploader({
+    type: mediaType,
+    onUpload: replaceWithMedia,
+  });
+
   const { handleUploadClick, ref } = useFileUpload();
   const { draggedInside, onDrop, onDragEnter, onDragLeave } = useDropZone({
     uploader: uploadFile,
-    acceptedTypes: mediaType === "image" ? "image/*" : "video/*",
+    acceptedTypes: ACCEPT_TYPES[mediaType].mime,
   });
 
   const onFileChange = useCallback(
@@ -76,6 +87,7 @@ export function MediaUploader({ node, deleteNode, editor }: NodeViewProps) {
     );
   }
 
+  console.log(mediaType);
   return (
     <NodeViewWrapper className="border-2 border-dashed border-neutral-200 rounded-lg">
       <div className="p-0 m-0" data-drag-handle>
@@ -110,7 +122,7 @@ export function MediaUploader({ node, deleteNode, editor }: NodeViewProps) {
             className="w-0 h-0 overflow-hidden opacity-0"
             ref={ref}
             type="file"
-            accept={ACCEPT_TYPES[mediaType]}
+            accept={ACCEPT_TYPES[mediaType].extensions}
             onChange={onFileChange}
           />
         </div>

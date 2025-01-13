@@ -169,6 +169,39 @@ export const imageApi = {
   },
 };
 
+export const mediaApi = {
+  uploadMedia: async (
+    type: "image" | "gif" | "video",
+    mediaId: string,
+    file: File | Blob,
+    options: {
+      isBlob?: boolean;
+    } = {}
+  ): Promise<{ url: string }> => {
+    const formData = new FormData();
+
+    if (options.isBlob) {
+      formData.append("file", file, `${type}-media.${file.type.split("/")[1]}`);
+    } else {
+      formData.append("file", file);
+    }
+
+    const response = await api.post(`/media/upload/${mediaId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  },
+
+  // Helper function to convert base64/URL to Blob
+  urlToBlob: async (url: string): Promise<Blob> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return blob;
+  },
+};
+
 // Update interceptor to use NextAuth session
 api.interceptors.request.use(async (config) => {
   const session = await getSession();

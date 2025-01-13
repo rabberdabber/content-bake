@@ -33,6 +33,7 @@ import { DeletableTable } from "./nodes/deletable-table";
 // import AIContentGeneratorExtension from "./ai/content";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import ImageBlockView from "./media/image/image-block";
+import MediaUploaderExtension from "./media/media-uploader-extension";
 
 const CustomTableCell = TableCell.extend({
   addAttributes() {
@@ -226,6 +227,7 @@ const extensions = [
   }),
   // AIContentGeneratorExtension,
   ImageBlockView,
+  MediaUploaderExtension,
 ];
 
 export default extensions;

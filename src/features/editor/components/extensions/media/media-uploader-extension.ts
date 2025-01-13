@@ -11,7 +11,7 @@ declare module "@tiptap/core" {
   }
 }
 
-const MediaUploaderExtension = Node.create({
+export const MediaUploaderExtension = Node.create({
   name: "mediaUploader",
 
   group: "block",

@@ -6,6 +6,8 @@ import CollapsibleWrapper, {
 } from "@/components/collapsible-wrapper";
 import LanguageSelector from "../../core/code/language-selector";
 import { SupportedLanguage } from "@/types/code";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
 
 interface CodeBlockProps {
   node: {
@@ -14,6 +16,7 @@ interface CodeBlockProps {
     };
   };
   updateAttributes: (attrs: { language: SupportedLanguage }) => void;
+  deleteNode: () => void;
   extension: {
     options: {
       lowlight: {
@@ -84,13 +87,28 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
   },
   updateAttributes,
   extension,
+  deleteNode,
 }) => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(defaultLanguage);
 
   return (
     <NodeViewWrapper>
-      <CollapsibleWrapper maxHeight={400}>
+      <CollapsibleWrapper maxHeight={400} className="group relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "absolute top-2 left-2 z-10 h-8 w-8",
+            "bg-background/80 backdrop-blur-sm",
+            "opacity-0 group-hover:opacity-100",
+            "transition-all duration-200",
+            "hover:bg-destructive hover:text-destructive-foreground"
+          )}
+          onClick={deleteNode}
+        >
+          <Icons.trash className="h-4 w-4" />
+        </Button>
         <CodeBlockContent
           value={value}
           open={open}
@@ -100,6 +118,17 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           extension={extension}
           updateAttributes={updateAttributes}
         />
+        <span
+          className={cn(
+            "absolute top-2 left-12 text-md",
+            "opacity-0 group-hover:opacity-100",
+            "transition-all duration-200",
+            "bg-background/80 backdrop-blur-sm",
+            "px-2 py-1 rounded-sm"
+          )}
+        >
+          &apos;⌘ + Enter&apos; to exit
+        </span>
       </CollapsibleWrapper>
     </NodeViewWrapper>
   );

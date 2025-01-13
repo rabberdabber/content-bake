@@ -3,7 +3,7 @@ export const FOCUS_ALLOWED_NODES = [
   "youtube",
   "video",
   "imageBlock",
-  // "codeBlock",
+  "codeBlock",
   "table",
   // "sandbox",
   // "live-code-block",

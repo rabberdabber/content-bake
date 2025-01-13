@@ -1,165 +1,218 @@
+import { cn } from "@/lib/utils";
 import {
-  Linkedin,
-  Bold,
-  Italic,
-  Strikethrough,
-  XCircle,
+  // Layout & Navigation
   Layout,
+  LayoutDashboard,
+  PanelLeftOpen,
+  PanelLeftClose,
+  Columns2,
+  SplitSquareHorizontal,
+
+  // Typography & Text Formatting
   Type,
+  Bold as BoldIcon,
+  Italic as ItalicIcon,
+  Underline as UnderlineIcon,
+  Strikethrough as StrikethroughIcon,
+  RemoveFormatting,
+
+  // Headings
   Heading1,
   Heading2,
   Heading3,
   Heading4,
   Heading5,
   Heading6,
+
+  // Lists & Content Structure
   List,
   ListOrdered,
   Quote,
-  Minus,
-  CornerDownLeft,
-  CornerUpRight,
-  Droplet,
-  Copy,
-  LucideIcon,
-  LucideProps,
-  Moon,
-  SunMedium,
-  X,
-  Check,
-  MonitorPlay,
-  Pencil,
-  RefreshCcw,
-  Code,
+  Table as TableIcon,
+
+  // Actions & Operations
   Undo,
   Redo,
-  Table,
-  Eye,
-  Terminal,
-  Plus,
-  Image,
+  Copy,
+  Save,
   Upload,
-  Link,
+  Download,
   Send,
-  MessageSquare,
+  Trash,
+  RefreshCcw,
+
+  // UI Elements
+  X as XIcon,
+  XCircle,
+  Plus as PlusIcon,
+  Minus,
+  Check,
   ChevronUp,
   ChevronDown,
-  Download,
-  BoldIcon,
-  ItalicIcon,
-  UnderlineIcon,
-  StrikethroughIcon,
+  ChevronRight,
+  ArrowRight,
+  CornerDownLeft,
+  CornerUpRight,
+  GripVertical,
+
+  // Editor & Content
+  Code,
+  Terminal,
+  Pencil,
+  SquarePen,
+  Eye,
+  MonitorPlay,
+  Image as ImageIcon,
   Video,
+  Link,
+  MessageSquare,
+
+  // Theme & Appearance
+  SunMedium,
+  Moon,
+  Droplet,
   Cog,
-  XIcon,
+  Settings,
+
+  // AI & Special Features
   Sparkles,
   Wand2,
-  ImageIcon,
+  Bot,
+
+  // Loading & Status
   Loader2,
-  Trash,
-  PlusIcon,
-  SplitSquareHorizontal,
-  Columns2,
-  TableIcon,
-  RemoveFormatting,
-  GripVertical,
+
+  // Authentication
   LogOut,
   LogIn,
-  Save,
-  Bot,
   User,
+
+  // Alignment & Distribution
   AlignHorizontalDistributeStart,
   AlignHorizontalDistributeCenter,
   AlignHorizontalDistributeEnd,
-  Settings,
-  SquarePen,
-  ChevronRight,
-  PanelLeftOpen,
-  PanelLeftClose,
+
+  // Types
+  LucideIcon,
+  LucideProps,
+
+  // Documentation
   FileQuestion,
-  ArrowRight,
   BookOpen,
+
+  // Social Media & Branding
+  Linkedin,
+
+  // UI Elements
+  Plus,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
 
 export const Icons = {
-  pencil: Pencil,
-  fileQuestion: FileQuestion,
-  arrowRight: ArrowRight,
-  bookOpen: BookOpen,
-  bot: Bot,
-  user: User,
-  Bold,
-  Italic,
-  Strikethrough,
-  XCircle,
-  Layout,
-  Type,
-  Heading1,
-  Heading2,
-  Heading3,
-  Heading4,
-  Heading5,
-  Heading6,
-  List,
-  ListOrdered,
-  Quote,
-  Minus,
-  CornerDownLeft,
-  CornerUpRight,
-  Undo,
-  Redo,
-  Droplet,
-  Table: TableIcon,
-  upload: Upload,
-  link: Link,
-  send: Send,
-  messageSquare: MessageSquare,
-  image: Image,
-  eye: Eye,
-  sun: SunMedium,
-  moon: Moon,
-  twitter: X,
-  copy: Copy,
-  check: Check,
-  preview: MonitorPlay,
-  edit: Pencil,
+  // Layout & Navigation
+  layout: Layout,
+  dashboard: LayoutDashboard,
+  panelLeftOpen: PanelLeftOpen,
+  panelLeftClose: PanelLeftClose,
   splitPane: Columns2,
-  refresh: RefreshCcw,
-  code: Code,
-  terminal: Terminal,
-  create: Plus,
-  chevronUp: ChevronUp,
-  chevronDown: ChevronDown,
-  chevronRight: ChevronRight,
-  download: Download,
+  columns2: Columns2,
+  splitSquareHorizontal: SplitSquareHorizontal,
+
+  // Typography & Text Formatting
+  type: Type,
   bold: BoldIcon,
   italic: ItalicIcon,
   underline: UnderlineIcon,
   strikethrough: StrikethroughIcon,
-  video: Video,
-  widget: Cog,
+  format: RemoveFormatting,
+
+  // Headings
+  heading1: Heading1,
+  heading2: Heading2,
+  heading3: Heading3,
+  heading4: Heading4,
+  heading5: Heading5,
+  heading6: Heading6,
+
+  // Lists & Content Structure
+  list: List,
+  listOrdered: ListOrdered,
+  quote: Quote,
+  table: TableIcon,
+
+  // Actions & Operations
+  undo: Undo,
+  redo: Redo,
+  copy: Copy,
+  save: Save,
+  upload: Upload,
+  download: Download,
+  send: Send,
+  trash: Trash,
+  refresh: RefreshCcw,
+
+  // UI Elements
   x: XIcon,
+  xCircle: XCircle,
+  create: PlusIcon,
+  minus: Minus,
+  check: Check,
+  chevronUp: ChevronUp,
+  chevronDown: ChevronDown,
+  chevronRight: ChevronRight,
+  arrowRight: ArrowRight,
+  cornerDownLeft: CornerDownLeft,
+  cornerUpRight: CornerUpRight,
+  gripVertical: GripVertical,
+  edit: Pencil,
+
+  // Editor & Content
+  code: Code,
+  terminal: Terminal,
+  pencil: Pencil,
+  post: SquarePen,
+  eye: Eye,
+  preview: MonitorPlay,
+  image: ImageIcon,
+  video: Video,
+  link: Link,
+  messageSquare: MessageSquare,
+
+  // Theme & Appearance
+  sun: SunMedium,
+  moon: Moon,
+  droplet: Droplet,
+  widget: Cog,
+  settings: Settings,
+
+  // AI & Special Features
   sparkles: Sparkles,
   wand2: Wand2,
-  imageIcon: ImageIcon,
+  bot: Bot,
+
+  // Loading & Status
   loader: Loader2,
-  trash: Trash,
-  plus: PlusIcon,
-  splitSquareHorizontal: SplitSquareHorizontal,
-  columns2: Columns2,
-  format: RemoveFormatting,
-  gripVertical: GripVertical,
+
+  // Authentication
   logout: LogOut,
   login: LogIn,
-  save: Save,
+  user: User,
+
+  // Alignment & Distribution
   alignHorizontalDistributeStart: AlignHorizontalDistributeStart,
   alignHorizontalDistributeCenter: AlignHorizontalDistributeCenter,
   alignHorizontalDistributeEnd: AlignHorizontalDistributeEnd,
-  post: SquarePen,
-  settings: Settings,
-  panelLeftClose: PanelLeftClose,
-  panelLeftOpen: PanelLeftOpen,
+
+  // Documentation
+  fileQuestion: FileQuestion,
+  bookOpen: BookOpen,
+
+  // Social Media & Branding
+  twitter: XIcon,
+  linkedin: Linkedin,
+
+  // Custom SVG Icons
   logo: (props: LucideProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
       <path
@@ -185,12 +238,9 @@ export const Icons = {
       className="w-6 h-6"
     >
       <rect width="512" height="512" rx="15%" fill="#111" />
-
       <g fill="none" stroke="#e6e6e6" stroke-width="33" stroke-linejoin="round">
         <path d="M81 198v116l175 117 175-117V198L256 81z" />
-
         <path d="M81 198l175 116 175-116M256 81v117" />
-
         <path d="M81 314l175-116 175 116M256 431V314" />
       </g>
     </svg>
@@ -207,5 +257,32 @@ export const Icons = {
       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
     </svg>
   ),
-  linkedin: Linkedin,
+  gif: (props: LucideProps) => (
+    <svg
+      width={48}
+      height={48}
+      viewBox="0 0 24 24"
+      className={cn(
+        "w-6 h-6 text-blue-600 dark:text-blue-400",
+        props.className
+      )}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect width="24" height="24" rx="4" fill="currentColor" opacity="0.2" />
+      <text
+        x="50%"
+        y="50%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fill="currentColor"
+        style={{
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontWeight: "bold",
+          fontSize: "12px",
+        }}
+      >
+        GIF
+      </text>
+    </svg>
+  ),
 };

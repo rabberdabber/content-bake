@@ -10,7 +10,7 @@ export function useContentGeneration(id: string) {
     error,
     stop,
   } = useCompletion({
-    api: `${process.env.NEXT_PUBLIC_API_URL}/ai/generate-content-v2`,
+    api: `${process.env.NEXT_PUBLIC_API_URL}/ai/generate-draft-content`,
     headers: {
       Accept: "text/event-stream",
     },

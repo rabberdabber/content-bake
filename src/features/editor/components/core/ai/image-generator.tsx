@@ -148,33 +148,35 @@ export function AIImageGenerator({
               />
               <div className="flex justify-end gap-2">
                 {previewImage && (
-                  <Button
-                    type="button"
-                    onClick={handleInsertImage}
-                    className="gap-2"
-                    variant="secondary"
-                  >
-                    <Icons.plus className="h-4 w-4" />
-                    Insert Image
-                  </Button>
+                  <>
+                    <Button
+                      type="submit"
+                      className="gap-2"
+                      disabled={isGenerating || !aiPrompt.trim()}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Icons.loader className="h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Icons.sparkles className="h-4 w-4" />
+                          Generate
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleInsertImage}
+                      className="gap-2"
+                      variant="secondary"
+                    >
+                      <Icons.create className="h-4 w-4" />
+                      Insert Image
+                    </Button>
+                  </>
                 )}
-                <Button
-                  type="submit"
-                  className="gap-2"
-                  disabled={isGenerating || !aiPrompt.trim()}
-                >
-                  {isGenerating ? (
-                    <>
-                      <Icons.loader className="h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Icons.sparkles className="h-4 w-4" />
-                      Generate
-                    </>
-                  )}
-                </Button>
               </div>
             </form>
           </div>

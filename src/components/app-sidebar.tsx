@@ -15,6 +15,17 @@ const data = {
   },
   navMain: [
     {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: Icons.dashboard,
+      items: [
+        {
+          title: "General",
+          url: "/dashboard",
+        },
+      ],
+    },
+    {
       title: "Posts",
       url: "/posts",
       icon: Icons.post,
@@ -51,11 +62,15 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props} className="mt-16">
+    <Sidebar
+      collapsible="icon"
+      {...props}
+      className="fixed top-16 left-0 border-t border-border z-50 backdrop-blur-sm bg-background/80"
+    >
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <SidebarRail />
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   );
 }

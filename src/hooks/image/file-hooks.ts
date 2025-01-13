@@ -1,6 +1,7 @@
 import { DragEvent, useCallback, useEffect, useRef, useState } from "react";
 import { uploadImage } from "@/lib/image/utils";
 import { toast } from "sonner";
+import { uploadMedia } from "@/lib/media/utils";
 
 const getImageDimensions = (
   file: File
@@ -15,11 +16,13 @@ const getImageDimensions = (
 };
 
 export const useUploader = ({
+  type,
   onUpload,
 }: {
+  type: "image" | "gif" | "video";
   onUpload: (
     url: string,
-    dimensions: { width: number; height: number }
+    dimensions?: { width: number; height: number }
   ) => void;
 }) => {
   const [loading, setLoading] = useState(false);
@@ -28,9 +31,8 @@ export const useUploader = ({
     async (file: File) => {
       setLoading(true);
       try {
-        const dimensions = await getImageDimensions(file);
-        const url = await uploadImage(crypto.randomUUID(), file);
-        onUpload(url, dimensions);
+        const url = await uploadMedia(type, crypto.randomUUID(), file);
+        onUpload(url);
       } catch (errPayload: any) {
         const error =
           errPayload?.response?.data?.error || "Something went wrong";

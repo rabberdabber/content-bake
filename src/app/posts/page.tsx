@@ -3,7 +3,6 @@ import Link from "next/link";
 import { formatDate } from "date-fns";
 import { Suspense } from "react";
 import { postsApi } from "@/lib/api";
-import { Spinner } from "@/components/ui/spinner";
 import { Post } from "@/types/api";
 
 // Create a separate Posts component for the async data fetching
@@ -97,7 +96,7 @@ export default function Page() {
       <Suspense
         fallback={
           <div className="flex justify-center items-center min-h-[200px]">
-            <Spinner />
+            <div className="animate-spin rounded-full border-2 border-current border-t-transparent h-4 w-4"></div>
           </div>
         }
       >

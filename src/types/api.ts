@@ -1,3 +1,5 @@
+import { JSONContent } from "@tiptap/react";
+
 export interface User {
   id: string;
   email: string;
@@ -14,7 +16,7 @@ export interface Post {
   id: string;
   feature_image_url?: string;
   title: string;
-  content: any; // TipTap JSON content
+  content: JSONContent;
   tag?: string;
   is_published: boolean;
   excerpt: string;

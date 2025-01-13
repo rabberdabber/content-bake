@@ -89,7 +89,7 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     ref
   ) => {
     const buttonClass = cn(
-      "gap-1 min-w-[1.5rem] px-1 w-auto bg-inherit",
+      "gap-1 min-w-[1.5rem] px-1 w-auto bg-foreground text-muted",
       className,
       active && activeClassname
     );

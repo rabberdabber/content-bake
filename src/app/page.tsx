@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Pencil, BookOpen, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -56,14 +57,15 @@ export default function Home() {
               description: "Never lose your work with automatic draft saving",
             },
           ].map((feature, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-lg border bg-card text-card-foreground"
-            >
-              {feature.icon}
-              <h2 className="text-xl font-semibold mb-2">{feature.title}</h2>
-              <p className="text-muted-foreground">{feature.description}</p>
-            </div>
+            <Card key={i}>
+              <CardHeader>
+                {feature.icon}
+                <h2 className="text-xl font-semibold mb-2">{feature.title}</h2>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">{feature.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

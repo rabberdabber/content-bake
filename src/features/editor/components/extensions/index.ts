@@ -22,7 +22,6 @@ import CommandsExtension from "./commands";
 import CodeBlock from "./code";
 import { TabCommand } from "./commands";
 import YoutubeInput from "./embeds/youtube-input-extension";
-import ImageInput from "./media/image/image-uploader-extension";
 import AIImageGeneratorExtension from "./ai/image";
 import TextAlign from "@tiptap/extension-text-align";
 import { cn } from "@/lib/utils";
@@ -216,7 +215,6 @@ const extensions = [
     mode: "deepest",
   }),
   YoutubeInput,
-  ImageInput,
   AIImageGeneratorExtension,
   TextAlign.configure({
     types: ["heading", "paragraph"],

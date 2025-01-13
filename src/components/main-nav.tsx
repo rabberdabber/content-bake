@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Icons } from "@/components/icons";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useSidebar } from "./ui/sidebar";
 
 interface MainNavProps {
   items?: NavItem[];
@@ -15,13 +16,14 @@ interface MainNavProps {
 export function MainNav({ items }: MainNavProps) {
   const segment = useSelectedLayoutSegment() || "";
   const { data: session } = useSession();
+  const sidebar = useSidebar();
   return (
-    <div className="flex gap-6 md:gap-10">
+    <div className="flex gap-6 md:gap-10 w-screen">
       <Link href="/" className="flex items-center space-x-2">
         <Icons.logo className="h-6 w-6" />
         <span className="inline-block font-bold">{siteConfig.name}</span>
       </Link>
-      {session && items?.length ? (
+      {/* {session && items?.length ? (
         <nav className="flex gap-6">
           {items?.map((item) => {
             return (
@@ -47,7 +49,7 @@ export function MainNav({ items }: MainNavProps) {
             );
           })}
         </nav>
-      ) : null}
+      ) : null} */}
     </div>
   );
 }

@@ -1,8 +1,7 @@
-import NextAuth, { type AuthOptions, type Session } from "next-auth";
+import NextAuth, { type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { authApi } from "@/lib/api";
 import type { User, LoginResponse } from "@/types/api";
-import type { JWT } from "next-auth/jwt";
 
 const authOptions: AuthOptions = {
   providers: [

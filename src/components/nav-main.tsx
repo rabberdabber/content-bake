@@ -17,6 +17,8 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export function NavMain({
   items,
@@ -33,6 +35,7 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const pathname = usePathname();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -58,6 +61,10 @@ export function NavMain({
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton
                         asChild
+                        className={cn(
+                          pathname === subItem.url &&
+                            "bg-muted text-muted-foreground"
+                        )}
                         // className="flex items-center justify-between gap-2 border border-border/50 rounded-md p-2"
                       >
                         <a href={subItem.url}>

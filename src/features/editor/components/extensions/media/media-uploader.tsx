@@ -87,10 +87,23 @@ export function MediaUploader({
     );
   }
 
-  console.log(mediaType);
   return (
     <NodeViewWrapper className="border-2 border-dashed border-neutral-200 rounded-lg">
-      <div className="p-0 m-0" data-drag-handle>
+      <div className="group relative p-0 m-0" data-drag-handle>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "absolute top-2 right-2 z-10 h-8 w-8",
+            "bg-background/80 backdrop-blur-sm",
+            "opacity-0 group-hover:opacity-100",
+            "transition-all duration-200",
+            "hover:bg-destructive hover:text-destructive-foreground"
+          )}
+          onClick={deleteNode}
+        >
+          <Icons.x className="h-4 w-4" />
+        </Button>
         <div
           className={cn(
             "flex flex-col items-center justify-center px-8 py-10 rounded-lg bg-opacity-80",

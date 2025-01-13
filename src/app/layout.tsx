@@ -10,6 +10,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/session-provider";
 import { SiteFooter } from "@/components/site-footer";
+import DashboardSidebar from "@/components/dashboard-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const merriweather = Merriweather({
   subsets: ["latin"],
@@ -71,11 +73,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <NextAuthProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <SiteHeader />
-              <div className="min-h-screen">{children}</div>
-              <SiteFooter />
-            </div>
+            <SidebarProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <SiteHeader />
+                <div className="flex-1 flex">
+                  <DashboardSidebar />
+                  <main className="flex-1">{children}</main>
+                </div>
+                <SiteFooter />
+              </div>
+            </SidebarProvider>
           </NextAuthProvider>
           <TailwindIndicator />
           <Toaster />

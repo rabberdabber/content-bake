@@ -10,4 +10,5 @@ export const FOCUS_ALLOWED_NODES = [
   "imageInput",
   "aiImageGenerator",
   "aiContentGenerator",
+  "mediaUploader",
 ];

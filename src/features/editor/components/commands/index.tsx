@@ -20,7 +20,6 @@ import { Icons } from "@/components/icons";
 import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance, Props, type GetReferenceClientRect } from "tippy.js";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 interface EditorCommandOutProps {
   query: string;
@@ -240,7 +239,7 @@ export const suggestions = {
             key: "heading1",
             title: "Heading 1",
             description: "Large section heading",
-            icon: <Icons.Heading1 />,
+            icon: <Icons.heading1 />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
               editor
                 .chain()
@@ -254,7 +253,7 @@ export const suggestions = {
             key: "heading2",
             title: "Heading 2",
             description: "Medium section heading",
-            icon: <Icons.Heading2 />,
+            icon: <Icons.heading2 />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
               editor
                 .chain()
@@ -268,7 +267,7 @@ export const suggestions = {
             key: "bulletList",
             title: "Bullet List",
             description: "Create a bulleted list",
-            icon: <Icons.List />,
+            icon: <Icons.list />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
               editor
                 .chain()
@@ -282,7 +281,7 @@ export const suggestions = {
             key: "numberedList",
             title: "Numbered List",
             description: "Create a numbered list",
-            icon: <Icons.ListOrdered />,
+            icon: <Icons.listOrdered />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
               editor
                 .chain()
@@ -356,10 +355,34 @@ export const suggestions = {
             title: "Upload Image",
             description: "Upload an image from your device",
             icon: <Icons.image />,
-            command: ({ editor }: { editor: Editor; range: Range }) => {
-              editor.chain().focus().setImageUpload().run();
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setMediaUploader({ type: "image" })
+                .run();
             },
           },
+          {
+            key: "video",
+            title: "Upload Video",
+            description: "Upload and embed a video",
+            icon: <Icons.video />,
+            command: ({ editor, range }: { editor: Editor; range: Range }) => {
+              editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .setMediaUploader({ type: "video" })
+                .run();
+            },
+          },
+        ],
+      },
+      {
+        heading: "Embed",
+        items: [
           {
             key: "youtube",
             title: "YouTube",
@@ -376,21 +399,6 @@ export const suggestions = {
                 .run();
             },
           },
-          {
-            key: "video",
-            title: "Video",
-            description: "Upload and embed a video",
-            icon: <Icons.video />,
-            command: ({ editor, range }: { editor: Editor; range: Range }) => {
-              editor.commands.deleteRange(range);
-              editor.view.dom.dispatchEvent(
-                new CustomEvent("openVideoDialog", {
-                  bubbles: true,
-                  cancelable: true,
-                })
-              );
-            },
-          },
         ],
       },
       {
@@ -400,7 +408,7 @@ export const suggestions = {
             key: "table",
             title: "Table",
             description: "Insert a table",
-            icon: <Icons.Table />,
+            icon: <Icons.table />,
             command: ({ editor, range }: { editor: Editor; range: Range }) => {
               editor
                 .chain()

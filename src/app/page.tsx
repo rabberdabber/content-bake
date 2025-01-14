@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function Home() {
   return (
-    <main className="min-h-[calc(100dvh-8rem)] bg-gradient-to-b from-background to-muted pt-16">
+    <main className="min-h-[calc(100dvh-10rem)] bg-gradient-to-b from-background to-muted pt-16">
       <div className="container mx-auto px-4 py-16 flex flex-col items-center text-center">
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
           Welcome to Your Writing Space

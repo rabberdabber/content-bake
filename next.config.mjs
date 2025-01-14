@@ -26,6 +26,11 @@ const nextConfig = {
         hostname: "via.placeholder.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "storage.codebake.io",
+        port: "",
+      },
     ],
   },
   webpack: (config) => {

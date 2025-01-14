@@ -24,7 +24,6 @@ export const ImageBlockMenu = ({
 
   const getReferenceClientRect = useCallback(() => {
     const renderContainer = getRenderContainer(editor, "node-imageBlock");
-    console.log("renderContainer", renderContainer);
     const rect =
       renderContainer?.getBoundingClientRect() ||
       new DOMRect(-1000, -1000, 0, 0);

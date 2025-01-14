@@ -5,10 +5,7 @@ import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import type { ImageGenerationConfig } from "@/config/image-generation";
 
 // Create axios instance with default config
-console.log(
-  "api -> process.env.NEXT_PUBLIC_API_URL",
-  process.env.NEXT_PUBLIC_API_URL
-);
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {

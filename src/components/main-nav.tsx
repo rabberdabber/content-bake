@@ -14,11 +14,16 @@ interface MainNavProps {
 }
 
 export function MainNav({ items }: MainNavProps) {
-  const segment = useSelectedLayoutSegment() || "";
-  const { data: session } = useSession();
-  const sidebar = useSidebar();
+  // const segment = useSelectedLayoutSegment() || "";
+  // const { data: session } = useSession();
+  const { open } = useSidebar();
   return (
-    <div className="flex gap-6 md:gap-10 w-screen">
+    <div
+      className={cn(
+        "flex gap-6 md:gap-10 w-screen",
+        open && "ml-[--sidebar-width]"
+      )}
+    >
       <Link href="/" className="flex items-center space-x-2">
         <Icons.logo className="h-6 w-6" />
         <span className="inline-block font-bold">{siteConfig.name}</span>

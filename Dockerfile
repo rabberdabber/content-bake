@@ -7,8 +7,6 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ARG NODE_VERSION=23.5.0
-ARG NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-ARG NEXT_PUBLIC_DOMAIN=${NEXT_PUBLIC_DOMAIN}
 
 ################################################################################
 # Use node image for base image for all stages.
@@ -41,6 +39,9 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=package-lock.json,target=package-lock.json \
     --mount=type=cache,target=/root/.npm \
     npm ci
+
+ARG NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_DOMAIN=$NEXT_PUBLIC_DOMAIN
 
 # Copy the rest of the source files into the image.
 COPY . .

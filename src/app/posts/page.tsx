@@ -5,6 +5,8 @@ import { Suspense } from "react";
 import { postsApi } from "@/lib/api";
 import { Post } from "@/types/api";
 
+export const dynamic = "force-dynamic";
+
 // Create a separate Posts component for the async data fetching
 async function Posts() {
   const posts = await postsApi.getPosts();

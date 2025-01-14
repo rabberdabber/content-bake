@@ -10,8 +10,6 @@ export interface EditorBubbleProps extends BubbleMenuProps {
 
 export const EditorBubble = forwardRef<HTMLDivElement, EditorBubbleProps>(
   ({ children, tippyOptions, editor, ...rest }, ref) => {
-    if (!editor) return null;
-
     const instanceRef = useRef<Instance<Props> | null>(null);
 
     useEffect(() => {

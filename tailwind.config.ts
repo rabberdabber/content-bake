@@ -84,8 +84,8 @@ const config = {
           foreground: "hsl(var(--card-foreground))",
         },
         sidebar: {
-          DEFAULT: "hsl(var(background))",
-          foreground: "hsl(var(foreground))",
+          DEFAULT: "hsl(var(--background))",
+          foreground: "hsl(var(--foreground))",
           primary: "hsl(var(--sidebar-primary))",
           "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
           accent: "hsl(var(--sidebar-accent))",
@@ -123,10 +123,10 @@ const config = {
       },
       boxShadow: {
         "page-light":
-          "`\\n          0px 1px 2px hsl(50deg 60% 50% / 0.25),\\n          0px 3px 6px hsl(50deg 60% 50% / 0.25),\\n          0px 9px 18px hsl(50deg 60% 50% / 0.25),\\n          0px 18px 36px hsl(50deg 60% 50% / 0.25),\\n          0px 54px 108px hsl(50deg 60% 50% / 0.25)\\n        `",
+          "0px 1px 2px hsl(50deg 60% 50% / 0.25), 0px 3px 6px hsl(50deg 60% 50% / 0.25), 0px 9px 18px hsl(50deg 60% 50% / 0.25), 0px 18px 36px hsl(50deg 60% 50% / 0.25), 0px 54px 108px hsl(50deg 60% 50% / 0.25)",
         "page-dark": "none",
         "card-light":
-          "`\\n          0px 1px 2px hsl(50deg 20% 50% / 0.2),\\n          0px 2px 4px hsl(50deg 20% 50% / 0.2),\\n          0px 4px 8px hsl(50deg 20% 50% / 0.2),\\n          0px 8px 16px hsl(50deg 20% 50% / 0.2)\\n        `",
+          "0px 1px 2px hsl(50deg 20% 50% / 0.2), 0px 2px 4px hsl(50deg 20% 50% / 0.2), 0px 4px 8px hsl(50deg 20% 50% / 0.2), 0px 8px 16px hsl(50deg 20% 50% / 0.2)",
         "card-dark": "none",
       },
       spacing: {
@@ -148,16 +148,16 @@ const config = {
                 fontSize: "1rem",
               },
             },
-            "h2 a": "linkHeadingStyles",
-            "h3 a": "linkHeadingStyles",
-            "h4 a": "linkHeadingStyles",
-            "h5 a": "linkHeadingStyles",
-            "h6 a": "linkHeadingStyles",
+            "h2 a": linkHeadingStyles,
+            "h3 a": linkHeadingStyles,
+            "h4 a": linkHeadingStyles,
+            "h5 a": linkHeadingStyles,
+            "h6 a": linkHeadingStyles,
             "h3 a:has(code)": {
-              boxShadow: "`0 0 0 0.3rem transparent`",
+              boxShadow: "0 0 0 0.3rem transparent",
               "&:hover": {
-                background: "colors.teal[900],",
-                boxShadow: "`0 0 0 0.3rem ${colors.teal[900]}`",
+                background: colors.teal[900],
+                boxShadow: `0 0 0 0.3rem ${colors.teal[900]}`,
               },
             },
             figure: {
@@ -165,8 +165,8 @@ const config = {
             },
             blockquote: {
               fontSize: "90%",
-              color: "colors.zinc[500],",
-              borderLeftColor: "colors.zinc[700],",
+              color: colors.zinc[500],
+              borderLeftColor: colors.zinc[700],
               "p::before": {
                 display: "none",
               },
@@ -176,26 +176,26 @@ const config = {
             },
             a: {
               textDecoration: "none",
-              borderBottom: "`1px solid ${colors.pink[300]}`",
-              color: "colors.pink[200],",
+              borderBottom: "1px solid rgb(249 168 212)",
+              color: colors.pink[200],
               borderRadius: 1,
               transitionProperty: "color, border-color, background, box-shadow",
               transitionDuration: "0.18s",
-              boxShadow: "`0 0 0 0.2rem transparent`",
+              boxShadow: "0 0 0 0.2rem transparent",
               "&:hover": {
-                color: "`${colors.zinc[900]}`",
-                borderBottomColor: "`${colors.pink[200]}`",
-                background: "colors.pink[200],",
-                boxShadow: "`0 0 0 0.2rem ${colors.pink[200]}`",
+                color: "rgb(24 24 27)",
+                borderBottomColor: "rgb(249 168 212)",
+                background: "rgb(249 168 212)",
+                boxShadow: "0 0 0 0.2rem rgb(249 168 212)",
               },
             },
             code: {
               color: "#86e1fc",
               "&::before": {
-                content: "`unset !important`",
+                content: "unset !important",
               },
               "&::after": {
-                content: "`unset !important`",
+                content: "unset !important",
               },
               fontWeight: "normal",
             },

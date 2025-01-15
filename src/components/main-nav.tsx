@@ -8,6 +8,7 @@ import { Icons } from "@/components/icons";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useSidebar } from "./ui/sidebar";
+import { m } from "framer-motion";
 
 interface MainNavProps {
   items?: NavItem[];
@@ -20,7 +21,7 @@ export function MainNav({ items }: MainNavProps) {
   return (
     <div
       className={cn(
-        "flex gap-6 md:gap-10 w-screen",
+        "flex gap-6 md:gap-10 w-screen ml-[--sidebar-width-icon]",
         open && "ml-[--sidebar-width]"
       )}
     >

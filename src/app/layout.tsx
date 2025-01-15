@@ -12,6 +12,8 @@ import NextAuthProvider from "@/providers/session-provider";
 import { SiteFooter } from "@/components/site-footer";
 import DashboardSidebar from "@/components/dashboard-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import PageHeader from "@/components/page-header";
+import { PageLayout } from "@/components/page-layout";
 
 const merriweather = Merriweather({
   subsets: ["latin"],
@@ -76,10 +78,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <SidebarProvider>
               <div className="relative flex min-h-screen flex-col">
                 <SiteHeader />
-                <div className="flex-1 flex">
-                  <DashboardSidebar />
-                  <main className="flex-1">{children}</main>
-                </div>
+                <PageLayout sidebar={<DashboardSidebar />}>
+                  <PageHeader />
+                  {children}
+                </PageLayout>
                 <SiteFooter />
               </div>
             </SidebarProvider>

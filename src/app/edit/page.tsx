@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 import DOMPurify from "dompurify";
 import { useLocalStorage } from "@mantine/hooks";
 import { useScroll } from "@/lib/hooks/use-scroll";
+import { breakpoints, useMediaQuery } from "@/lib/hooks/use-media-query";
+import { toast } from "sonner";
 
 const TipTapEditor = dynamic(
   () => import("@/features/editor/components/core/editor"),
@@ -49,6 +51,7 @@ const Editor = ({
   searchParams: ReturnType<typeof useSearchParams>;
   router: ReturnType<typeof useRouter>;
 }) => {
+  const isMobile = !useMediaQuery(breakpoints.md);
   const [isClient, setIsClient] = useState(false);
   const [editorContent, setEditorContent] = useLocalStorage({
     key: "editor-content",
@@ -104,6 +107,11 @@ const Editor = ({
   }, [searchParams]);
 
   useEffect(() => {
+    if (isMobile) {
+      toast.warning(
+        "This editor is optimized for desktop use. Mobile experience may be limited."
+      );
+    }
     setIsClient(true);
   }, []);
 

@@ -25,6 +25,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toaster]:bg-destructive group-[.toaster]:text-destructive-foreground group-[.toaster]:border-destructive",
           success:
             "group-[.toaster]:border-green-500 group-[.toaster]:text-green-600 dark:group-[.toaster]:text-green-400",
+          warning:
+            "group-[.toaster]:border-yellow-500 group-[.toaster]:text-yellow-600 dark:group-[.toaster]:text-yellow-400",
         },
       }}
       {...props}

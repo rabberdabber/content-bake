@@ -65,7 +65,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar
       collapsible="icon"
       {...props}
-      className="fixed top-0 left-0 border-t border-border z-50 backdrop-blur-sm bg-background/80"
+      className="border-t border-border z-50 backdrop-blur-sm bg-background/80"
     >
       <SidebarContent>
         <NavMain items={data.navMain} />

@@ -31,11 +31,10 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
         onClick={async () => {
           try {
             setIsSavingDraft(true);
-            const content = editor?.getJSON() || "";
             await postsApi.saveDraft({
               id: crypto.randomUUID(),
               title: "Draft",
-              content: content,
+              content: editor?.getJSON()!,
               tag: "draft",
               is_published: false,
               excerpt: "draft",
@@ -79,7 +78,7 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
             await postsApi.createPost({
               id: crypto.randomUUID(),
               title: "Test",
-              content: content,
+              content: editor?.getJSON()!,
               tag: "test",
               is_published: true,
               excerpt: "test",

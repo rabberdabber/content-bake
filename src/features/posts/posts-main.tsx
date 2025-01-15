@@ -8,5 +8,6 @@ import extensions from "../editor/components/extensions";
 
 export function PostsMain({ postContent }: { postContent: Post["content"] }) {
   const htmlContent = generateHTML(postContent, extensions);
+  // TODO: fix the layout of the post
   return <>{parse(htmlContent, htmlParserOptions)}</>;
 }

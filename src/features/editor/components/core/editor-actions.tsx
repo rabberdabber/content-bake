@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { postsApi } from "@/lib/api";
 import { useState } from "react";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
+import { useFullscreen } from "@mantine/hooks";
+import Link from "next/link";
 
 interface EditorActionsProps {
   editor: Editor | null;
@@ -21,7 +23,7 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const router = useRouter();
-
+  const { toggle, fullscreen } = useFullscreen();
   return (
     <>
       <Button
@@ -74,8 +76,7 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
 
           try {
             setIsPublishing(true);
-            const content = editor?.getJSON() || "";
-            await postsApi.createPost({
+            const post = await postsApi.createPost({
               id: crypto.randomUUID(),
               title: "Test",
               content: editor?.getJSON()!,
@@ -87,7 +88,17 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
               author_id: "1",
               feature_image_url: featuredImage,
             });
-            toast.success("Post published successfully!");
+            toast.success(
+              <>
+                Post published successfully!{" "}
+                <span className="inline-flex gap-2">
+                  View Post at{" "}
+                  <Button variant="outline" asChild>
+                    <Link href={`/posts/${post.id}`}>Posts</Link>
+                  </Button>
+                </span>
+              </>
+            );
           } catch (error) {
             toast.error("Failed to publish post");
           } finally {
@@ -108,6 +119,13 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
             <Icons.send className="h-6 w-6" />
             Publish
           </>
+        )}
+      </Button>
+      <Button onClick={toggle}>
+        {fullscreen ? (
+          <Icons.minimize className="h-6 w-6" />
+        ) : (
+          <Icons.maximize className="h-6 w-6" />
         )}
       </Button>
     </>

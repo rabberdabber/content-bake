@@ -73,6 +73,7 @@ import {
   Droplet,
   Cog,
   Settings,
+  Maximize,
 
   // AI & Special Features
   Sparkles,
@@ -105,6 +106,7 @@ import {
 
   // UI Elements
   Plus,
+  Minimize,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -165,6 +167,8 @@ export const Icons = {
   cornerDownLeft: CornerDownLeft,
   cornerUpRight: CornerUpRight,
   gripVertical: GripVertical,
+  maximize: Maximize,
+  minimize: Minimize,
   edit: Pencil,
 
   // Editor & Content

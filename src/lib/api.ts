@@ -22,27 +22,27 @@ export const postsApi = {
       ...post,
       is_published: true,
     });
-    return response.data;
+    return response.data as Post;
   },
 
   getPosts: async () => {
     const response = await api.get("/posts/");
-    return response.data;
+    return response.data as Post[];
   },
 
   getPost: async (postId: string) => {
     const response = await api.get(`/posts/${postId}`);
-    return response.data;
+    return response.data as Post;
   },
 
   updatePost: async (postId: string, post: Partial<Post>) => {
     const response = await api.put(`/posts/${postId}`, post);
-    return response.data;
+    return response.data as Post;
   },
 
   deletePost: async (postId: string) => {
     const response = await api.delete(`/posts/${postId}`);
-    return response.data;
+    return response.data as Post;
   },
 
   // For draft functionality

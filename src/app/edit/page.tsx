@@ -1,32 +1,29 @@
 "use client";
 
-import React, { useRef, useState, useEffect, Suspense } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  Suspense,
+  forwardRef,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { Editor as EditorType } from "@tiptap/react";
-import type { EditorMode } from "./types";
+import type { EditorMode } from "@/types/editor";
 import { sanitizeConfig } from "@/config/sanitize-config";
-import { Icons } from "@/components/icons";
-import ToggleGroup from "@/components/ui/toggle-group";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import BlogPreview from "@/features/editor/components/preview/blog-preview";
-import { EditorActions } from "@/features/editor/components/core/editor-actions";
-import {
-  useUploader,
-  useFileUpload,
-  useDropZone,
-} from "@/hooks/image/file-hooks";
-import { cn } from "@/lib/utils";
+
 import DOMPurify from "dompurify";
 import { useLocalStorage } from "@mantine/hooks";
-import { useScroll } from "@/lib/hooks/use-scroll";
+import { useFullscreen } from "@mantine/hooks";
 import { breakpoints, useMediaQuery } from "@/lib/hooks/use-media-query";
 import { toast } from "sonner";
+// Sub-components
+import EditorHeader from "@/features/editor/components/core/editor-header";
+import FeatureImageUpload from "@/features/editor/components/core/feature-image-upload";
+import EditorContent from "@/features/editor/components/core/editor-content";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TipTapEditor = dynamic(
   () => import("@/features/editor/components/core/editor"),
@@ -35,228 +32,145 @@ const TipTapEditor = dynamic(
   }
 );
 
-// Wrapper component for search params
-const EditorWithParams = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  return <Editor searchParams={searchParams} router={router} />;
-};
-
-// Main Editor component modified to accept props
-const Editor = ({
-  searchParams,
-  router,
-}: {
+interface EditorProps {
   searchParams: ReturnType<typeof useSearchParams>;
   router: ReturnType<typeof useRouter>;
-}) => {
-  const isMobile = !useMediaQuery(breakpoints.md);
-  const [isClient, setIsClient] = useState(false);
-  const [editorContent, setEditorContent] = useLocalStorage({
-    key: "editor-content",
-    defaultValue: "",
-  });
-  const [featuredImage, setFeaturedImage] = useLocalStorage({
-    key: "featured-image",
-    defaultValue: "",
-  });
+}
 
-  const currentMode = searchParams.get("mode") as EditorMode | null;
-  const [mode, setMode] = useState<EditorMode>(currentMode || "editor");
+const Editor = forwardRef<HTMLDivElement, EditorProps>(
+  ({ searchParams, router }, ref) => {
+    // Track client rendering to avoid SSR mismatch
+    const [isClient, setIsClient] = useState(false);
 
-  const isSplitPane = mode === "split-pane";
-  const editorRef = useRef<EditorType>(null);
-  const blogRef = useRef<HTMLDivElement>(null);
-
-  const { loading, uploadFile } = useUploader({
-    type: "image",
-    onUpload: (url) => {
-      setFeaturedImage(url);
-    },
-  });
-
-  const { ref: fileInputRef, handleUploadClick } = useFileUpload();
-
-  const { isDragging, draggedInside, onDragEnter, onDragLeave, onDrop } =
-    useDropZone({
-      uploader: uploadFile,
+    // Track state for editor content and featured image
+    const [editorContent, setEditorContent] = useLocalStorage({
+      key: "editor-content",
+      defaultValue: "",
     });
+    const [featuredImage, setFeaturedImage] = useLocalStorage({
+      key: "featured-image",
+      defaultValue: "",
+    });
+    const { ref: fullscreenRef, fullscreen } = useFullscreen();
 
-  const scrolled = useScroll(20);
+    // Determine current mode from search params or fallback to 'editor'
+    const currentMode = (searchParams.get("mode") as EditorMode) || "editor";
+    const [mode, setMode] = useState<EditorMode>(currentMode);
 
-  const onChangeMode = (newMode: EditorMode) => {
-    setMode(newMode);
-    const params = new URLSearchParams(searchParams);
-    params.set("mode", newMode);
-    router.push(`?${params.toString()}`);
+    // Keep references for Tiptap and blog preview
+    const editorRef = useRef<EditorType>(null);
+    const blogRef = useRef<HTMLDivElement>(null);
 
-    setEditorContent(
-      DOMPurify.sanitize(editorRef.current?.getHTML() || "", sanitizeConfig)
-    );
-  };
+    // Mobile check
+    const isMobile = !useMediaQuery(breakpoints.md);
 
-  useEffect(() => {
-    const modeFromUrl = searchParams.get("mode") as EditorMode | null;
-    if (
-      modeFromUrl &&
-      ["editor", "preview", "split-pane"].includes(modeFromUrl)
-    ) {
-      setMode(modeFromUrl);
-    }
-  }, [searchParams]);
+    // Update mode when `mode` changes (sync URL and sanitize content)
+    const onChangeMode = (newMode: EditorMode) => {
+      setMode(newMode);
 
-  useEffect(() => {
-    if (isMobile) {
-      toast.warning(
-        "This editor is optimized for desktop use. Mobile experience may be limited."
+      // Update URL
+      const params = new URLSearchParams(searchParams);
+      params.set("mode", newMode);
+      router.push(`?${params.toString()}`);
+
+      // Sanitize content and store
+      setEditorContent(
+        DOMPurify.sanitize(editorRef.current?.getHTML() || "", sanitizeConfig)
       );
+    };
+
+    // Check if URL mode changes externally
+    useEffect(() => {
+      const modeFromUrl = searchParams.get("mode") as EditorMode | null;
+      if (
+        modeFromUrl &&
+        ["editor", "preview", "split-pane"].includes(modeFromUrl)
+      ) {
+        setMode(modeFromUrl);
+      }
+    }, [searchParams]);
+
+    // Warn on mobile and set client
+    useEffect(() => {
+      if (isMobile) {
+        toast.warning(
+          "This editor is optimized for desktop use. Mobile experience may be limited."
+        );
+      }
+      setIsClient(true);
+    }, [isMobile]);
+
+    if (!isClient) {
+      return null; // Avoid hydration mismatch
     }
-    setIsClient(true);
-  }, []);
 
-  if (!isClient) {
-    return null;
+    return (
+      <>
+        {/* Header */}
+        <EditorHeader
+          mode={mode}
+          onChangeMode={onChangeMode}
+          editorRef={editorRef}
+          featuredImage={featuredImage}
+        />
+
+        {/* Image Upload */}
+        <FeatureImageUpload
+          featuredImage={featuredImage}
+          setFeaturedImage={setFeaturedImage}
+        />
+
+        {/* Main Editor Content (Tiptap & Preview) */}
+        <EditorContent
+          mode={mode}
+          editorContent={editorContent}
+          setEditorContent={setEditorContent}
+          editorRef={editorRef}
+          blogRef={blogRef}
+          TipTapEditor={TipTapEditor}
+        />
+      </>
+    );
   }
+);
 
-  return (
-    <div className="relative container mx-auto p-2">
-      {/* Editor Header */}
-      <div
-        className={cn(
-          "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
-          "transition-all duration-200",
-          scrolled
-            ? "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40"
-            : "bg-foreground/10"
-        )}
-      >
-        <ToggleGroup
-          iconsWithTooltip={[
-            {
-              icon: Icons.splitPane,
-              tooltip: "split pane",
-              onClick: () => onChangeMode("split-pane"),
-              selected: isSplitPane,
-            },
-            {
-              icon: Icons.edit,
-              tooltip: "Editor",
-              onClick: () => onChangeMode("editor"),
-              selected: mode === "editor",
-            },
-            {
-              icon: Icons.preview,
-              tooltip: "Preview",
-              onClick: () => onChangeMode("preview"),
-              selected: mode === "preview",
-            },
-          ]}
-        />
-        <div className="flex gap-2 justify-end w-full">
-          <EditorActions
-            editor={editorRef.current}
-            featuredImage={featuredImage}
-          />
-        </div>
-      </div>
-      <div
-        className={cn(
-          "relative border-2 border-dashed rounded-none border-t-0 p-4 transition-colors",
-          draggedInside ? "border-primary" : "border-border/40",
-          "hover:border-primary cursor-pointer"
-        )}
-        onClick={handleUploadClick}
-        onDragEnter={onDragEnter}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) uploadFile(file);
-          }}
-        />
-
-        {featuredImage ? (
-          <div className="relative mx-auto w-full aspect-[4/1] rounded-lg overflow-hidden">
-            <Image
-              src={featuredImage}
-              alt="Feature image"
-              fill
-              className="object-cover"
-            />
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setFeaturedImage("");
-              }}
-              className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
-            >
-              <Icons.x className="h-4 w-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-4 text-muted-foreground">
-            <Icons.image className="h-6 w-6 mb-2" />
-            <p className="text-sm">
-              {loading
-                ? "Uploading..."
-                : "Click or drag and drop to add a feature image"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {mode === "split-pane" ? (
-        <ResizablePanelGroup direction="horizontal" className="min-h-[500px]">
-          <ResizablePanel defaultSize={50}>
-            <div className="h-full rounded-lg rounded-t-none p-4">
-              <TipTapEditor
-                setEditorContent={setEditorContent}
-                editorRef={editorRef}
-              />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={50}>
-            <BlogPreview blogRef={blogRef} content={editorContent} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      ) : (
-        <>
-          <div className={cn({ hidden: mode === "preview" })}>
-            <div className="border rounded-lg rounded-t-none p-4 min-h-[500px]">
-              <TipTapEditor
-                setEditorContent={setEditorContent}
-                editorRef={editorRef}
-              />
-            </div>
-            {mode === "preview" && (
-              <BlogPreview blogRef={blogRef} content={editorContent} />
-            )}
-          </div>
-          <div className={cn({ hidden: mode === "editor" })}>
-            {mode === "preview" && (
-              <BlogPreview blogRef={blogRef} content={editorContent} />
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
+Editor.displayName = "Editor";
 
 // Default export wrapped with Suspense
 export default function EditorPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { ref, fullscreen, toggle } = useFullscreen();
+
   return (
     <Suspense fallback={<div>Loading editor...</div>}>
-      <EditorWithParams />
+      <AnimatePresence mode="wait">
+        {fullscreen ? (
+          <Dialog open={fullscreen} modal onOpenChange={toggle}>
+            <DialogContent className="w-screen min-h-screen max-w-full max-h-full p-0 border-none bg-background overflow-y-auto">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="w-full h-full"
+              >
+                <Editor searchParams={searchParams} router={router} ref={ref} />
+              </motion.div>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative container mx-auto p-2"
+          >
+            <Editor searchParams={searchParams} router={router} ref={ref} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Suspense>
   );
 }

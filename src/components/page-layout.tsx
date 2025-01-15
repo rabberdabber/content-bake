@@ -44,7 +44,7 @@ export function PageLayout({ sidebar, children }: PageLayoutProps) {
             {sidebar}
           </motion.div>
         </motion.div>
-        <motion.main layout className="min-h-screen">
+        <motion.main layout className="min-h-full">
           {children}
         </motion.main>
       </motion.div>

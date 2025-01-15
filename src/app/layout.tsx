@@ -76,7 +76,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <NextAuthProvider>
             <SidebarProvider>
-              <div className="relative flex min-h-screen flex-col">
+              <div className="relative flex flex-col">
                 <SiteHeader />
                 <PageLayout sidebar={<DashboardSidebar />}>
                   <PageHeader />

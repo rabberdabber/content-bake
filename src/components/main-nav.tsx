@@ -9,6 +9,8 @@ import { useSelectedLayoutSegment } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useSidebar } from "./ui/sidebar";
 import { m } from "framer-motion";
+import { breakpoints } from "@/lib/hooks/use-media-query";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface MainNavProps {
   items?: NavItem[];
@@ -18,11 +20,14 @@ export function MainNav({ items }: MainNavProps) {
   // const segment = useSelectedLayoutSegment() || "";
   // const { data: session } = useSession();
   const { open } = useSidebar();
+  const isMobile = !useMediaQuery(breakpoints.md);
+
   return (
     <div
       className={cn(
         "flex gap-6 md:gap-10 w-screen ml-[--sidebar-width-icon]",
-        open && "ml-[--sidebar-width]"
+        open && "ml-[--sidebar-width]",
+        isMobile && "ml-0"
       )}
     >
       <Link href="/" className="flex items-center space-x-2">

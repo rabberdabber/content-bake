@@ -28,7 +28,7 @@ export default function EditorHeader({
   return (
     <div
       className={cn(
-        "sticky top-0 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+        "sticky top-0 flex-col md:flex-row gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
         "transition-all duration-200",
         "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40",
         !fullscreen && "sticky top-16"

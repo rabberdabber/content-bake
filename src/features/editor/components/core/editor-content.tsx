@@ -32,7 +32,11 @@ const EditorContent = forwardRef<HTMLDivElement, EditorContentProps>(
     ref
   ) {
     const controls = useAnimation();
-    const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>();
+    const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
+      axis: "y",
+      duration: 2000,
+      easing: (t) => (t < 0.5 ? 16 * t ** 5 : 1 - (-2 * t + 2) ** 5 / 2), // easeInOutQuint
+    });
 
     const handleContentScroll = () => {
       controls
@@ -69,6 +73,7 @@ const EditorContent = forwardRef<HTMLDivElement, EditorContentProps>(
                     <TipTapEditor
                       setEditorContent={setEditorContent}
                       editorRef={editorRef}
+                      editorContent={editorContent}
                     />
                   </div>
                 </ResizablePanel>
@@ -82,6 +87,10 @@ const EditorContent = forwardRef<HTMLDivElement, EditorContentProps>(
                 <div className={cn({ hidden: mode === "preview" })}>
                   <div className="rounded-lg rounded-t-none p-4">
                     <TipTapEditor
+                      handleContentScroll={handleContentScroll}
+                      targetRef={targetRef}
+                      ref={ref}
+                      animate={controls}
                       setEditorContent={setEditorContent}
                       editorRef={editorRef}
                     />
@@ -95,7 +104,6 @@ const EditorContent = forwardRef<HTMLDivElement, EditorContentProps>(
               </>
             )}
           </motion.div>
-          <div ref={targetRef} onScroll={handleContentScroll}></div>
         </AnimatePresence>
       </motion.div>
     );

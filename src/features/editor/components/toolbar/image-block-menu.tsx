@@ -86,7 +86,7 @@ export const ImageBlockMenu = ({
   return (
     <BaseBubbleMenu
       editor={editor}
-      pluginKey={`imageBlockMenu-${crypto.randomUUID()}`}
+      pluginKey={`imageBlockMenu}`}
       shouldShow={shouldShow}
       updateDelay={0}
       tippyOptions={{

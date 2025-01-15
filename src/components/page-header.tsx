@@ -1,3 +1,4 @@
+"use client";
 import { Separator } from "@radix-ui/react-separator";
 import {
   BreadcrumbItem,
@@ -8,8 +9,15 @@ import {
 } from "./ui/breadcrumb";
 import { Breadcrumb } from "./ui/breadcrumb";
 import { SidebarTrigger } from "./ui/sidebar";
+import { useSession } from "next-auth/react";
 
 export default function PageHeader() {
+  const { data: session } = useSession();
+
+  if (session === null) {
+    return null;
+  }
+
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
       <div className="flex items-center gap-2 px-4">

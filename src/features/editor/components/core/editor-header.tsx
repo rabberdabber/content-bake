@@ -12,6 +12,7 @@ interface EditorHeaderProps {
   onChangeMode: (newMode: EditorMode) => void;
   editorRef: React.RefObject<EditorType>;
   featuredImage: string;
+  fullscreen: boolean;
 }
 
 export default function EditorHeader({
@@ -19,14 +20,18 @@ export default function EditorHeader({
   onChangeMode,
   editorRef,
   featuredImage,
+  fullscreen,
 }: EditorHeaderProps) {
   const isSplitPane = mode === "split-pane";
+
+  console.log("editor header", fullscreen);
   return (
     <div
       className={cn(
-        "sticky top-16 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+        "sticky top-0 flex items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
         "transition-all duration-200",
-        "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40"
+        "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40",
+        !fullscreen && "sticky top-16"
       )}
     >
       {/* Mode toggles */}

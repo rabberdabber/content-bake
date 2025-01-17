@@ -1,4 +1,5 @@
 import "@/app/globals.css";
+import { cookies } from "next/headers";
 import { Metadata, type Viewport } from "next";
 import { Merriweather, Roboto, Inter as FontSans } from "next/font/google";
 
@@ -9,10 +10,8 @@ import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/session-provider";
-import { SiteFooter } from "@/components/site-footer";
-import DashboardSidebar from "@/components/dashboard-sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import PageHeader from "@/components/page-header";
 import { PageLayout } from "@/components/page-layout";
 
 const merriweather = Merriweather({
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.svg",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
@@ -56,7 +55,9 @@ interface RootLayoutProps {
   children: Readonly<React.ReactNode>;
 }
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
@@ -75,14 +76,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
         >
           <NextAuthProvider>
-            <SidebarProvider>
-              <div className="relative flex flex-col">
-                <SiteHeader />
-                <PageLayout sidebar={<DashboardSidebar />}>
-                  <PageHeader />
-                  {children}
-                </PageLayout>
-                <SiteFooter />
+            <SidebarProvider defaultOpen={defaultOpen}>
+              <div className="relative flex min-h-screen w-full group">
+                <div className="sticky top-0 h-screen flex-shrink-0">
+                  <AppSidebar />
+                </div>
+                <div className="flex flex-1 flex-col w-full ">
+                  <SiteHeader />
+                  <PageLayout>{children}</PageLayout>
+                </div>
               </div>
             </SidebarProvider>
           </NextAuthProvider>

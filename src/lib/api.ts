@@ -1,4 +1,9 @@
-import { Post } from "@/types/api";
+import {
+  PostPublic,
+  PostPublicWithContent,
+  User,
+  UserCreate,
+} from "@/types/api";
 import axios from "axios";
 import { getSession } from "next-auth/react";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
@@ -17,36 +22,36 @@ const api = axios.create({
 // Posts related API calls
 // TODO: use zod to validate API responses
 export const postsApi = {
-  createPost: async (post: Post) => {
+  createPost: async (post: PostPublicWithContent) => {
     const response = await api.post("/posts/", {
       ...post,
       is_published: true,
     });
-    return response.data as Post;
+    return response.data as PostPublic;
   },
 
   getPosts: async () => {
     const response = await api.get("/posts/");
-    return response.data as Post[];
+    return response.data;
   },
 
   getPost: async (postId: string) => {
     const response = await api.get(`/posts/${postId}`);
-    return response.data as Post;
+    return response.data as PostPublicWithContent;
   },
 
-  updatePost: async (postId: string, post: Partial<Post>) => {
-    const response = await api.put(`/posts/${postId}`, post);
-    return response.data as Post;
+  updatePost: async (postId: string, post: Partial<PostPublicWithContent>) => {
+    const response = await api.patch(`/posts/${postId}`, post);
+    return response.data as PostPublic;
   },
 
   deletePost: async (postId: string) => {
     const response = await api.delete(`/posts/${postId}`);
-    return response.data as Post;
+    return response.data as PostPublic;
   },
 
   // For draft functionality
-  saveDraft: async (draft: Post) => {
+  saveDraft: async (draft: PostPublicWithContent) => {
     const response = await api.post("/posts/", {
       ...draft,
       is_published: false,
@@ -57,6 +62,10 @@ export const postsApi = {
 
 // Auth related API calls
 export const authApi = {
+  signup: async (user: UserCreate) => {
+    const response = await api.post("/users/", user);
+    return response.data;
+  },
   login: async (credentials: { email: string; password: string }) => {
     const formData = new URLSearchParams();
     formData.append("username", credentials.email);

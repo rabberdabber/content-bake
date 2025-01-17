@@ -15,6 +15,7 @@ import { sanitizeConfig } from "@/config/sanitize-config";
 
 import DOMPurify from "dompurify";
 import { useLocalStorage } from "@mantine/hooks";
+import { useMounted } from "@/lib/hooks/use-mounted";
 import { useFullscreen } from "@mantine/hooks";
 import { breakpoints, useMediaQuery } from "@/lib/hooks/use-media-query";
 import { toast } from "sonner";
@@ -62,6 +63,7 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
     const blogRef = useRef<HTMLDivElement>(null);
 
     // Mobile check
+    const isMounted = useMounted();
     const isMobile = !useMediaQuery(breakpoints.md);
 
     // Update mode when `mode` changes (sync URL and sanitize content)
@@ -92,13 +94,13 @@ const Editor = forwardRef<HTMLDivElement, EditorProps>(
 
     // Warn on mobile and set client
     useEffect(() => {
-      if (isMobile) {
+      if (isMobile && isMounted) {
         toast.warning(
           "This editor is optimized for desktop use. Mobile experience may be limited."
         );
       }
       setIsClient(true);
-    }, [isMobile]);
+    }, [isMobile, isMounted]);
 
     if (!isClient) {
       return null; // Avoid hydration mismatch

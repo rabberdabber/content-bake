@@ -17,7 +17,14 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function NavMain({
@@ -32,6 +39,8 @@ export function NavMain({
       title: string;
       url: string;
       icon?: Icon;
+      disabled?: boolean;
+      reason?: string;
     }[];
   }[];
 }) {
@@ -63,14 +72,33 @@ export function NavMain({
                         asChild
                         className={cn(
                           pathname === subItem.url &&
-                            "bg-muted text-muted-foreground"
+                            "bg-muted text-muted-foreground",
+                          subItem.disabled && "opacity-50 cursor-not-allowed"
                         )}
-                        // className="flex items-center justify-between gap-2 border border-border/50 rounded-md p-2"
                       >
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                        {/* {subItem.icon && <subItem.icon />} */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Link
+                                href={subItem.url}
+                                className={cn(
+                                  subItem.disabled &&
+                                    "opacity-50 cursor-not-allowed"
+                                )}
+                                onClick={() => {
+                                  if (subItem.disabled) {
+                                    return;
+                                  }
+                                }}
+                              >
+                                <span>{subItem.title}</span>
+                              </Link>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{subItem.reason}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

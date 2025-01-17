@@ -8,15 +8,18 @@ export interface User {
   full_name: string;
 }
 
+export type UserCreate = Omit<User, "id" | "is_active" | "is_superuser"> & {
+  password: string;
+};
+
 export interface LoginResponse {
   access_token: string;
 }
 
-export interface Post {
+export interface PostPublic {
   id: string;
   feature_image_url?: string;
   title: string;
-  content: JSONContent;
   tag?: string;
   is_published: boolean;
   excerpt: string;
@@ -25,9 +28,6 @@ export interface Post {
   author_id: string;
 }
 
-export interface PostResponse extends Post {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  author_id: string;
+export interface PostPublicWithContent extends PostPublic {
+  content: JSONContent;
 }

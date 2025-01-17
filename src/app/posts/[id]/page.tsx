@@ -1,27 +1,36 @@
-import { Post } from "@/types/api";
 import { cn } from "@/lib/utils";
-
-import { postsApi } from "@/lib/api";
+import { postWithContentSchema } from "@/schemas/post";
 import { PostsMain } from "@/features/posts/posts-main";
 import PostHero from "@/features/posts/post-hero";
 
 export default async function PostPage({ params }: { params: { id: string } }) {
-  const post = (await postsApi.getPost(params.id)) as Post;
+  const post = await fetch(
+    process.env.NEXT_PUBLIC_API_URL + "/posts/" + params.id,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  const postDataSafeParse = await postWithContentSchema.safeParseAsync(
+    await post.json()
+  );
 
-  if (!post) {
-    return (
-      <div className="animate-spin rounded-full border-2 border-current border-t-transparent h-4 w-4"></div>
-    );
+  if (!postDataSafeParse.success) {
+    console.log(postDataSafeParse.error);
+    return <div>Error fetching post</div>;
   }
+
+  const postData = postDataSafeParse.data;
 
   return (
     <div className="container max-w-4xl py-6 lg:py-10">
       <PostHero
-        title={post.title || "title"}
-        publishedOn={post.created_at || new Date().toISOString()}
+        title={postData.title || "title"}
+        publishedOn={postData.created_at || new Date().toISOString()}
         coverImage={{
-          src: post.feature_image_url || "",
-          alt: post.title || "title",
+          src: postData.feature_image_url || "",
+          alt: postData.title || "title",
         }}
       />
       <article
@@ -51,7 +60,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           )}
         >
           <div className="flex flex-col">
-            <PostsMain postContent={post.content} />
+            <PostsMain postContent={postData.content} />
           </div>
         </div>
       </article>

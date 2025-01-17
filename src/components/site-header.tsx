@@ -1,19 +1,19 @@
 "use client";
 
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { siteConfig } from "@/config/site";
 import { MainNav } from "@/components/main-nav";
 import { NavUser } from "./nav-user";
+1;
 
 export function SiteHeader() {
   const { data: session } = useSession();
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 w-screen border-b bg-background">
-      <div className="p-2 flex h-16 items-center space-x-4 justify-between sm:space-x-0">
+    <div className="sticky top-0 left-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
+      <div className="flex h-16 items-center px-4">
         <MainNav items={siteConfig.mainNav} />
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex items-center space-x-4">
           <nav className="flex items-center space-x-2">
             {session && (
               <span className="text-sm text-muted-foreground mr-2">
@@ -34,6 +34,6 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
-    </header>
+    </div>
   );
 }

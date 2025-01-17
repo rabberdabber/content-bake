@@ -1,108 +1,89 @@
-import Image from "next/image";
-import Link from "next/link";
-import { formatDate } from "date-fns";
 import { Suspense } from "react";
-import { postsApi } from "@/lib/api";
-import { Post } from "@/types/api";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+import PostsList from "@/components/posts-list";
+import { publicPostsSchema } from "@/schemas/post";
+import { PostsSearchParams } from "@/types/post";
+import { POSTS_PER_PAGE } from "@/config/post";
 
 export const dynamic = "force-dynamic";
-
-// Create a separate Posts component for the async data fetching
-async function Posts() {
-  const posts = await postsApi.getPosts();
-  const postsData = (posts.data || []) as Post[];
-
-  return (
-    <>
-      {postsData.length ? (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {postsData.map((post, index) => (
-            <article
-              key={post.id}
-              className="group relative flex flex-col bg-card hover:bg-card/50 border border-muted 
-              rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
-            >
-              {post.feature_image_url && (
-                <div className="relative w-full pt-[56.25%]">
-                  {" "}
-                  {/* 16:9 aspect ratio */}
-                  <Image
-                    src={post.feature_image_url}
-                    alt={post.title}
-                    fill
-                    className="absolute inset-0 object-cover transition-transform duration-300 
-                    group-hover:scale-105"
-                    priority={index <= 1}
-                  />
-                </div>
-              )}
-              <div className="flex flex-col flex-1 p-4 space-y-4">
-                {post.tag && (
-                  <div className="flex flex-wrap gap-2">
-                    {post.tag && (
-                      <span
-                        key={post.tag}
-                        className="px-2 py-1 text-xs font-medium rounded-full 
-                        bg-primary/10 text-primary"
-                      >
-                        {post.tag}
-                      </span>
-                    )}
-                  </div>
-                )}
-
-                <h2
-                  className="text-xl font-bold leading-tight line-clamp-2 
-                  group-hover:text-primary transition-colors"
-                >
-                  {post.title}
-                </h2>
-
-                {post.excerpt && (
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between mt-auto pt-4">
-                  {post.created_at && (
-                    <time className="text-sm text-muted-foreground">
-                      {formatDate(new Date(post.created_at), "MMMM dd, yyyy")}
-                    </time>
-                  )}
-                  <span
-                    className="text-sm font-medium text-primary opacity-0 
-                    group-hover:opacity-100 transition-opacity"
-                  >
-                    Read more →
-                  </span>
-                </div>
-              </div>
-              <Link href={`/posts/${post.id}`} className="absolute inset-0">
-                <span className="sr-only">View Article</span>
-              </Link>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <p>No posts published.</p>
-      )}
-    </>
+async function getPosts() {
+  const posts = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/posts`, //?page=${page}&per_page=${perPage}`
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
   );
+  const postsResponse = await posts.json();
+  const postsDataSafeParse = await publicPostsSchema.safeParseAsync(
+    postsResponse
+  );
+
+  if (!postsDataSafeParse.success) {
+    console.log(postsDataSafeParse.error);
+    throw new Error("Error fetching posts");
+  }
+  const { data, count } = postsDataSafeParse.data;
+
+  let filteredPosts = data;
+
+  return {
+    data: filteredPosts,
+    count,
+  };
 }
 
 // Main page component
-export default function Page() {
+
+async function Posts({ params }: { params: PostsSearchParams }) {
+  const { data: allPosts, count: totalPosts } = await getPosts();
+  const page = Number(params.page) || 1;
+  const perPage = Number(params.perPage) || POSTS_PER_PAGE;
+  const search = params.search || "";
+  const tag = params.tag || "all";
+  let filteredPosts = allPosts;
+
+  if (search) {
+    filteredPosts = filteredPosts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(search.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+
+  if (tag && tag !== "all") {
+    filteredPosts = filteredPosts.filter((post) => post.tag === tag);
+  }
+
+  const startIndex = (page - 1) * perPage;
+  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
+
+  return <PostsList posts={paginatedPosts} totalPosts={filteredPosts.length} />;
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: {
+    page?: string;
+    search?: string;
+    tag?: string;
+    perPage?: string;
+  };
+}) {
   return (
-    <div className="min-h-screen container max-w-4xl py-6 lg:py-10">
+    <div className="min-h-[calc(100vh-8rem)] container max-w-4xl py-6 lg:py-10">
       <Suspense
         fallback={
-          <div className="flex justify-center items-center min-h-[200px]">
-            <div className="animate-spin rounded-full border-2 border-current border-t-transparent h-4 w-4"></div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         }
       >
-        <Posts />
+        <Posts params={searchParams} />
       </Suspense>
     </div>
   );

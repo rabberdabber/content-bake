@@ -212,8 +212,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "table":
         return (
-          <div className="my-6 w-full overflow-y-auto">
-            <table className={cn("w-full", attribs.class)}>
+          <div className="my-8 w-full overflow-y-auto">
+            <table
+              className={cn(
+                "w-full border-collapse border border-border bg-background text-sm",
+                attribs.class
+              )}
+            >
               {domToReact(children as DOMNode[], htmlParserOptions)}
             </table>
           </div>
@@ -221,7 +226,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "tr":
         return (
-          <tr className={cn("m-0 border-t p-0 even:bg-muted", attribs.class)}>
+          <tr
+            className={cn(
+              "border-b border-border transition-colors hover:bg-muted/50",
+              "even:bg-muted/50",
+              attribs.class
+            )}
+          >
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </tr>
         );
@@ -230,7 +241,8 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <th
             className={cn(
-              "border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
+              "border border-border px-4 py-3 text-center font-medium text-foreground/80",
+              "bg-muted [&[align=left]]:text-left [&[align=right]]:text-right",
               attribs.class
             )}
           >
@@ -242,7 +254,8 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <td
             className={cn(
-              "border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
+              "border border-border px-4 py-3 text-center text-foreground/80",
+              "[&[align=left]]:text-left [&[align=right]]:text-right",
               attribs.class
             )}
           >

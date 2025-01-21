@@ -6,6 +6,7 @@ export interface User {
   is_active: boolean;
   is_superuser: boolean;
   full_name: string;
+  email_verified: boolean;
 }
 
 export type UserCreate = Omit<User, "id" | "is_active" | "is_superuser"> & {

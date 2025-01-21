@@ -5,6 +5,7 @@ import { cn, validateSchema } from "@/lib/utils";
 import { htmlParserOptions } from "@/config/html-parser";
 import extensions from "@/features/editor/components/extensions";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useEditor } from "../../context/editor-context";
 
 // TODO: add fonts
 // import { Merriweather, Montserrat, JetBrains_Mono } from "next/font/google";
@@ -29,94 +30,92 @@ import { useDebounce } from "@/hooks/use-debounce";
 // });
 
 interface BlogPreviewProps {
-  content: JSONContent | string;
   className?: string;
   blogRef?: React.RefObject<HTMLDivElement>;
 }
 
-const BlogPreview = memo(
-  ({ content, className, blogRef }: BlogPreviewProps) => {
-    const [htmlContent, setHtmlContent] = useState<string>("");
-    const debouncedSetHtmlContent = useDebounce(setHtmlContent, 500);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const renderCount = useRef(0);
+const BlogPreview = memo(({ className, blogRef }: BlogPreviewProps) => {
+  const { content } = useEditor();
+  const [htmlContent, setHtmlContent] = useState<string>("");
+  const debouncedSetHtmlContent = useDebounce(setHtmlContent, 500);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const renderCount = useRef(0);
 
-    // Memoize the parsed HTML content
-    const parsedHtmlContent = useMemo(() => {
-      renderCount.current += 1;
-      console.log(`BlogPreview has rendered ${renderCount.current} times`);
-      return parse(htmlContent, htmlParserOptions);
-    }, [htmlContent]); // Only re-parse when htmlContent changes
+  // Memoize the parsed HTML content
+  const parsedHtmlContent = useMemo(() => {
+    renderCount.current += 1;
+    console.log(`BlogPreview has rendered ${renderCount.current} times`);
+    return parse(htmlContent, htmlParserOptions);
+  }, [htmlContent]); // Only re-parse when htmlContent changes
 
-    useEffect(() => {
-      // Scroll to center when content updates
-      if (containerRef.current) {
-        const timer = setTimeout(() => {
-          containerRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }, 100);
-        return () => clearTimeout(timer);
-      }
-    }, [htmlContent]);
+  useEffect(() => {
+    // Scroll to center when content updates
+    if (containerRef.current) {
+      const timer = setTimeout(() => {
+        containerRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [htmlContent]);
 
-    useEffect(() => {
-      const processContent = () => {
-        if (typeof content !== "string") {
-          try {
-            validateSchema(content, extensions);
-            const generatedHTML = generateHTML(content, extensions);
-            debouncedSetHtmlContent(generatedHTML);
-          } catch (e) {
-            console.error("Error in BlogPreview for content:", content, e);
-          }
-        } else {
-          debouncedSetHtmlContent(content);
+  useEffect(() => {
+    const processContent = () => {
+      if (typeof content !== "string") {
+        try {
+          validateSchema(content, extensions);
+          const generatedHTML = generateHTML(content, extensions);
+          debouncedSetHtmlContent(generatedHTML);
+        } catch (e) {
+          console.error("Error in BlogPreview for content:", content, e);
         }
-      };
+      } else {
+        debouncedSetHtmlContent(content);
+      }
+    };
 
-      processContent();
-    }, [content, debouncedSetHtmlContent]);
+    processContent();
+  }, [content, debouncedSetHtmlContent]);
 
-    return (
-      <article
-        ref={containerRef}
+  return (
+    <article
+      ref={containerRef}
+      className={cn(
+        "relative w-full min-h-screen mx-auto",
+        "p-8 sm:p-12 md:p-16",
+        // "sm:border sm:border-page-border-light dark:border-page-border-dark",
+        // "bg-white dark:bg-slate-900",
+        "text-prose-text-light dark:text-prose-text-dark", // Updated text colors
+        "shadow-page-light dark:shadow-page-dark",
+        "sm:rounded-lg",
+        className
+      )}
+    >
+      <div
+        ref={blogRef}
         className={cn(
-          "relative w-full min-h-screen mx-auto",
-          "p-8 sm:p-12 md:p-16",
-          // "sm:border sm:border-page-border-light dark:border-page-border-dark",
-          // "bg-white dark:bg-slate-900",
-          "text-prose-text-light dark:text-prose-text-dark", // Updated text colors
-          "shadow-page-light dark:shadow-page-dark",
-          "sm:rounded-lg",
-          className
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl",
+          "mx-auto max-w-[65ch]",
+          "focus:outline-none",
+          "dark:prose-invert",
+          "prose-headings:font-[var(--font-display)]",
+          "prose-p:font-[var(--font-serif)]",
+          "prose-p:leading-relaxed",
+          "prose-a:font-medium",
+          "prose-pre:bg-slate-900",
+          "prose-pre:border prose-pre:border-slate-800",
+          "[&_img]:mx-auto [&_img]:object-contain",
+          "[&_pre]:!bg-slate-900 [&_pre]:border [&_pre]:border-slate-800",
+          "[&_code]:font-[var(--font-mono)] [&_code]:text-sky-500"
         )}
       >
-        <div
-          ref={blogRef}
-          className={cn(
-            "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl",
-            "mx-auto max-w-[65ch]",
-            "focus:outline-none",
-            "dark:prose-invert",
-            "prose-headings:font-[var(--font-display)]",
-            "prose-p:font-[var(--font-serif)]",
-            "prose-p:leading-relaxed",
-            "prose-a:font-medium",
-            "prose-pre:bg-slate-900",
-            "prose-pre:border prose-pre:border-slate-800",
-            "[&_img]:mx-auto [&_img]:object-contain",
-            "[&_pre]:!bg-slate-900 [&_pre]:border [&_pre]:border-slate-800",
-            "[&_code]:font-[var(--font-mono)] [&_code]:text-sky-500"
-          )}
-        >
-          <div className="flex flex-col">{parsedHtmlContent}</div>
-        </div>
-      </article>
-    );
-  }
-);
+        <div className="flex flex-col">{parsedHtmlContent}</div>
+      </div>
+    </article>
+  );
+});
 
 BlogPreview.displayName = "BlogPreview";
 

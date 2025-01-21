@@ -45,10 +45,6 @@ export function MediaUploader({
           mediaType === "image"
             ? editor.chain().setImageBlock({
                 src: mediaUrl,
-                ...(dimensions && {
-                  width: dimensions.width,
-                  height: dimensions.height,
-                }),
               })
             : editor.chain().setVideo(mediaUrl);
 

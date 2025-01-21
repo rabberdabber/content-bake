@@ -102,11 +102,15 @@ import {
   BookOpen,
 
   // Social Media & Branding
-  Linkedin,
+  Globe,
 
   // UI Elements
-  Plus,
   Minimize,
+  ChevronsUpDown,
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  ArrowDownToLine,
+  ArrowUpToLine,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -153,7 +157,7 @@ export const Icons = {
   send: Send,
   trash: Trash,
   refresh: RefreshCcw,
-
+  plus: PlusIcon,
   // UI Elements
   x: XIcon,
   xCircle: XCircle,
@@ -162,6 +166,7 @@ export const Icons = {
   check: Check,
   chevronUp: ChevronUp,
   chevronDown: ChevronDown,
+  chevronsUpDown: ChevronsUpDown,
   chevronRight: ChevronRight,
   arrowRight: ArrowRight,
   cornerDownLeft: CornerDownLeft,
@@ -207,14 +212,17 @@ export const Icons = {
   alignHorizontalDistributeStart: AlignHorizontalDistributeStart,
   alignHorizontalDistributeCenter: AlignHorizontalDistributeCenter,
   alignHorizontalDistributeEnd: AlignHorizontalDistributeEnd,
-
+  arrowLeftToLine: ArrowLeftToLine,
+  arrowRightToLine: ArrowRightToLine,
+  arrowUpToLine: ArrowUpToLine,
+  arrowDownToLine: ArrowDownToLine,
   // Documentation
   fileQuestion: FileQuestion,
   bookOpen: BookOpen,
 
   // Social Media & Branding
   twitter: XIcon,
-  linkedin: Linkedin,
+  globe: Globe,
 
   // Custom SVG Icons
   logo: (props: LucideProps) => (
@@ -427,6 +435,16 @@ export const Icons = {
       >
         GIF
       </text>
+    </svg>
+  ),
+  linkedin: (props: LucideProps) => (
+    <svg viewBox="0 0 0.4 0.4" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M0.075 0.025a0.05 0.05 0 0 0 -0.05 0.05v0.25a0.05 0.05 0 0 0 0.05 0.05h0.25a0.05 0.05 0 0 0 0.05 -0.05V0.075a0.05 0.05 0 0 0 -0.05 -0.05zm0.028 0.107a0.03 0.03 0 1 0 0 -0.06 0.03 0.03 0 0 0 0 0.06m0.025 0.188V0.156h-0.05v0.164zM0.161 0.156h0.05v0.022c0.007 -0.012 0.024 -0.027 0.054 -0.027 0.036 0 0.055 0.024 0.055 0.069 0 0.002 0 0.012 0 0.012v0.088h-0.05v-0.088c0 -0.012 -0.003 -0.036 -0.029 -0.036 -0.027 0 -0.029 0.03 -0.03 0.05v0.075h-0.05z"
+        fill="currentColor"
+      />
     </svg>
   ),
 };

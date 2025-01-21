@@ -57,7 +57,10 @@ export const validateSchema = (
 ): boolean => {
   try {
     const schema = getSchema(extensions);
-    console.log(schema);
+    console.log(
+      "%c" + JSON.stringify(schema, null, 2),
+      "color: #00ff00; font-weight: bold;"
+    );
     const contentNode = Node.fromJSON(schema, doc);
     contentNode.check();
     return true;

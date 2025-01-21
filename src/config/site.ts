@@ -23,5 +23,6 @@ export const siteConfig = {
   links: {
     linkedin: "https://www.linkedin.com/in/bereket-assefa-251a79178/",
     github: "https://github.com/rabberdabber",
+    portfolio: "https://portfolio.codebake.io",
   },
 };

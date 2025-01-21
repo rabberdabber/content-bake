@@ -1,7 +1,6 @@
 "use client";
 
 import { Icons, type Icon } from "@/components/icons";
-
 import {
   Collapsible,
   CollapsibleContent,
@@ -24,27 +23,33 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function NavMain({
-  items,
-}: {
-  items: {
+interface NavItemProps {
+  title: string;
+  url: string;
+  icon?: Icon;
+  isActive?: boolean;
+  items?: {
     title: string;
     url: string;
     icon?: Icon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-      icon?: Icon;
-      disabled?: boolean;
-      reason?: string;
-    }[];
+    disabled?: boolean;
+    reason?: string;
+    public?: boolean;
   }[];
-}) {
+}
+
+interface NavMainProps {
+  items: NavItemProps[];
+}
+
+export function NavMain({ items }: NavMainProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -73,32 +78,47 @@ export function NavMain({
                         className={cn(
                           pathname === subItem.url &&
                             "bg-muted text-muted-foreground",
-                          subItem.disabled && "opacity-50 cursor-not-allowed"
+                          subItem.disabled && "opacity-50 cursor-not-allowed",
+                          !subItem.public &&
+                            !session &&
+                            "opacity-50 cursor-not-allowed"
                         )}
                       >
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link
-                                href={subItem.url}
-                                className={cn(
-                                  subItem.disabled &&
-                                    "opacity-50 cursor-not-allowed"
+                        {subItem.reason ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={subItem.url}
+                                  className={cn(
+                                    subItem.disabled &&
+                                      "opacity-50 cursor-not-allowed"
+                                  )}
+                                  onClick={() => {
+                                    if (
+                                      subItem.disabled ||
+                                      (!subItem.public && !session)
+                                    ) {
+                                      return;
+                                    }
+                                  }}
+                                >
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {!subItem.public && !session && (
+                                  <p>Login to view</p>
                                 )}
-                                onClick={() => {
-                                  if (subItem.disabled) {
-                                    return;
-                                  }
-                                }}
-                              >
-                                <span>{subItem.title}</span>
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{subItem.reason}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                                {session && <p>{subItem.reason}</p>}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <Link href={subItem.url}>
+                            <span>{subItem.title}</span>
+                          </Link>
+                        )}
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

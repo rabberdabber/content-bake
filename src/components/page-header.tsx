@@ -1,6 +1,6 @@
 "use client";
-import { Separator } from "@radix-ui/react-separator";
-import { useSelectedLayoutSegment, usePathname } from "next/navigation";
+
+import { useSelectedLayoutSegment } from "next/navigation";
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -10,7 +10,6 @@ import {
 } from "./ui/breadcrumb";
 import { Breadcrumb } from "./ui/breadcrumb";
 import { SidebarTrigger } from "./ui/sidebar";
-import { useSession } from "next-auth/react";
 import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
 
@@ -23,19 +22,16 @@ const segmentNames: Record<string, string> = {
 };
 
 export default function PageHeader() {
-  const { data: session } = useSession();
   const mounted = useMounted();
   const segment = useSelectedLayoutSegment();
 
   if (!mounted) {
-    return (
-      <Skeleton className="h-14 w-full bg-background/80 backdrop-blur-sm"></Skeleton>
-    );
+    return <Skeleton className="h-14 w-full bg-muted/50 backdrop-blur-sm" />;
   }
 
   return (
-    <div className="sticky top-0 flex h-14  items-center gap-4 px-4 border-b bg-background/80 backdrop-blur-sm">
-      {session && <SidebarTrigger />}
+    <div className="sticky top-0 flex h-14 items-center gap-4 px-4 border-b bg-background/80 backdrop-blur-sm">
+      <SidebarTrigger />
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

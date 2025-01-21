@@ -27,7 +27,7 @@ const ToolbarWrapper = forwardRef<HTMLDivElement, ToolbarWrapperProps>(
     ref
   ) => {
     const toolbarClassName = cn(
-      "text-black inline-flex h-full leading-none gap-0.5",
+      "inline-flex h-full leading-none gap-0.5 text-foreground",
       isVertical ? "flex-col p-2" : "flex-row p-1 items-center",
       className
     );
@@ -51,7 +51,7 @@ export type ToolbarDividerProps = {
 const ToolbarDivider = forwardRef<HTMLDivElement, ToolbarDividerProps>(
   ({ horizontal, className, ...rest }, ref) => {
     const dividerClassName = cn(
-      "bg-neutral-200 dark:bg-neutral-800",
+      "bg-border",
       horizontal
         ? "w-full min-w-[1.5rem] h-[1px] my-1 first:mt-0 last:mt-0"
         : "h-full min-h-[1.5rem] w-[1px] mx-1 first:ml-0 last:mr-0",
@@ -82,14 +82,15 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       className,
       tooltip,
       tooltipShortcut,
-      activeClassname = "bg-neutral-200 dark:bg-neutral-800",
+      activeClassname = "bg-accent text-accent-foreground",
       active,
       ...rest
     },
     ref
   ) => {
     const buttonClass = cn(
-      "gap-1 min-w-[1.5rem] px-1 w-auto bg-foreground text-muted",
+      "gap-1 min-w-[1.5rem] px-1 w-auto",
+      "hover:bg-accent hover:text-accent-foreground",
       className,
       active && activeClassname
     );
@@ -114,7 +115,7 @@ const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             <TooltipContent side="bottom" className="mt-1">
               {tooltip}
               {tooltipShortcut && (
-                <span className="ml-2 text-xs text-neutral-500">
+                <span className="ml-2 text-xs text-muted-foreground">
                   {tooltipShortcut.join("+")}
                 </span>
               )}

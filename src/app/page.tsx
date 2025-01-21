@@ -23,7 +23,7 @@ export default function Home() {
               Login to Get Started
             </Button>
           </Link>
-          <Link href="/posts">
+          <Link href="/demo">
             <Button variant="outline" size="lg" className="gap-2">
               <Icons.pencil className="w-4 h-4" />
               Editor Demo

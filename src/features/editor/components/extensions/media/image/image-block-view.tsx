@@ -51,7 +51,7 @@ export const ImageBlockView = (props: ImageBlockViewProps) => {
         <div
           contentEditable={false}
           ref={imageWrapperRef}
-          className="group relative min-h-[300px] not-prose"
+          className="group relative min-h-[500px] not-prose"
         >
           <Image
             src={src}

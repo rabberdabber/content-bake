@@ -13,15 +13,30 @@ export function MainNav({
   items: { title: string; href: string }[];
 }) {
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full mr-6">
       <div className="flex items-center gap-6 md:gap-10">
         <Link href="/" className="flex items-center space-x-2">
           <Icons.logo className="h-6 w-6" />
           <span className="inline-block font-bold">{siteConfig.name}</span>
         </Link>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 border border-border/10">
         <div className="flex items-center space-x-2">
+          <Link
+            href={siteConfig.links.portfolio}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div
+              className={buttonVariants({
+                size: "icon",
+                variant: "ghost",
+              })}
+            >
+              <Icons.globe className="h-5 w-5" />
+              <span className="sr-only">Portfolio</span>
+            </div>
+          </Link>
           <Link href={siteConfig.links.github} target="_blank" rel="noreferrer">
             <div
               className={buttonVariants({

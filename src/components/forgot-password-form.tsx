@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
+import { recoverPassword } from "@/lib/actions/user";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -30,13 +31,14 @@ export function ForgotPasswordForm({
     setIsLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
+    const email = formData.get("email") as string;
 
     try {
       const validatedFields = forgotPasswordSchema.parse({ email });
 
-      // TODO: Implement password reset logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      await recoverPassword({
+        email: validatedFields.email,
+      });
 
       toast.success(
         "If an account exists, you will receive a reset email shortly"

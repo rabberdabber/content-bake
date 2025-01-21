@@ -8,16 +8,23 @@ export const TabCommand = Extension.create({
   addKeyboardShortcuts() {
     return {
       Tab: ({ editor }) => {
-        // Sinks a list item / inserts a tab character
+        // Check if we're in a table cell
+        if (editor.isActive("tableCell") || editor.isActive("tableHeader")) {
+          // Use the default table navigation
+          return false;
+        }
+
+        // Handle other cases (lists, tab characters)
         editor
           .chain()
+          .focus()
           .sinkListItem("listItem")
           .command(({ tr }) => {
             tr.insertText("\u0009");
             return true;
           })
           .run();
-        // Prevent default behavior (losing focus)
+
         return true;
       },
     };

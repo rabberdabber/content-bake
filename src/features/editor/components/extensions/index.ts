@@ -7,10 +7,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
 import TextStyle from "@tiptap/extension-text-style";
 import Link from "@tiptap/extension-link";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
+
 import { ReactNodeViewRenderer } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
@@ -28,7 +25,8 @@ import { cn } from "@/lib/utils";
 import { CustomFocus } from "./nodes/custom-focus";
 import { CustomDocument } from "./nodes/custom-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
-import { DeletableTable } from "./nodes/deletable-table";
+// import { DeletableTable } from "./table/deletable-table";
+import { Table, TableCell, TableHeader, TableRow } from "./table";
 // import AIContentGeneratorExtension from "./ai/content";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import ImageBlockView from "./media/image/image-block";
@@ -56,16 +54,10 @@ const CustomTableCell = TableCell.extend({
 });
 
 const extensions = [
-  Table.extend({
-    addNodeView() {
-      return ReactNodeViewRenderer(DeletableTable);
-    },
-  }).configure({
-    resizable: true,
-  }),
-  TableRow,
+  Table,
   TableHeader,
-  CustomTableCell,
+  TableRow,
+  TableCell,
   CodeBlockLowlight.extend({
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlock);

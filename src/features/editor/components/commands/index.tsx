@@ -413,8 +413,7 @@ export const suggestions = {
               editor
                 .chain()
                 .focus()
-                .deleteRange(range)
-                .insertTable({ rows: 3, cols: 3 })
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: false })
                 .run();
             },
           },

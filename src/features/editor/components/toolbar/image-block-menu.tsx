@@ -105,27 +105,31 @@ export const ImageBlockMenu = ({
         sticky: "popper",
       }}
     >
-      <Toolbar.Wrapper shouldShowContent={shouldShow()} ref={menuRef}>
+      <Toolbar.Wrapper
+        shouldShowContent={shouldShow()}
+        ref={menuRef}
+        className="bg-foreground/5"
+      >
         <Toolbar.Button
           tooltip="Align image left"
           active={isImageLeft}
           onClick={onAlignImageLeft}
         >
-          <Icons.alignHorizontalDistributeStart />
+          <Icons.alignHorizontalDistributeStart className="h-6 w-6" />
         </Toolbar.Button>
         <Toolbar.Button
           tooltip="Align image center"
           active={isImageCenter}
           onClick={onAlignImageCenter}
         >
-          <Icons.alignHorizontalDistributeCenter />
+          <Icons.alignHorizontalDistributeCenter className="h-6 w-6" />
         </Toolbar.Button>
         <Toolbar.Button
           tooltip="Align image right"
           active={isImageRight}
           onClick={onAlignImageRight}
         >
-          <Icons.alignHorizontalDistributeEnd />
+          <Icons.alignHorizontalDistributeEnd className="h-6 w-6" />
         </Toolbar.Button>
         <Toolbar.Divider />
         <ImageBlockWidth onChange={onWidthChange} value={width} />

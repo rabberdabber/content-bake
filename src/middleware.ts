@@ -1,27 +1,139 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequestWithAuth } from "next-auth/middleware";
+import { User } from "./types/api";
+
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = {
+  HOME: "/",
+  POSTS: "/posts",
+  AUTH: "/auth",
+  SYSTEM: {
+    API: "/api",
+    NEXT_STATIC: "/_next/static",
+    NEXT_IMAGE: "/_next/image",
+    FAVICON: "/favicon.ico",
+    PUBLIC: "/public",
+  },
+};
+
+// Protected routes that require specific conditions
+const PROTECTED_ROUTES = {
+  DASHBOARD: "/dashboard",
+  VERIFY_EMAIL: "/auth/verify-email",
+} as const;
+
+// Configuration for the matcher
+const MATCHER_PATHS = [
+  PUBLIC_ROUTES.HOME,
+  PUBLIC_ROUTES.POSTS,
+  // Exclude auth, api, and system routes from middleware
+  `/((?!${PUBLIC_ROUTES.AUTH}|${PUBLIC_ROUTES.SYSTEM.API}|${PUBLIC_ROUTES.SYSTEM.NEXT_STATIC}|${PUBLIC_ROUTES.SYSTEM.NEXT_IMAGE}|${PUBLIC_ROUTES.SYSTEM.FAVICON}|${PUBLIC_ROUTES.SYSTEM.PUBLIC}).*)`,
+];
+
+// Helper functions
+const isPublicPath = (pathname: string): boolean => {
+  return (
+    [PUBLIC_ROUTES.HOME].includes(pathname) ||
+    pathname.startsWith(PUBLIC_ROUTES.POSTS)
+  );
+};
+
+const needsEmailVerification = (pathname: string, token: any): boolean => {
+  return (
+    token &&
+    !token.email_verified &&
+    !token.is_superuser &&
+    ![PROTECTED_ROUTES.VERIFY_EMAIL, PUBLIC_ROUTES.HOME].includes(pathname) &&
+    !pathname.startsWith(PUBLIC_ROUTES.POSTS)
+  );
+};
+
+const hasVerifiedEmail = (token: any): boolean => {
+  return token && (token.email_verified || token.is_superuser);
+};
+
+const isVerifyEmailPath = (pathname: string): boolean => {
+  return pathname === PROTECTED_ROUTES.VERIFY_EMAIL;
+};
+
+const getVerifyEmailToken = (url: URL): string | null => {
+  return url.searchParams.get("token");
+};
 
 export default withAuth(
-  function middleware(req) {
-    // If user is authenticated and trying to access the home page:
-    if (req.nextUrl.pathname === "/" && req.nextauth.token) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+  async function middleware(req: NextRequestWithAuth) {
+    const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
+
+    // Check for email verification token in query params
+    if (pathname === "/verify") {
+      const verifyToken = getVerifyEmailToken(req.nextUrl);
+      if (verifyToken) {
+        try {
+          // Attempt to verify email with token
+          const verifyResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/users/verify-email?token=${verifyToken}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (verifyResponse.ok) {
+            // Redirect to login with success message
+            return NextResponse.redirect(new URL("/dashboard", req.url));
+          } else {
+            // Redirect to login with error message
+            return NextResponse.redirect(new URL("/auth/signin", req.url));
+          }
+        } catch (error) {
+          return NextResponse.redirect(new URL("/auth/signin", req.url));
+        }
+      }
     }
+
+    // Redirect authenticated users from home to dashboard
+    if (pathname === PUBLIC_ROUTES.HOME && token) {
+      return NextResponse.redirect(
+        new URL(PROTECTED_ROUTES.DASHBOARD, req.url)
+      );
+    }
+
+    // Redirect verified users away from verification page
+    if (pathname === PROTECTED_ROUTES.VERIFY_EMAIL && hasVerifiedEmail(token)) {
+      return NextResponse.redirect(
+        new URL(PROTECTED_ROUTES.DASHBOARD, req.url)
+      );
+    }
+
+    // Redirect users with unverified email to verification page
+    if (needsEmailVerification(pathname, token)) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/me/`,
+        {
+          headers: {
+            Authorization: `Bearer ${req.nextauth.token?.accessToken}`,
+          },
+        }
+      );
+      const data = (await response.json()) as User;
+      if (!data.email_verified) {
+        return NextResponse.redirect(
+          new URL(PROTECTED_ROUTES.VERIFY_EMAIL, req.url)
+        );
+      }
+      return NextResponse.next();
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
-      authorized: ({ token, req }) => {
-        // Allow public access to home and /posts
-        const allowedPaths = ["/", "/auth/signup", "/auth/forgot-password"];
-        if (
-          allowedPaths.includes(req.nextUrl.pathname) ||
-          req.nextUrl.pathname.startsWith("/posts")
-        ) {
-          return true;
-        }
-        // Require superuser for everything else
-        return token?.is_superuser || false;
+      authorized: ({ token }) => {
+        return !!token;
       },
     },
     pages: {
@@ -32,8 +144,16 @@ export default withAuth(
 
 export const config = {
   matcher: [
+    // Protected routes that require auth
+    "/dashboard/:path*",
+    "/edit/:path*",
+    "/settings/:path*",
+    "/auth/verify-email",
+    // Include home page for redirect logic
     "/",
-    "/posts",
-    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
+    // Include verify route for email verification
+    "/verify",
+    // Exclude all other public routes
+    "/((?!posts|auth/signin|auth/signup|api|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };

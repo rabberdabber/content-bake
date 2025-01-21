@@ -26,11 +26,13 @@ export default function PageHeader() {
   const segment = useSelectedLayoutSegment();
 
   if (!mounted) {
-    return <Skeleton className="h-14 w-full bg-muted/50 backdrop-blur-sm" />;
+    return (
+      <Skeleton className="h-8 w-full mt-2 bg-muted/50 backdrop-blur-sm" />
+    );
   }
 
   return (
-    <div className="sticky top-0 flex h-14 items-center gap-4 px-4 border-b bg-background/80 backdrop-blur-sm">
+    <div className="sticky top-0 flex h-8 mt-2 items-center gap-4 px-4">
       <SidebarTrigger />
       <Breadcrumb>
         <BreadcrumbList>

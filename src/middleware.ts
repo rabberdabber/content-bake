@@ -151,6 +151,8 @@ export const config = {
     "/edit/:path*",
     "/settings/:path*",
     "/auth/verify-email",
+    "/published/:path*",
+    "/drafts/:path*",
     // Include home page for redirect logic
     "/",
     // Include verify route for email verification

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     console.log(token);
     console.log(process.env.NEXT_API_URL);
 
-    const response = await fetch(`${process.env.NEXT_API_URL}/drafts`, {
+    const response = await fetch(`${process.env.NEXT_API_URL}/drafts/`, {
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token.accessToken}` }),

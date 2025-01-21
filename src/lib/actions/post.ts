@@ -81,7 +81,7 @@ export async function createDraft(formData: FormData) {
 
   console.log("Sending draft to server", formData);
   console.log(JSON.parse(formData.get("content") as string));
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -108,7 +108,7 @@ export async function createPost(formData: FormData) {
   console.log("Creating post", formData);
   const token = await getAuthToken();
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

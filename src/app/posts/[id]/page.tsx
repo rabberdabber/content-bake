@@ -1,30 +1,54 @@
 import { cn } from "@/lib/utils";
-import { postWithContentSchema } from "@/schemas/post";
+import { publicPostsSchema } from "@/schemas/post";
 import { PostsMain } from "@/features/posts/posts-main";
 import PostHero from "@/features/posts/post-hero";
 
+export const dynamic = "force-dynamic";
+
+export async function generateStaticParams() {
+  const posts = await fetch(process.env.NEXT_PUBLIC_API_URL + "/posts", {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const postsResponse = await posts.json();
+  const postsDataSafeParse = await publicPostsSchema.safeParseAsync(
+    postsResponse
+  );
+
+  if (!postsDataSafeParse.success) {
+    console.log(postsDataSafeParse.error);
+    throw new Error("Error fetching posts");
+  }
+  const { data } = postsDataSafeParse.data;
+  return data.map((post) => ({ id: post.id }));
+}
+
 export default async function PostPage({ params }: { params: { id: string } }) {
   const post = await fetch(
-    process.env.NEXT_PUBLIC_API_URL + "/posts/" + params.id,
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/${params.id}`,
     {
       headers: {
         "Content-Type": "application/json",
       },
     }
   );
-  const postDataSafeParse = await postWithContentSchema.safeParseAsync(
-    await post.json()
+  // const postData = await postWithContentSchema.parseAsync(await post.json());
+  const postData = await post.json();
+
+  // if (!postDataSafeParse.success) {
+  //   console.log(postDataSafeParse.error);
+  //   return <div>Error fetching post</div>;
+  // }
+
+  // const postData = postDataSafeParse.data;
+
+  console.log(
+    "%c" + JSON.stringify(postData, null, 2),
+    "color: #00ff00; font-weight: bold;"
   );
-
-  if (!postDataSafeParse.success) {
-    console.log(postDataSafeParse.error);
-    return <div>Error fetching post</div>;
-  }
-
-  const postData = postDataSafeParse.data;
-
   return (
-    <div className="container max-w-4xl py-6 lg:py-10">
+    <div className="container max-w-full py-6 lg:py-10">
       <PostHero
         title={postData.title || "title"}
         publishedOn={postData.created_at || new Date().toISOString()}

@@ -10,11 +10,6 @@ import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
 
 const data = {
-  user: {
-    name: "Bake",
-    email: "bereketsiyum@gmail.com",
-    avatar: "/profile.png",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -34,19 +29,22 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "All Posts",
+          url: "/posts",
+          public: true,
+        },
+        {
           title: "Create Post",
           url: "/edit",
           icon: Icons.create,
         },
         {
           title: "Published",
-          url: "/posts",
+          url: "/published",
         },
         {
           title: "Drafts",
           url: "/drafts",
-          disabled: true,
-          reason: "Coming soon",
         },
       ],
     },
@@ -72,6 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   if (!mounted)
     return <Skeleton className="w-[var(--sidebar-width)]"></Skeleton>;
+
   return (
     <Sidebar
       collapsible="icon"
@@ -85,7 +84,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     >
       <SidebarContent>
         <NavMain items={data.navMain} />
-
         <SidebarRail />
       </SidebarContent>
     </Sidebar>

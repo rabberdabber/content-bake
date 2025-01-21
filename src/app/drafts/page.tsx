@@ -1,24 +1,29 @@
 import { Suspense } from "react";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
-import PostsList from "@/components/posts-list";
-import { publicPostsSchema } from "@/schemas/post";
+import { draftPostsSchema } from "@/schemas/post";
 import { PostsSearchParams } from "@/types/post";
 import { POSTS_PER_PAGE } from "@/config/post";
+import DraftsList from "@/components/drafts-list";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 export const dynamic = "force-dynamic";
 
-async function getPosts() {
+async function getDrafts() {
+  const session = await getServerSession(authOptions);
+  const token = session?.accessToken;
   const posts = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/posts`, //?page=${page}&per_page=${perPage}`
+    `${process.env.NEXT_PUBLIC_API_URL}/drafts`, //?page=${page}&per_page=${perPage}`
     {
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     }
   );
   const postsResponse = await posts.json();
-  console.log(`PostsResponse: ${JSON.stringify(postsResponse, null, 2)}`);
-  const postsDataSafeParse = await publicPostsSchema.safeParseAsync(
+  console.log(`DraftsResponse: ${JSON.stringify(postsResponse, null, 2)}`);
+  const postsDataSafeParse = await draftPostsSchema.safeParseAsync(
     postsResponse
   );
 
@@ -43,30 +48,34 @@ async function getPosts() {
 
 // Main page component
 
-async function Posts({ params }: { params: PostsSearchParams }) {
-  const { data: allPosts, count: totalPosts } = await getPosts();
+async function Drafts({ params }: { params: PostsSearchParams }) {
+  const { data: allDrafts, count: totalDrafts } = await getDrafts();
   const page = Number(params.page) || 1;
   const perPage = Number(params.perPage) || POSTS_PER_PAGE;
   const search = params.search || "";
   const tag = params.tag || "all";
-  let filteredPosts = allPosts;
+  let filteredDrafts = allDrafts;
 
   if (search) {
-    filteredPosts = filteredPosts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(search.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(search.toLowerCase())
-    );
+    filteredDrafts = filteredDrafts;
+    // .filter(
+    //   (post) =>
+    //     post?.title?.toLowerCase().includes(search.toLowerCase()) ||
+    //     post?.excerpt?.toLowerCase().includes(search.toLowerCase())
+    // );
   }
 
   if (tag && tag !== "all") {
-    filteredPosts = filteredPosts.filter((post) => post.tag === tag);
+    // filteredPosts = filteredPosts.filter((post) => post.tag === tag);
   }
 
   const startIndex = (page - 1) * perPage;
-  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
+  const paginatedDrafts = filteredDrafts.slice(
+    startIndex,
+    startIndex + perPage
+  );
 
-  return <PostsList posts={paginatedPosts} totalPosts={filteredPosts.length} />;
+  return <DraftsList drafts={paginatedDrafts} totalDrafts={totalDrafts} />;
 }
 
 export default async function Page({
@@ -90,7 +99,7 @@ export default async function Page({
           </div>
         }
       >
-        <Posts params={searchParams} />
+        <Drafts params={searchParams} />
       </Suspense>
     </div>
   );

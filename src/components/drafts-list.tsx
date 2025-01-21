@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/pagination";
 import type { PostData } from "@/schemas/post";
 import { POSTS_PER_PAGE } from "@/config/post";
+import { dynamicBlurDataUrl } from "@/lib/image/utils";
+import { useEffect, useState } from "react";
 
 interface DraftsListProps {
   drafts: Partial<PostData>[];
@@ -280,6 +282,14 @@ function DraftCard({
   draft: Partial<PostData>;
   index: number;
 }) {
+  const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchBlurDataUrl = async () => {
+      const url = await dynamicBlurDataUrl(draft.feature_image_url || "");
+      setBlurDataUrl(url);
+    };
+    fetchBlurDataUrl();
+  }, [draft.feature_image_url]);
   return (
     <div className="group relative flex flex-col">
       {/* Delete button container */}
@@ -313,6 +323,8 @@ function DraftCard({
             className="absolute inset-0 object-cover transition-transform duration-300 
                 group-hover:scale-105"
             priority={index <= 1}
+            blurDataURL={blurDataUrl ?? undefined}
+            placeholder={blurDataUrl ? "blur" : undefined}
           />
         </div>
         <div className="flex flex-col flex-1 p-6 space-y-4">

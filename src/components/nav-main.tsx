@@ -23,7 +23,6 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -48,7 +47,6 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
 
   return (
     <SidebarGroup>
@@ -78,10 +76,7 @@ export function NavMain({ items }: NavMainProps) {
                         className={cn(
                           pathname === subItem.url &&
                             "bg-muted text-muted-foreground",
-                          subItem.disabled && "opacity-50 cursor-not-allowed",
-                          !subItem.public &&
-                            !session &&
-                            "opacity-50 cursor-not-allowed"
+                          subItem.disabled && "opacity-50 cursor-not-allowed"
                         )}
                       >
                         {subItem.reason ? (
@@ -95,10 +90,7 @@ export function NavMain({ items }: NavMainProps) {
                                       "opacity-50 cursor-not-allowed"
                                   )}
                                   onClick={() => {
-                                    if (
-                                      subItem.disabled ||
-                                      (!subItem.public && !session)
-                                    ) {
+                                    if (subItem.disabled) {
                                       return;
                                     }
                                   }}
@@ -107,10 +99,7 @@ export function NavMain({ items }: NavMainProps) {
                                 </Link>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {!subItem.public && !session && (
-                                  <p>Login to view</p>
-                                )}
-                                {session && <p>{subItem.reason}</p>}
+                                <p>{subItem.reason}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

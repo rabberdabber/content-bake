@@ -54,7 +54,7 @@ export function LoginForm({
 
       // Successful login
       toast.success("Login successful");
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Client-side validation error

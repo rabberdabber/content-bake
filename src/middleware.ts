@@ -21,6 +21,8 @@ const PUBLIC_ROUTES = {
 const PROTECTED_ROUTES = {
   DASHBOARD: "/dashboard",
   VERIFY_EMAIL: "/auth/verify-email",
+  PUBLISHED: "/published",
+  DRAFTS: "/drafts",
 } as const;
 
 // Configuration for the matcher

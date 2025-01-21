@@ -1,54 +1,60 @@
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import PostsList from "@/components/posts-list";
 import { publicPostsSchema } from "@/schemas/post";
 import { PostsSearchParams } from "@/types/post";
 import { POSTS_PER_PAGE } from "@/config/post";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-async function getPosts() {
-  const posts = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/posts`, //?page=${page}&per_page=${perPage}`
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
+async function getPublishedPosts() {
+  const env = process.env.NEXT_ENV;
+  const cookieName =
+    env === "local"
+      ? "next-auth.session-token"
+      : "__Secure-next-auth.session-token";
+  const posts = await fetch(`${process.env.NEXTAUTH_URL}/api/published`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Type": "application/json",
+      ...(cookies().get(cookieName) && {
+        Authorization: `Bearer ${cookies().get(cookieName)?.value}`,
+      }),
+    },
+  });
+
+  if (!posts.ok) {
+    if (posts.status === 401) {
+      redirect("/auth/signin");
     }
-  );
+    throw new Error("Failed to fetch published posts");
+  }
+
   const postsResponse = await posts.json();
-  console.log(`PostsResponse: ${JSON.stringify(postsResponse, null, 2)}`);
   const postsDataSafeParse = await publicPostsSchema.safeParseAsync(
     postsResponse
   );
 
   if (!postsDataSafeParse.success) {
-    console.log(postsDataSafeParse.error);
-    throw new Error("Error fetching posts");
+    console.error(postsDataSafeParse.error);
+    throw new Error("Error fetching published posts");
   }
+
   const { data, count } = postsDataSafeParse.data;
-
-  let filteredPosts = data;
-
-  console.log(
-    "%c" + JSON.stringify(filteredPosts, null, 2),
-    "color: #00ff00; font-weight: bold;"
-  );
-  console.log(count);
-  return {
-    data: filteredPosts,
-    count,
-  };
+  return { data, count };
 }
 
 // Main page component
 
 async function Posts({ params }: { params: PostsSearchParams }) {
-  const { data: allPosts, count: totalPosts } = await getPosts();
+  const { data: allPosts, count: totalPosts } = await getPublishedPosts();
   const page = Number(params.page) || 1;
   const perPage = Number(params.perPage) || POSTS_PER_PAGE;
   const search = params.search || "";
   const tag = params.tag || "all";
+
   let filteredPosts = allPosts;
 
   if (search) {

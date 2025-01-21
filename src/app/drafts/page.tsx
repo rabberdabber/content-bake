@@ -1,52 +1,53 @@
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { SkeletonCard } from "@/components/ui/skeleton-card";
 import { draftPostsSchema } from "@/schemas/post";
 import { PostsSearchParams } from "@/types/post";
 import { POSTS_PER_PAGE } from "@/config/post";
 import DraftsList from "@/components/drafts-list";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 async function getDrafts() {
-  const session = await getServerSession(authOptions);
-  const token = session?.accessToken;
-  const posts = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/drafts`, //?page=${page}&per_page=${perPage}`
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+  const env = process.env.NEXT_ENV;
+  const cookieName =
+    env === "local"
+      ? "next-auth.session-token"
+      : "__Secure-next-auth.session-token";
+  const posts = await fetch(`${process.env.NEXTAUTH_URL}/api/drafts`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Type": "application/json",
+      ...(cookies().get(cookieName) && {
+        Authorization: `Bearer ${cookies().get(cookieName)?.value}`,
+      }),
+    },
+  });
+
+  if (!posts.ok) {
+    if (posts.status === 401) {
+      redirect("/auth/signin");
     }
-  );
+    throw new Error("Failed to fetch drafts");
+  }
+
   const postsResponse = await posts.json();
-  console.log(`DraftsResponse: ${JSON.stringify(postsResponse, null, 2)}`);
+  console.log(
+    `response from local server : ${JSON.stringify(postsResponse, null, 2)}`
+  );
   const postsDataSafeParse = await draftPostsSchema.safeParseAsync(
     postsResponse
   );
 
   if (!postsDataSafeParse.success) {
-    console.log(postsDataSafeParse.error);
-    throw new Error("Error fetching posts");
+    console.error(postsDataSafeParse.error);
+    throw new Error("Error fetching drafts");
   }
+
   const { data, count } = postsDataSafeParse.data;
-
-  let filteredPosts = data;
-
-  console.log(
-    "%c" + JSON.stringify(filteredPosts, null, 2),
-    "color: #00ff00; font-weight: bold;"
-  );
-  console.log(count);
-  return {
-    data: filteredPosts,
-    count,
-  };
+  return { data, count };
 }
-
-// Main page component
 
 async function Drafts({ params }: { params: PostsSearchParams }) {
   const { data: allDrafts, count: totalDrafts } = await getDrafts();
@@ -54,19 +55,19 @@ async function Drafts({ params }: { params: PostsSearchParams }) {
   const perPage = Number(params.perPage) || POSTS_PER_PAGE;
   const search = params.search || "";
   const tag = params.tag || "all";
+
   let filteredDrafts = allDrafts;
 
   if (search) {
-    filteredDrafts = filteredDrafts;
-    // .filter(
-    //   (post) =>
-    //     post?.title?.toLowerCase().includes(search.toLowerCase()) ||
-    //     post?.excerpt?.toLowerCase().includes(search.toLowerCase())
+    // filteredDrafts = filteredDrafts.filter(
+    //   (draft) =>
+    //     draft.title?.toLowerCase().includes(search.toLowerCase()) ||
+    //     draft.excerpt?.toLowerCase().includes(search.toLowerCase())
     // );
   }
 
   if (tag && tag !== "all") {
-    // filteredPosts = filteredPosts.filter((post) => post.tag === tag);
+    // filteredDrafts = filteredDrafts.filter((draft) => draft.tag === tag);
   }
 
   const startIndex = (page - 1) * perPage;
@@ -75,7 +76,9 @@ async function Drafts({ params }: { params: PostsSearchParams }) {
     startIndex + perPage
   );
 
-  return <DraftsList drafts={paginatedDrafts} totalDrafts={totalDrafts} />;
+  return (
+    <DraftsList drafts={paginatedDrafts} totalDrafts={filteredDrafts.length} />
+  );
 }
 
 export default async function Page({

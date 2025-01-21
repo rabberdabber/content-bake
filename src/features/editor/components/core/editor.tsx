@@ -1,41 +1,29 @@
 "use client";
 import "@/styles/index.css";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { EditorContent, Editor as EditorType } from "@tiptap/react";
+import { EditorContent } from "@tiptap/react";
 import EditorBubble from "../toolbar/editor-bubble";
 import { Separator } from "@/components/ui/separator";
 import { NodeSelector } from "../toolbar/selectors/node-selector";
 import { LinkSelector } from "../toolbar/selectors/link-selector";
 import { TextButtons } from "../toolbar/selectors/text-buttons";
 import { ColorSelector } from "../toolbar/selectors/color-selector";
-import useBlockEditor from "@/lib/hooks/use-editor";
 import { ImageBlockMenu } from "../toolbar/image-block-menu";
 import { AIContentGenerator } from "./ai/content-generator";
 import { useScrollIntoView } from "@mantine/hooks";
 import { useAnimationControls } from "framer-motion";
+import { TableColumnMenu } from "../extensions/table/menus";
+import { TableRowMenu } from "../extensions/table/menus";
+import { useEditor } from "../../context/editor-context";
 
-export type TipTapEditorType = EditorType;
-
-type EditorProps = {
-  editorRef: React.MutableRefObject<EditorType | null>;
-  setEditorContent?: React.Dispatch<React.SetStateAction<string>>;
-  editorContent?: string;
-};
-
-const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
-  const { editor } = useBlockEditor({ setEditorContent });
+const CoreEditor = () => {
+  const { editor, content } = useEditor();
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
   const [openAIContentDialog, setOpenAIContentDialog] = useState(false);
   const [chatId, setChatId] = useState<string | null>(null);
   const menuContainerRef = useRef(null);
-
-  useEffect(() => {
-    if (editor) {
-      editorRef.current = editor;
-    }
-  }, [editor]);
 
   const handleClose = useCallback(() => {
     setOpenAIContentDialog(false);
@@ -68,8 +56,8 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
     return null;
   }
 
-  console.log(JSON.stringify(editor.getJSON(), null, 2));
-  console.table(editor.schema.spec.nodes);
+  // console.log(JSON.stringify(editor.getJSON(), null, 2));
+  // console.table(editor.schema.spec.nodes);
   return (
     <div className="flex h-full" ref={menuContainerRef}>
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
@@ -101,8 +89,11 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
             editor={editor}
           />
         </EditorBubble>
-        <EditorContent editor={editor} />
+        <EditorContent editor={editor} content={content} />
         <ImageBlockMenu editor={editor} appendTo={menuContainerRef} />
+        <TableColumnMenu editor={editor} appendTo={menuContainerRef} />
+        <TableRowMenu editor={editor} appendTo={menuContainerRef} />
+
         {chatId && (
           <AIContentGenerator
             editor={editor}
@@ -117,11 +108,8 @@ const Editor = ({ editorRef, setEditorContent }: EditorProps) => {
   );
 };
 
-const TipTapEditor = ({
-  editorRef,
-  editorContent,
-  setEditorContent,
-}: EditorProps) => {
+const TipTapEditor = () => {
+  const { content } = useEditor();
   const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
     axis: "y",
     duration: 2000,
@@ -136,12 +124,12 @@ const TipTapEditor = ({
   };
 
   useEffect(() => {
-    scrollIntoView();
-  }, [editorContent]);
+    // scrollIntoView();
+  }, [content]);
 
   return (
     <>
-      <Editor editorRef={editorRef} setEditorContent={setEditorContent} />
+      <CoreEditor />
       <div ref={targetRef} onScroll={handleContentScroll}></div>
     </>
   );

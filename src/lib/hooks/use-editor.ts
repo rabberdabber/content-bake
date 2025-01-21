@@ -3,13 +3,12 @@ import { JSONContent, useEditor } from "@tiptap/react";
 import type { Editor } from "@tiptap/core";
 
 import extensions from "@/features/editor/components/extensions";
-import useLocalStorage from "./use-local-storage";
+import useLocalStorage from "@/lib/hooks/use-local-storage";
 import { sanitizeConfig } from "@/config/sanitize-config";
 import DOMPurify from "dompurify";
 import { handleCommandNavigation } from "@/features/editor/components/commands";
 import { uploadImage } from "../image/utils";
 import { toast } from "sonner";
-import { validateSchema } from "@/lib/utils";
 
 declare global {
   interface Window {
@@ -91,51 +90,66 @@ const apiContent: JSONContent = {
       attrs: {
         language: "python",
       },
-      content: {
-        type: "text",
-        text: "def fibonacci(n):\\n    sequence = []\\n    a, b = 0, 1\\n    while len(sequence) < n:\\n        sequence.append(a)\\n        a, b = b, a + b\\n    return sequence\\n\\n# Example usage: Get the first 10 Fibonacci numbers\\nprint(fibonacci(10))",
-      },
+      content: [
+        {
+          type: "text",
+          text: "def fibonacci(n):\\n    sequence = []\\n    a, b = 0, 1\\n    while len(sequence) < n:\\n        sequence.append(a)\\n        a, b = b, a + b\\n    return sequence\\n\\n# Example usage: Get the first 10 Fibonacci numbers\\nprint(fibonacci(10))",
+        },
+      ],
     },
   ],
 };
 
-console.log(validateSchema(defaultContent, extensions));
-console.log(validateSchema(apiContent, extensions));
+type useBlockEditorParams =
+  | {
+      type: "initial";
+      initialContent: string;
+    }
+  | {
+      type: "local";
+      storageKey: string;
+    };
 
-const useBlockEditor = ({
-  setEditorContent,
-}: {
-  setEditorContent?: React.Dispatch<React.SetStateAction<string>>;
-}) => {
-  const [content, setContent] = useLocalStorage(
-    "editor-content",
-    JSON.stringify(apiContent)
+const useBlockEditor = (params: useBlockEditorParams) => {
+  const [localContent, setLocalContent] = useLocalStorage(
+    params.type === "local" ? params.storageKey : "editor-content",
+    ""
   );
-  const [image, setImage] = useState<string | File | null>(null);
+  const [editorContent, setEditorContent] = useState(
+    params.type === "local" ? localContent : params.initialContent
+  );
+  const [droppedImage, setDroppedImage] = useState<string | File | null>(null);
 
-  const onContentUpdate = (newContent: string) => {
-    const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
-    setEditorContent?.(sanitizedContent);
-  };
   const editor = useEditor({
     immediatelyRender: true,
     shouldRerenderOnTransaction: false,
     autofocus: true,
     onCreate: (ctx) => {
-      if (ctx.editor.isEmpty) {
-        ctx.editor.commands.setContent(apiContent);
-        ctx.editor.commands.focus("start", { scrollIntoView: true });
+      if (params.type === "local") {
+        console.log(
+          "setting initial content from local storage ",
+          localContent
+        );
+        ctx.editor.commands.setContent(localContent);
       } else {
-        ctx.editor.commands.setContent(content);
+        console.log(
+          "setting initial content from params",
+          params.initialContent
+        );
+        ctx.editor.commands.setContent(params.initialContent);
       }
     },
     onUpdate: ({ editor }) => {
       const newContent = editor.getHTML();
-      onContentUpdate(newContent);
-      setContent(newContent);
+      if (params.type === "local") {
+        const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
+        console.log("updating local content", sanitizedContent);
+        setLocalContent(sanitizedContent);
+      }
+      setEditorContent(newContent);
     },
     extensions: [...extensions],
-    content: content,
+    content: editorContent,
     editorProps: {
       attributes: {
         class:
@@ -149,7 +163,9 @@ const useBlockEditor = ({
           event.preventDefault();
           const [file] = Array.from(event.dataTransfer.files);
           try {
-            uploadImage(file).then((imageUrl) => setImage(imageUrl));
+            uploadImage(crypto.randomUUID(), file).then((imageUrl) =>
+              setDroppedImage(imageUrl)
+            );
             toast.success("Image uploaded successfully");
           } catch (error) {
             toast.error("Failed to upload image");
@@ -163,7 +179,20 @@ const useBlockEditor = ({
 
   window.editor = editor;
 
-  return { editor };
+  const handleSetContent = (content: string) => {
+    if (params.type === "local") {
+      const sanitizedContent = DOMPurify.sanitize(content, sanitizeConfig);
+      setLocalContent(sanitizedContent);
+    }
+    setEditorContent(content);
+    editor?.commands.setContent(content);
+  };
+
+  return {
+    editor,
+    content: editorContent,
+    setContent: handleSetContent,
+  };
 };
 
 export default useBlockEditor;

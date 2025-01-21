@@ -1,56 +1,58 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Editor } from "@tiptap/react";
+import { PostForm } from "./post-form";
+import { saveDraft, publishPost } from "@/lib/actions/post";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Spinner } from "@/components/ui/spinner";
-import { toast } from "sonner";
-import { postsApi } from "@/lib/api";
 import { useState } from "react";
-import useLocalStorage from "@/lib/hooks/use-local-storage";
-import { useFullscreen } from "@mantine/hooks";
-import Link from "next/link";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useEditor } from "../../context/editor-context";
+import { useSession } from "next-auth/react";
+import { useLocalStorage } from "@mantine/hooks";
 
-interface EditorActionsProps {
-  editor: Editor | null;
-  featuredImage: string;
-}
-
-export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
-  const [content, setContent] = useLocalStorage("editor-content", "");
-  const [_, setFeaturedImage] = useLocalStorage("featured-image", "");
-  const [isPublishing, setIsPublishing] = useState(false);
+export function EditorActions() {
+  const { data: session } = useSession();
+  const { editor, type } = useEditor();
   const [isSavingDraft, setIsSavingDraft] = useState(false);
-  const router = useRouter();
-  const { toggle, fullscreen } = useFullscreen();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [localStorageContent, setLocalStorageContent] = useLocalStorage({
+    key: "editor-content",
+    defaultValue: "",
+  });
+
+  const handleSaveDraft = async () => {
+    if (!editor) return;
+    const formData = new FormData();
+    formData.append("title", "Draft");
+    formData.append("excerpt", "Draft");
+    formData.append("content", JSON.stringify(editor.getJSON()));
+    formData.append("is_published", "false");
+    formData.append("author_id", session?.user.id as string);
+    try {
+      setIsSavingDraft(true);
+      await saveDraft(formData);
+      toast.success("Draft saved successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save draft");
+    } finally {
+      setIsSavingDraft(false);
+      if (type === "local") {
+        setLocalStorageContent("");
+      }
+      editor.commands.setContent("");
+    }
+  };
+
   return (
-    <>
+    <div className="flex gap-2">
       <Button
         variant="outline"
         className="gap-2"
-        disabled={isSavingDraft || !editor}
-        onClick={async () => {
-          try {
-            setIsSavingDraft(true);
-            await postsApi.saveDraft({
-              id: crypto.randomUUID(),
-              title: "Draft",
-              content: editor?.getJSON()!,
-              tag: "draft",
-              is_published: false,
-              excerpt: "draft",
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              author_id: "1",
-            });
-            toast.success("Draft saved successfully!");
-          } catch (error) {
-            toast.error("Failed to save draft");
-          } finally {
-            setIsSavingDraft(false);
-          }
-        }}
+        disabled={isSavingDraft}
+        onClick={handleSaveDraft}
       >
         {isSavingDraft ? (
           <>
@@ -65,69 +67,17 @@ export function EditorActions({ editor, featuredImage }: EditorActionsProps) {
         )}
       </Button>
 
-      <Button
-        className="gap-2"
-        disabled={isPublishing || !editor}
-        onClick={async () => {
-          if (!featuredImage) {
-            toast.error("Please upload a featured image");
-            return;
-          }
-
-          try {
-            setIsPublishing(true);
-            const post = await postsApi.createPost({
-              id: crypto.randomUUID(),
-              title: "Test",
-              content: editor?.getJSON()!,
-              tag: "test",
-              is_published: true,
-              excerpt: "test",
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              author_id: "1",
-              feature_image_url: featuredImage,
-            });
-            toast.success(
-              <>
-                Post published successfully!{" "}
-                <span className="inline-flex gap-2">
-                  View Post at{" "}
-                  <Button variant="outline" asChild>
-                    <Link href={`/posts/${post.id}`}>Posts</Link>
-                  </Button>
-                </span>
-              </>
-            );
-          } catch (error) {
-            toast.error("Failed to publish post");
-          } finally {
-            setIsPublishing(false);
-            setContent("");
-            setFeaturedImage("");
-            router.push("/posts");
-          }
-        }}
-      >
-        {isPublishing ? (
-          <>
-            <Spinner className="h-6 w-6" />
-            Publishing...
-          </>
-        ) : (
-          <>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="gap-2">
             <Icons.send className="h-6 w-6" />
             Publish
-          </>
-        )}
-      </Button>
-      <Button onClick={toggle}>
-        {fullscreen ? (
-          <Icons.minimize className="h-6 w-6" />
-        ) : (
-          <Icons.maximize className="h-6 w-6" />
-        )}
-      </Button>
-    </>
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px]">
+          <PostForm />
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

@@ -4,33 +4,46 @@ import { cn } from "@/lib/utils";
 import ToggleGroup from "@/components/ui/toggle-group";
 import { Icons } from "@/components/icons";
 import { EditorActions } from "@/features/editor/components/core/editor-actions";
-import { Editor as EditorType } from "@tiptap/react";
 import type { EditorMode } from "@/types/editor";
+import { Button } from "@/components/ui/button";
+import { useEditor } from "@/features/editor/context/editor-context";
+import { useState } from "react";
 
 interface EditorHeaderProps {
   mode: EditorMode;
-  onChangeMode: (newMode: EditorMode) => void;
-  editorRef: React.RefObject<EditorType>;
-  featuredImage: string;
+  onChangeMode: (mode: EditorMode) => void;
   fullscreen: boolean;
+  onSave?: () => Promise<void>;
 }
 
 export default function EditorHeader({
   mode,
   onChangeMode,
-  editorRef,
-  featuredImage,
   fullscreen,
+  onSave,
 }: EditorHeaderProps) {
   const isSplitPane = mode === "split-pane";
+  const { editor } = useEditor();
+  const [isSaving, setIsSaving] = useState(false);
 
-  console.log("editor header", fullscreen);
+  if (!editor) return null;
+
+  const handleSave = async () => {
+    if (!onSave) return;
+    try {
+      setIsSaving(true);
+      await onSave();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div
       className={cn(
-        "sticky top-0 flex-col md:flex-row gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+        "sticky top-0 flex flex-row flex-wrap gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
         "transition-all duration-200",
-        "bg-background/80 backdrop-blur-md backdrop-saturate-150 border-border/40",
+        "backdrop-blur-md backdrop-saturate-150 border-border/40 bg-muted-foreground/5",
         !fullscreen && "sticky top-16"
       )}
     >
@@ -58,12 +71,45 @@ export default function EditorHeader({
         ]}
       />
 
-      {/* Editor actions */}
-      <div className="flex gap-2 justify-end w-full">
-        <EditorActions
-          editor={editorRef.current}
-          featuredImage={featuredImage}
-        />
+      <div className="flex items-center gap-4">
+        {/* Editor toolbar */}
+        <div className="flex gap-2 border-2 border-border/50 bg-muted-foreground/5 rounded-md p-1">
+          <Button
+            variant="ghost"
+            onClick={() => editor.chain().focus().undo().run()}
+            className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
+          >
+            <Icons.undo className="h-6 w-6 border-2 border-foreground/10 rounded-md p-1" />
+            Undo
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => editor.chain().focus().redo().run()}
+            className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
+          >
+            <Icons.redo className="h-6 w-6 border-2 border-foreground/10 rounded-md p-1" />
+            Redo
+          </Button>
+        </div>
+
+        {/* Save button */}
+        {onSave && (
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex items-center gap-2"
+          >
+            {isSaving ? (
+              <Icons.loader className="h-4 w-4 animate-spin" />
+            ) : (
+              <Icons.save className="h-4 w-4" />
+            )}
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        )}
+
+        {/* Editor actions */}
+        <EditorActions />
       </div>
     </div>
   );

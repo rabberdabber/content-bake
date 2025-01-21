@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, type SignInResponse } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { loginSchema } from "@/schemas/login";
 import { useState } from "react";
 import { cn } from "@/lib/utils";

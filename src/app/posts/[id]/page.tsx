@@ -62,7 +62,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           "relative w-full min-h-screen mx-auto",
           "p-8 sm:p-12 md:p-16",
           "text-prose-text-light dark:text-prose-text-dark", // Updated text colors
-          "shadow-page-light dark:shadow-page-dark",˝
+          "shadow-page-light dark:shadow-page-dark",
           "sm:rounded-lg"
         )}
       >

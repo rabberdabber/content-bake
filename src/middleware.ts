@@ -7,7 +7,7 @@ import { User } from "./types/api";
 const PUBLIC_ROUTES = {
   HOME: "/",
   POSTS: "/posts",
-  AUTH: "/auth",
+  AUTH: "/auth/signin",
   SYSTEM: {
     API: "/api",
     NEXT_STATIC: "/_next/static",
@@ -25,22 +25,6 @@ const PROTECTED_ROUTES = {
   DRAFTS: "/drafts",
 } as const;
 
-// Configuration for the matcher
-const MATCHER_PATHS = [
-  PUBLIC_ROUTES.HOME,
-  PUBLIC_ROUTES.POSTS,
-  // Exclude auth, api, and system routes from middleware
-  `/((?!${PUBLIC_ROUTES.AUTH}|${PUBLIC_ROUTES.SYSTEM.API}|${PUBLIC_ROUTES.SYSTEM.NEXT_STATIC}|${PUBLIC_ROUTES.SYSTEM.NEXT_IMAGE}|${PUBLIC_ROUTES.SYSTEM.FAVICON}|${PUBLIC_ROUTES.SYSTEM.PUBLIC}).*)`,
-];
-
-// Helper functions
-const isPublicPath = (pathname: string): boolean => {
-  return (
-    [PUBLIC_ROUTES.HOME].includes(pathname) ||
-    pathname.startsWith(PUBLIC_ROUTES.POSTS)
-  );
-};
-
 const needsEmailVerification = (pathname: string, token: any): boolean => {
   return (
     token &&
@@ -53,10 +37,6 @@ const needsEmailVerification = (pathname: string, token: any): boolean => {
 
 const hasVerifiedEmail = (token: any): boolean => {
   return token && (token.email_verified || token.is_superuser);
-};
-
-const isVerifyEmailPath = (pathname: string): boolean => {
-  return pathname === PROTECTED_ROUTES.VERIFY_EMAIL;
 };
 
 const getVerifyEmailToken = (url: URL): string | null => {
@@ -98,7 +78,7 @@ export default withAuth(
     }
 
     // Redirect authenticated users from home to dashboard
-    if (pathname === PUBLIC_ROUTES.HOME && token) {
+    if ([PUBLIC_ROUTES.AUTH, PUBLIC_ROUTES.HOME].includes(pathname) && token) {
       return NextResponse.redirect(
         new URL(PROTECTED_ROUTES.DASHBOARD, req.url)
       );
@@ -158,6 +138,6 @@ export const config = {
     // Include verify route for email verification
     "/verify",
     // Exclude all other public routes
-    "/((?!posts|auth/signin|auth/signup|api|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!posts|auth/signup|api|_next/static|_next/image|favicon.ico|public).*)",
   ],
 };

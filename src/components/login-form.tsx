@@ -44,6 +44,7 @@ export function LoginForm({
         email: validatedFields.email,
         password: validatedFields.password,
         redirect: true,
+        callbackUrl: "/dashboard",
       });
 
       if (result?.error) {

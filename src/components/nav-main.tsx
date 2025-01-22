@@ -23,6 +23,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,6 +32,7 @@ interface NavItemProps {
   url: string;
   icon?: Icon;
   isActive?: boolean;
+  public?: boolean;
   items?: {
     title: string;
     url: string;
@@ -47,6 +49,7 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <SidebarGroup>
@@ -61,57 +64,63 @@ export function NavMain({ items }: NavMainProps) {
           >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <Icons.chevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
+                {(session || item?.public) && (
+                  <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                    <Icons.chevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                )}
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton
-                        asChild
-                        className={cn(
-                          pathname === subItem.url &&
-                            "bg-muted text-muted-foreground",
-                          subItem.disabled && "opacity-50 cursor-not-allowed"
-                        )}
-                      >
-                        {subItem.reason ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link
-                                  href={subItem.url}
-                                  className={cn(
-                                    subItem.disabled &&
-                                      "opacity-50 cursor-not-allowed"
-                                  )}
-                                  onClick={() => {
-                                    if (subItem.disabled) {
-                                      return;
-                                    }
-                                  }}
-                                >
-                                  {subItem.icon && <subItem.icon />}
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{subItem.reason}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          <Link href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </Link>
-                        )}
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
+                  {item.items?.map(
+                    (subItem) =>
+                      (session || (item?.public && subItem?.public)) && (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton
+                            asChild
+                            className={cn(
+                              pathname === subItem.url &&
+                                "bg-muted text-muted-foreground",
+                              subItem.disabled &&
+                                "opacity-50 cursor-not-allowed"
+                            )}
+                          >
+                            {subItem.reason ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link
+                                      href={subItem.url}
+                                      className={cn(
+                                        subItem.disabled &&
+                                          "opacity-50 cursor-not-allowed"
+                                      )}
+                                      onClick={() => {
+                                        if (subItem.disabled) {
+                                          return;
+                                        }
+                                      }}
+                                    >
+                                      {subItem.icon && <subItem.icon />}
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{subItem.reason}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              <Link href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </Link>
+                            )}
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )
+                  )}
                 </SidebarMenuSub>
               </CollapsibleContent>
             </SidebarMenuItem>

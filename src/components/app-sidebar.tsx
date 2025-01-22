@@ -32,6 +32,7 @@ const data = {
       title: "Posts",
       url: "/posts",
       icon: Icons.post,
+      public: true,
       isActive: true,
       items: [
         {

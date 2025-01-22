@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
 import { siteConfig } from "@/config/site";
+import { ThemeToggle } from "./theme-toggle";
 
 const data = {
   navMain: [
@@ -94,7 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarRail />
       </SidebarContent>
       <SidebarFooter className="border-t-2 border-border/50">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 max-w-[var(--sidebar-width)] overflow-hidden">
           <div className="flex items-center space-x-2">
             <Link
               href={siteConfig.links.portfolio}
@@ -141,6 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span className="sr-only">LinkedIn</span>
               </div>
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </SidebarFooter>

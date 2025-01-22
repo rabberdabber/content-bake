@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { siteConfig } from "@/config/site";
-import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MainNav() {
   return (
@@ -14,11 +13,6 @@ export function MainNav() {
           <Icons.logo className="h-6 w-6" />
           <span className="inline-block font-bold">{siteConfig.name}</span>
         </Link>
-      </div>
-      <div className="flex items-center space-x-4 border border-border/10">
-        <div className="flex items-center space-x-2">
-          <ThemeToggle />
-        </div>
       </div>
     </div>
   );

@@ -3,12 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getToken } from "next-auth/jwt";
 import { cookies, headers } from "next/headers";
-import {
-  draftFormSchema,
-  postFormSchema,
-  postWithContentSchema,
-} from "@/schemas/post";
-import { z } from "zod";
+import { draftFormSchema, PostData } from "@/schemas/post";
 
 async function getAuthToken() {
   const token = await getToken({
@@ -27,40 +22,6 @@ async function getAuthToken() {
   }
 
   return token;
-}
-
-async function validatePost(formData: FormData) {
-  try {
-    // First validate the form data
-    await postFormSchema.parseAsync({
-      title: formData.get("title"),
-      tag: formData.get("tag"),
-      excerpt: formData.get("excerpt"),
-      feature_image_url: formData.get("feature_image_url"),
-    });
-
-    // Then validate the complete post data
-    await postWithContentSchema
-      .omit({
-        id: true,
-        author_id: true,
-        created_at: true,
-        updated_at: true,
-      })
-      .parseAsync({
-        ...Object.fromEntries(formData.entries()),
-        content: JSON.parse(formData.get("content") as string),
-      });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errors = error.errors.map((err) => ({
-        field: err.path.join("."),
-        message: err.message,
-      }));
-      throw new Error(`Validation failed: ${JSON.stringify(errors)}`);
-    }
-    throw error;
-  }
 }
 
 async function validateDraft(formData: FormData) {
@@ -135,12 +96,31 @@ export async function createPost(formData: FormData) {
 }
 
 export async function saveDraft(formData: FormData) {
-  return createDraft(formData);
+  const post = (await createDraft(formData)) as PostData;
+  revalidatePath("/drafts");
+  return post;
 }
 
 export async function publishPost(formData: FormData) {
   console.log("Publishing post", formData);
-  const post = await createPost(formData);
+  const post = (await createPost(formData)) as PostData;
   revalidatePath("/posts");
+  revalidatePath("/published");
   return post;
+}
+
+export async function deletePost(postId: string) {
+  const token = await getAuthToken();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token.accessToken}`,
+      },
+    }
+  );
+  revalidatePath("/published");
+  revalidatePath("/posts");
+  return response.json();
 }

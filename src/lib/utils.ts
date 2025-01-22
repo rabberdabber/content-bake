@@ -3,6 +3,7 @@ import { Extensions, getSchema, JSONContent } from "@tiptap/core";
 import { Editor } from "@tiptap/react";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import json5 from "json5";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,20 +52,13 @@ export const getRenderContainer = (editor: Editor, nodeType: string) => {
   return container;
 };
 
-export const validateSchema = (
-  doc: JSONContent,
-  extensions: Extensions
-): boolean => {
-  try {
-    const schema = getSchema(extensions);
-    console.log(
-      "%c" + JSON.stringify(schema, null, 2),
-      "color: #00ff00; font-weight: bold;"
-    );
-    const contentNode = Node.fromJSON(schema, doc);
-    contentNode.check();
-    return true;
-  } catch (e) {
-    return false;
-  }
+export const validateSchema = (doc: JSONContent, extensions: Extensions) => {
+  const schema = getSchema(extensions);
+  const contentNode = Node.fromJSON(schema, doc);
+  contentNode.check();
+  // try {
+  //   return true;
+  // } catch (e) {
+  //   return false;
+  // }
 };

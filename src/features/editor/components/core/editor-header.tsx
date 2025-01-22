@@ -8,6 +8,7 @@ import type { EditorMode } from "@/types/editor";
 import { Button } from "@/components/ui/button";
 import { useEditor } from "@/features/editor/context/editor-context";
 import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
 
 interface EditorHeaderProps {
   mode: EditorMode;
@@ -63,7 +64,7 @@ export default function EditorHeader({
             selected: mode === "editor",
           },
           {
-            icon: Icons.preview,
+            icon: Icons.eye,
             tooltip: "Preview",
             onClick: () => onChangeMode("preview"),
             selected: mode === "preview",
@@ -79,34 +80,19 @@ export default function EditorHeader({
             onClick={() => editor.chain().focus().undo().run()}
             className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
           >
-            <Icons.undo className="h-6 w-6 border-2 border-foreground/10 rounded-md p-1" />
+            <Icons.undo className="h-6 w-6" />
             Undo
           </Button>
+          <Separator orientation="vertical" className="h-10 w-px" />
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().redo().run()}
             className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
           >
-            <Icons.redo className="h-6 w-6 border-2 border-foreground/10 rounded-md p-1" />
+            <Icons.redo className="h-6 w-6" />
             Redo
           </Button>
         </div>
-
-        {/* Save button */}
-        {onSave && (
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2"
-          >
-            {isSaving ? (
-              <Icons.loader className="h-4 w-4 animate-spin" />
-            ) : (
-              <Icons.save className="h-4 w-4" />
-            )}
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-        )}
 
         {/* Editor actions */}
         <EditorActions />

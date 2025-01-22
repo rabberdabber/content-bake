@@ -95,6 +95,7 @@ export function NavMain({ items }: NavMainProps) {
                                     }
                                   }}
                                 >
+                                  {subItem.icon && <subItem.icon />}
                                   <span>{subItem.title}</span>
                                 </Link>
                               </TooltipTrigger>

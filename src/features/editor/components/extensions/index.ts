@@ -25,33 +25,10 @@ import { cn } from "@/lib/utils";
 import { CustomFocus } from "./nodes/custom-focus";
 import { CustomDocument } from "./nodes/custom-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
-// import { DeletableTable } from "./table/deletable-table";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
-// import AIContentGeneratorExtension from "./ai/content";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import ImageBlockView from "./media/image/image-block";
 import MediaUploaderExtension from "./media/media-uploader-extension";
-
-const CustomTableCell = TableCell.extend({
-  addAttributes() {
-    return {
-      // extend the existing attributes …
-      ...this.parent?.(),
-
-      // and add a new one …
-      backgroundColor: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-background-color"),
-        renderHTML: (attributes) => {
-          return {
-            "data-background-color": attributes.backgroundColor,
-            style: `background-color: ${attributes.backgroundColor}`,
-          };
-        },
-      },
-    };
-  },
-});
 
 const extensions = [
   Table,
@@ -148,10 +125,7 @@ const extensions = [
       },
     },
   }),
-  CustomDocument.configure({
-    defaultType: "heading",
-    defaultLevel: 1,
-  }),
+  CustomDocument,
   Dropcursor,
   TrailingNodeExtension,
   CommandsExtension,
@@ -160,18 +134,19 @@ const extensions = [
       // Special placeholder for the first (title) node
       if (pos === 0) {
         // If it's not already a heading, make it one
-        if (!editor.isActive("heading", { level: 1 })) {
-          editor
-            .chain()
-            .focus()
-            .setNode("heading", {
-              level: 1,
-              HTMLAttributes: {
-                class: cn("text-center border-blue-500"),
-              },
-            })
-            .run();
-        }
+
+        // if (!editor.isActive("heading", { level: 1 })) {
+        //   editor
+        //     .chain()
+        //     .focus()
+        //     .setNode("heading", {
+        //       level: 1,
+        //       HTMLAttributes: {
+        //         class: cn("text-center border-blue-500"),
+        //       },
+        //     })
+        //     .run();
+        // }
         return "Enter title...";
       }
 

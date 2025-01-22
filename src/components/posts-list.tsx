@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,16 +23,28 @@ import {
 } from "@/components/ui/pagination";
 import type { PostData } from "@/schemas/post";
 import { POSTS_PER_PAGE } from "@/config/post";
-import { useEffect } from "react";
-import { useState } from "react";
-import { dynamicBlurDataUrl } from "@/lib/image/utils";
+
+import { Icons } from "./icons";
+import { PostCard } from "@/components/ui/post-card";
+import {
+  PostCardMedia,
+  PostCardTag,
+  PostCardTitle,
+  PostCardExcerpt,
+  PostCardFooter,
+} from "@/components/ui/post-card";
 
 interface PostsListProps {
   posts: PostData[];
   totalPosts: number;
+  isPublic: boolean;
 }
 
-export default function PostsList({ posts, totalPosts }: PostsListProps) {
+export default function PostsList({
+  posts,
+  totalPosts,
+  isPublic,
+}: PostsListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get("page")) || 1;
@@ -100,7 +110,7 @@ export default function PostsList({ posts, totalPosts }: PostsListProps) {
         handlePerPageChange={handlePerPageChange}
       />
 
-      <PostGrid posts={posts} />
+      <PostGrid posts={posts} isPublic={isPublic} />
 
       <PaginationControls
         currentPage={currentPage}
@@ -125,7 +135,7 @@ function SearchAndFilterSection({
   handleTagChange: (value: string) => void;
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 container max-w-4xl">
       <div className="flex flex-col sm:flex-row gap-4">
         <form onSubmit={handleSearch} className="flex-1">
           <div className="relative">
@@ -134,7 +144,7 @@ function SearchAndFilterSection({
               placeholder="Search posts..."
               name="search"
               defaultValue={searchQuery || ""}
-              className="w-full pr-16"
+              className="pr-16 w-full"
             />
             <Button
               type="submit"
@@ -183,7 +193,7 @@ function ResultsHeader({
   handlePerPageChange: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between container max-w-4xl">
       <Badge variant="secondary" className="gap-1">
         <span className="text-muted-foreground">
           Found {currentPosts} posts out of {totalPosts} posts
@@ -201,6 +211,10 @@ function ResultsHeader({
           handlePerPageChange={handlePerPageChange}
         />
       </div>
+      <Button variant="outline" className="gap-2">
+        <Icons.plus className="h-4 w-4" />
+        Create Post
+      </Button>
     </div>
   );
 }
@@ -266,89 +280,60 @@ function PerPageSelect({
   );
 }
 
-function PostGrid({ posts }: { posts: PostData[] }) {
+function PostGrid({
+  posts,
+  isPublic,
+}: {
+  posts: PostData[];
+  isPublic: boolean;
+}) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
-      {posts.map((post, index) => (
-        <PostCard key={post.id} post={post} index={index} />
-      ))}
-    </div>
-  );
-}
-
-function PostCard({ post, index }: { post: PostData; index: number }) {
-  const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchBlurDataUrl = async () => {
-      const url = await dynamicBlurDataUrl(post.feature_image_url || "");
-      setBlurDataUrl(url);
-    };
-    fetchBlurDataUrl();
-  }, [post.feature_image_url]);
-
-  return (
-    <article
-      className="group relative flex flex-col bg-card hover:bg-card/50 border border-muted 
-      rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
-    >
-      {post.feature_image_url && (
-        <div className="relative w-full pt-[56.25%]">
-          <Image
-            src={post.feature_image_url}
-            alt={post.title}
-            fill
-            className="absolute inset-0 object-cover transition-transform duration-300 
-            group-hover:scale-105"
-            priority={index <= 1}
-            blurDataURL={blurDataUrl ?? undefined}
-            placeholder={blurDataUrl ? "blur" : undefined}
+    <div className="container max-w-7xl">
+      <div className="grid grid-cols-1 gap-6 auto-rows-fr sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+        {posts.map((post, index) => (
+          <PostCard
+            key={post.id}
+            id={post.id}
+            index={index}
+            href={`/posts/${post.id}`}
+            media={
+              post.feature_image_url && (
+                <PostCardMedia
+                  src={post.feature_image_url}
+                  alt={post.title}
+                  priority={index <= 1}
+                  index={index}
+                />
+              )
+            }
+            tag={post.tag && <PostCardTag>{post.tag}</PostCardTag>}
+            title={<PostCardTitle>{post.title}</PostCardTitle>}
+            excerpt={
+              post.excerpt && <PostCardExcerpt>{post.excerpt}</PostCardExcerpt>
+            }
+            footer={
+              <PostCardFooter date={post.created_at} actionText="Read more →" />
+            }
+            actions={
+              !isPublic && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
+                  transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log("delete");
+                  }}
+                >
+                  <Icons.trash className="h-4 w-4" />
+                </Button>
+              )
+            }
           />
-        </div>
-      )}
-      <div className="flex flex-col flex-1 p-4 space-y-4">
-        {post.tag && (
-          <div className="flex flex-wrap gap-2">
-            <span
-              className="px-2 py-1 text-xs font-medium rounded-full 
-              bg-primary/10 text-primary"
-            >
-              {post.tag}
-            </span>
-          </div>
-        )}
-
-        <h2
-          className="text-xl font-bold leading-tight line-clamp-2 
-          group-hover:text-primary transition-colors"
-        >
-          {post.title}
-        </h2>
-
-        {post.excerpt && (
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {post.excerpt}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between mt-auto pt-4">
-          {post.created_at && (
-            <time className="text-sm text-muted-foreground">
-              {format(new Date(post.created_at), "MMMM dd, yyyy")}
-            </time>
-          )}
-          <span
-            className="text-sm font-medium text-primary opacity-0 
-            group-hover:opacity-100 transition-opacity"
-          >
-            Read more →
-          </span>
-        </div>
+        ))}
       </div>
-      <Link href={`/posts/${post.id}`} className="absolute inset-0">
-        <span className="sr-only">View Article</span>
-      </Link>
-    </article>
+    </div>
   );
 }
 

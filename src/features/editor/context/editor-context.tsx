@@ -1,8 +1,8 @@
-import { useLocalStorage } from "@mantine/hooks";
 import { Editor } from "@tiptap/react";
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 
 type EditorContextType = {
+  isDraft: boolean;
   content: string;
   setContent: (content: string) => void;
   editor: Editor | null;
@@ -20,6 +20,7 @@ type EditorContextType = {
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({
+  isDraft,
   children,
   content,
   setContent,
@@ -29,6 +30,7 @@ export function EditorProvider({
   return (
     <EditorContext.Provider
       value={{
+        isDraft,
         content,
         setContent,
         editor,

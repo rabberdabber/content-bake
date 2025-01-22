@@ -14,10 +14,11 @@ async function getPosts() {
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-store",
     }
   );
+
   const postsResponse = await posts.json();
-  console.log(`PostsResponse: ${JSON.stringify(postsResponse, null, 2)}`);
   const postsDataSafeParse = await publicPostsSchema.safeParseAsync(
     postsResponse
   );
@@ -30,18 +31,11 @@ async function getPosts() {
 
   let filteredPosts = data;
 
-  console.log(
-    "%c" + JSON.stringify(filteredPosts, null, 2),
-    "color: #00ff00; font-weight: bold;"
-  );
-  console.log(count);
   return {
     data: filteredPosts,
     count,
   };
 }
-
-// Main page component
 
 async function Posts({ params }: { params: PostsSearchParams }) {
   const { data: allPosts, count: totalPosts } = await getPosts();
@@ -66,7 +60,13 @@ async function Posts({ params }: { params: PostsSearchParams }) {
   const startIndex = (page - 1) * perPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
 
-  return <PostsList posts={paginatedPosts} totalPosts={filteredPosts.length} />;
+  return (
+    <PostsList
+      posts={paginatedPosts}
+      totalPosts={filteredPosts.length}
+      isPublic
+    />
+  );
 }
 
 export default async function Page({
@@ -80,7 +80,7 @@ export default async function Page({
   };
 }) {
   return (
-    <div className="min-h-[calc(100vh-8rem)] container max-w-4xl py-6 lg:py-10">
+    <div className="min-h-[calc(100vh-8rem)] w-full py-6 lg:py-10 px-4">
       <Suspense
         fallback={
           <div className="grid gap-5 sm:grid-cols-2">

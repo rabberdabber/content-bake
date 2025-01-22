@@ -58,7 +58,8 @@ export default function DraftPage({ params }: { params: { id: string } }) {
     <EditorContainer
       initialContent={draft}
       onSave={handleSave}
-      source="draft"
+      isDraft
+      type="initial"
     />
   );
 }

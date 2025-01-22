@@ -76,7 +76,7 @@ export function AIImageGenerator({
           <Icons.x className="h-4 w-4" />
         </Button>
         <div className="w-full h-full p-4 sm:p-6 md:p-8">
-          <div className="flex items-center space-y-2 mt-4 gap-2 mb-6 border-2 border-primary rounded-lg p-2">
+          <div className="flex items-center space-y-2 mt-4 gap-2 mb-6 rounded-lg p-2">
             <Icons.wand2 className="h-5 w-5 text-primary" />
             <h3 className="text-xl font-semibold tracking-tight">
               Generate Image with AI
@@ -147,36 +147,36 @@ export function AIImageGenerator({
                 disabled={isGenerating}
               />
               <div className="flex justify-end gap-2">
-                {previewImage && (
-                  <>
-                    <Button
-                      type="submit"
-                      className="gap-2"
-                      disabled={isGenerating || !aiPrompt.trim()}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Icons.loader className="h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Icons.sparkles className="h-4 w-4" />
-                          Generate
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleInsertImage}
-                      className="gap-2"
-                      variant="secondary"
-                    >
-                      <Icons.create className="h-4 w-4" />
-                      Insert Image
-                    </Button>
-                  </>
-                )}
+                <Button
+                  type="submit"
+                  className={cn(
+                    "gap-2",
+                    !aiPrompt.trim() && "cursor-not-allowed"
+                  )}
+                  disabled={isGenerating || !aiPrompt.trim()}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Icons.loader className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Icons.sparkles className="h-4 w-4" />
+                      Generate
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleInsertImage}
+                  className={cn("gap-2", !previewImage && "cursor-not-allowed")}
+                  variant="secondary"
+                  disabled={!previewImage}
+                >
+                  <Icons.create className="h-4 w-4" />
+                  Insert Image
+                </Button>
               </div>
             </form>
           </div>

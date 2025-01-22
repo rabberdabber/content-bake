@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token.accessToken}` }),
+        cache: "no-store",
       },
     });
 

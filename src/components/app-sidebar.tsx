@@ -35,14 +35,14 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "All Posts",
-          url: "/posts",
-          public: true,
-        },
-        {
-          title: "Create Post",
+          title: "Playground",
           url: "/edit",
           icon: Icons.create,
+        },
+        {
+          title: "Explore All Posts",
+          url: "/posts",
+          public: true,
         },
         {
           title: "Published",

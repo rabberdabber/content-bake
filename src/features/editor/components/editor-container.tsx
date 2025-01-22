@@ -17,21 +17,23 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { EditorProvider, useEditor } from "../context/editor-context";
 
-const TipTapEditor = dynamic(() => import("./core/editor"), {
-  ssr: false,
-});
+// const TipTapEditor = dynamic(() => import("./core/editor"), {
+//   ssr: false,
+// });
 
-type EditorContainerProps =
+type EditorContainerProps = {
+  onSave?: (content: string) => Promise<void>;
+  isDraft: boolean;
+} & (
   | {
-      onSave?: (content: string) => Promise<void>;
       type: "initial";
       initialContent: string;
     }
   | {
-      onSave?: (content: string) => Promise<void>;
       type: "local";
       storageKey: string;
-    };
+    }
+);
 
 function Editor({
   mode,
@@ -86,7 +88,11 @@ function Editor({
   );
 }
 
-export function EditorContainer({ onSave, ...props }: EditorContainerProps) {
+export function EditorContainer({
+  onSave,
+  isDraft = false,
+  ...props
+}: EditorContainerProps) {
   const { editor, content, setContent } = useBlockEditor(props);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,6 +143,7 @@ export function EditorContainer({ onSave, ...props }: EditorContainerProps) {
 
   return (
     <EditorProvider
+      isDraft={isDraft}
       content={content}
       setContent={setContent}
       editor={editor}

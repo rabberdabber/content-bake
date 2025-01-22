@@ -74,6 +74,7 @@ import {
   Cog,
   Settings,
   Maximize,
+  StopCircle,
 
   // AI & Special Features
   Sparkles,
@@ -173,6 +174,7 @@ export const Icons = {
   cornerUpRight: CornerUpRight,
   gripVertical: GripVertical,
   maximize: Maximize,
+  stop: StopCircle,
   minimize: Minimize,
   edit: Pencil,
 

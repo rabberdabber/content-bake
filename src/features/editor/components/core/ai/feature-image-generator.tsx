@@ -97,7 +97,7 @@ export function FeatureImageGenerator({
         </ScrollArea>
       )}
 
-      <form onSubmit={handleAIGenerate} className="space-y-4">
+      <form className="space-y-4">
         <Textarea
           ref={textareaRef}
           placeholder="Describe the feature image you want to generate..."
@@ -110,6 +110,7 @@ export function FeatureImageGenerator({
           type="submit"
           className="w-full gap-2"
           disabled={isGenerating || !aiPrompt.trim()}
+          onClick={handleAIGenerate}
         >
           {isGenerating ? (
             <>

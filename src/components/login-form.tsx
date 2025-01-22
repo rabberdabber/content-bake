@@ -43,7 +43,7 @@ export function LoginForm({
       const result = await signIn("credentials", {
         email: validatedFields.email,
         password: validatedFields.password,
-        redirect: false, // Prevent automatic redirect to handle it ourselves
+        redirect: true,
       });
 
       if (result?.error) {
@@ -54,7 +54,7 @@ export function LoginForm({
 
       // Successful login
       toast.success("Login successful");
-      router.replace("/dashboard");
+      // router.replace("/dashboard");
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Client-side validation error

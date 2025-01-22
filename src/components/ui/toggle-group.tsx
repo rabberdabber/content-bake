@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { type Icon } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { Separator } from "@radix-ui/react-separator";
 
 type IconWithTooltip = {
   icon: Icon;
@@ -27,18 +28,20 @@ export default function ToggleGroup({ iconsWithTooltip }: ToggleGroupProps) {
           <TooltipProvider key={tooltip}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "p-2",
-                    selected && "bg-muted-foreground/10 rounded-md"
-                  )}
-                  size="icon"
-                  key={index}
-                  onClick={onClick}
-                >
-                  <Icon key={index} className="h-6 w-6" />
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "p-2",
+                      selected && "bg-muted-foreground/10 rounded-md"
+                    )}
+                    size="icon"
+                    key={index}
+                    onClick={onClick}
+                  >
+                    <Icon key={index} className="h-6 w-6" />
+                  </Button>
+                </>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="mt-1">
                 {tooltip}

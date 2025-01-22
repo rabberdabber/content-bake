@@ -11,8 +11,6 @@ export function PostsMain({
 }: {
   postContent: PostWithContentData["content"];
 }) {
-  console.log(postContent);
   const htmlContent = generateHTML(postContent, extensions);
-  // TODO: fix the layout of the post
-  return <>{parse(htmlContent, htmlParserOptions)}</>;
+  return <div className="prose">{parse(htmlContent, htmlParserOptions)}</div>;
 }

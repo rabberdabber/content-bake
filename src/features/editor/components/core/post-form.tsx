@@ -21,13 +21,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Spinner } from "@/components/ui/spinner";
-import { Editor } from "@tiptap/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FeatureImageUpload from "./feature-image-upload";
-import { AIImageGenerator } from "./ai/image-generator";
 import { FeatureImageGenerator } from "./ai/feature-image-generator";
 import { publishPost } from "@/lib/actions/post";
 import { z } from "zod";
@@ -35,7 +33,17 @@ import { useSession } from "next-auth/react";
 import { useEditor } from "../../context/editor-context";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
 
-export function PostForm() {
+interface PostFormProps {
+  isDraft?: boolean;
+  onSuccess?: () => void;
+  submitLabel?: string;
+}
+
+export function PostForm({
+  isDraft = false,
+  onSuccess,
+  submitLabel = "Publish",
+}: PostFormProps) {
   const { data: session } = useSession();
   const { type, editor } = useEditor();
   const [_, setLocalStorageContent] = useLocalStorage("editor-content", "");
@@ -44,15 +52,22 @@ export function PostForm() {
     resolver: zodResolver(postFormSchema),
     defaultValues: {
       title: "",
-      tag: "",
-      excerpt: "",
-      feature_image_url: "",
+      tag: isDraft ? undefined : "",
+      excerpt: isDraft ? undefined : "",
+      feature_image_url: isDraft ? undefined : "",
     },
   });
   const validatePost = async (formData: FormData) => {
     try {
-      // First validate the form data
-      await postFormSchema.parseAsync({
+      const validationSchema = isDraft
+        ? postFormSchema.partial({
+            tag: true,
+            excerpt: true,
+            feature_image_url: true,
+          })
+        : postFormSchema;
+
+      await validationSchema.parseAsync({
         title: formData.get("title"),
         tag: formData.get("tag"),
         excerpt: formData.get("excerpt"),
@@ -61,8 +76,15 @@ export function PostForm() {
         author_id: formData.get("author_id"),
       });
 
-      // Then validate the complete post data
-      await postWithContentSchema
+      const contentSchema = isDraft
+        ? postWithContentSchema.partial({
+            tag: true,
+            excerpt: true,
+            feature_image_url: true,
+          })
+        : postWithContentSchema;
+
+      await contentSchema
         .omit({
           id: true,
           author_id: true,
@@ -89,7 +111,6 @@ export function PostForm() {
   const [isPublishing, setIsPublishing] = useState(false);
   const router = useRouter();
 
-  // Update form when featured image changes
   useEffect(() => {
     if (featuredImage) {
       form.setValue("feature_image_url", featuredImage);
@@ -110,20 +131,29 @@ export function PostForm() {
           formData.append("content", JSON.stringify(editor?.getJSON() || ""));
           formData.append("feature_image_url", featuredImage);
           formData.append("author_id", session?.user.id as string);
-          formData.append("is_published", "true");
+          formData.append("is_published", isDraft ? "false" : "true");
           try {
             setIsPublishing(true);
             await validatePost(formData);
             const post = await publishPost(formData);
             toast.success(
               <>
-                Post published successfully!{" "}
-                <Link href={`/posts/${post.id}`}>View Post</Link>
+                {isDraft ? "Draft" : "Post"} saved successfully!{" "}
+                <Link
+                  className="underline"
+                  href={`/${isDraft ? "drafts" : "posts"}/${post.id}`}
+                >
+                  View {isDraft ? "Draft" : "Post"}
+                </Link>
               </>
             );
-            router.push("/posts");
+            onSuccess?.();
+            router.push(isDraft ? "/drafts" : "/posts");
           } catch (error) {
-            toast.error("Failed to publish post, error: " + error);
+            toast.error(
+              `Failed to ${isDraft ? "save draft" : "publish post"}, error: ` +
+                error
+            );
           } finally {
             setIsPublishing(false);
             if (type === "local") {
@@ -152,9 +182,13 @@ export function PostForm() {
           name="tag"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tag</FormLabel>
+              <FormLabel>Tag {!isDraft && "*"}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter post tag" {...field} required />
+                <Input
+                  placeholder="Enter post tag"
+                  {...field}
+                  required={!isDraft}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -221,12 +255,12 @@ export function PostForm() {
           {isPublishing ? (
             <>
               <Spinner className="h-6 w-6" />
-              Publishing...
+              {isDraft ? "Saving..." : "Publishing..."}
             </>
           ) : (
             <>
               <Icons.send className="h-6 w-6" />
-              Publish
+              {submitLabel}
             </>
           )}
         </Button>

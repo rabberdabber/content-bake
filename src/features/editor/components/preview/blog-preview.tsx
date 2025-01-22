@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, memo, useMemo } from "react";
-import { generateHTML, JSONContent } from "@tiptap/react";
+import { generateHTML } from "@tiptap/react";
 import parse from "html-react-parser";
 import { cn, validateSchema } from "@/lib/utils";
 import { htmlParserOptions } from "@/config/html-parser";
@@ -48,18 +48,18 @@ const BlogPreview = memo(({ className, blogRef }: BlogPreviewProps) => {
     return parse(htmlContent, htmlParserOptions);
   }, [htmlContent]); // Only re-parse when htmlContent changes
 
-  useEffect(() => {
-    // Scroll to center when content updates
-    if (containerRef.current) {
-      const timer = setTimeout(() => {
-        containerRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [htmlContent]);
+  // useEffect(() => {
+  // Scroll to center when content updates
+  // if (containerRef.current) {
+  // const timer = setTimeout(() => {
+  // containerRef.current?.scrollIntoView({
+  // behavior: "smooth",
+  // block: "center",
+  // });
+  // }, 100);
+  // return () => clearTimeout(timer);
+  // }
+  // }, [htmlContent]);
 
   useEffect(() => {
     const processContent = () => {

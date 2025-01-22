@@ -22,6 +22,7 @@ async function getPublishedPosts() {
       ...(cookies().get(cookieName) && {
         Authorization: `Bearer ${cookies().get(cookieName)?.value}`,
       }),
+      cache: "no-store",
     },
   });
 
@@ -45,8 +46,6 @@ async function getPublishedPosts() {
   const { data, count } = postsDataSafeParse.data;
   return { data, count };
 }
-
-// Main page component
 
 async function Posts({ params }: { params: PostsSearchParams }) {
   const { data: allPosts, count: totalPosts } = await getPublishedPosts();
@@ -72,7 +71,13 @@ async function Posts({ params }: { params: PostsSearchParams }) {
   const startIndex = (page - 1) * perPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
 
-  return <PostsList posts={paginatedPosts} totalPosts={filteredPosts.length} />;
+  return (
+    <PostsList
+      posts={paginatedPosts}
+      totalPosts={filteredPosts.length}
+      isPublic={false}
+    />
+  );
 }
 
 export default async function Page({
@@ -86,7 +91,7 @@ export default async function Page({
   };
 }) {
   return (
-    <div className="min-h-[calc(100vh-8rem)] container max-w-4xl py-6 lg:py-10">
+    <div className="min-h-[calc(100vh-8rem)] w-full py-6 lg:py-10 px-4">
       <Suspense
         fallback={
           <div className="grid gap-5 sm:grid-cols-2">

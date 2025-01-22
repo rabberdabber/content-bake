@@ -1,6 +1,9 @@
 "use client";
 
-import { useSelectedLayoutSegment } from "next/navigation";
+import {
+  useSelectedLayoutSegment,
+  useSelectedLayoutSegments,
+} from "next/navigation";
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -12,6 +15,7 @@ import { Breadcrumb } from "./ui/breadcrumb";
 import { SidebarTrigger } from "./ui/sidebar";
 import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
+import { Fragment } from "react";
 
 // Map of route segments to display names
 const segmentNames: Record<string, string> = {
@@ -23,7 +27,7 @@ const segmentNames: Record<string, string> = {
 
 export default function PageHeader() {
   const mounted = useMounted();
-  const segment = useSelectedLayoutSegment();
+  const segments = useSelectedLayoutSegments();
 
   if (!mounted) {
     return (
@@ -40,15 +44,25 @@ export default function PageHeader() {
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
-          {segment && (
-            <>
-              <BreadcrumbItem>
-                <BreadcrumbPage>
-                  {segmentNames[segment] || segment}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </>
-          )}
+          {segments.length > 0 &&
+            segments.map((segment, index) => (
+              <Fragment key={index}>
+                <BreadcrumbItem>
+                  {index === segments.length - 1 ? (
+                    <BreadcrumbPage>
+                      {segmentNames[segment] || segment}
+                    </BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink
+                      href={`/${segments.slice(0, index + 1).join("/")}`}
+                    >
+                      {segmentNames[segment] || segment}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+                {index < segments.length - 1 && <BreadcrumbSeparator />}
+              </Fragment>
+            ))}
         </BreadcrumbList>
       </Breadcrumb>
     </div>

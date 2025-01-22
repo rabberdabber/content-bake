@@ -9,6 +9,8 @@ import DOMPurify from "dompurify";
 import { handleCommandNavigation } from "@/features/editor/components/commands";
 import { uploadImage } from "../image/utils";
 import { toast } from "sonner";
+import { validateSchema } from "../utils";
+import json5 from "json5";
 
 declare global {
   interface Window {
@@ -57,7 +59,7 @@ const apiContent: JSONContent = {
       content: [
         {
           type: "text",
-          text: "Fibonacci Sequence in Python",
+          text: "Understanding Python Decorators",
         },
       ],
     },
@@ -69,7 +71,7 @@ const apiContent: JSONContent = {
       content: [
         {
           type: "text",
-          text: "The Fibonacci sequence is a series of numbers where each number is the sum of the two preceding ones, usually starting with 0 and 1. It's a popular sequence in mathematics and computer science due to its simple definition and properties.",
+          text: "Decorators are a powerful and useful tool in Python, enabling developers to modify the behavior of a function or class method. They are often used to implement cross-cutting concerns such as logging, timing, and access control.",
         },
       ],
     },
@@ -81,7 +83,7 @@ const apiContent: JSONContent = {
       content: [
         {
           type: "text",
-          text: "Here is a simple Python function to generate the Fibonacci sequence:",
+          text: "A decorator is a function that takes another function as an argument and returns a new function that adds some kind of functionality. Python provides a simple syntax for these, using the '@' symbol. Let's explore an example of how to create and use decorators.",
         },
       ],
     },
@@ -93,12 +95,63 @@ const apiContent: JSONContent = {
       content: [
         {
           type: "text",
-          text: "def fibonacci(n):\\n    sequence = []\\n    a, b = 0, 1\\n    while len(sequence) < n:\\n        sequence.append(a)\\n        a, b = b, a + b\\n    return sequence\\n\\n# Example usage: Get the first 10 Fibonacci numbers\\nprint(fibonacci(10))",
+          text: 'def my_decorator(func):\n    def wrapper():\n        print("Something is happening before the function is called.")\n        func()\n        print("Something is happening after the function is called.")\n    return wrapper\n\n@my_decorator\ndef say_hello():\n    print("Hello!")\n\nsay_hello()',
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      attrs: {
+        textAlign: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: 'In this example, the decorator function "my_decorator" is used to wrap the "say_hello" function. The "wrapper" function inside the decorator prints messages before and after calling the original function.',
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      attrs: {
+        textAlign: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: "When you run this script, the output will be:",
+        },
+      ],
+    },
+    {
+      type: "codeBlock",
+      attrs: {
+        language: "shell",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Something is happening before the function is called.\nHello!\nSomething is happening after the function is called.",
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      attrs: {
+        textAlign: "left",
+      },
+      content: [
+        {
+          type: "text",
+          text: 'As you can see, the "my_decorator" function adds behavior to "say_hello" without modifying the function itself. This is particularly useful for aspects that need to be applied across multiple functions.',
         },
       ],
     },
   ],
 };
+
+// TODO: validate api response here
+// validateSchema(apiContent, extensions);
 
 type useBlockEditorParams =
   | {
@@ -126,16 +179,8 @@ const useBlockEditor = (params: useBlockEditorParams) => {
     autofocus: true,
     onCreate: (ctx) => {
       if (params.type === "local") {
-        console.log(
-          "setting initial content from local storage ",
-          localContent
-        );
         ctx.editor.commands.setContent(localContent);
       } else {
-        console.log(
-          "setting initial content from params",
-          params.initialContent
-        );
         ctx.editor.commands.setContent(params.initialContent);
       }
     },
@@ -143,7 +188,6 @@ const useBlockEditor = (params: useBlockEditorParams) => {
       const newContent = editor.getHTML();
       if (params.type === "local") {
         const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
-        console.log("updating local content", sanitizedContent);
         setLocalContent(sanitizedContent);
       }
       setEditorContent(newContent);
@@ -188,6 +232,7 @@ const useBlockEditor = (params: useBlockEditorParams) => {
     editor?.commands.setContent(content);
   };
 
+  console.log("editorSchema", json5.stringify(editor?.getJSON(), null, 2));
   return {
     editor,
     content: editorContent,

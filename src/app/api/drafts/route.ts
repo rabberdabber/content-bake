@@ -1,6 +1,7 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { cache } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token.accessToken}` }),
+        cache: "no-store",
       },
     });
 

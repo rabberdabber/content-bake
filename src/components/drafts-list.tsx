@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Icons } from "./icons";
 import { Button } from "@/components/ui/button";
@@ -25,8 +23,14 @@ import {
 } from "@/components/ui/pagination";
 import type { PostData } from "@/schemas/post";
 import { POSTS_PER_PAGE } from "@/config/post";
-import { dynamicBlurDataUrl } from "@/lib/image/utils";
-import { useEffect, useState } from "react";
+import {
+  PostCard,
+  PostCardMedia,
+  PostCardTag,
+  PostCardTitle,
+  PostCardExcerpt,
+  PostCardFooter,
+} from "@/components/ui/post-card";
 
 interface DraftsListProps {
   drafts: Partial<PostData>[];
@@ -124,7 +128,7 @@ function SearchAndFilterSection({
   handleTagChange: (value: string) => void;
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 container max-w-4xl">
       <div className="flex flex-col sm:flex-row gap-4">
         <form onSubmit={handleSearch} className="flex-1">
           <div className="relative">
@@ -182,7 +186,7 @@ function ResultsHeader({
   handlePerPageChange: (value: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between container max-w-4xl">
       <Badge variant="secondary" className="gap-1">
         <span className="text-muted-foreground">
           Found {currentPosts} posts out of {totalPosts} posts
@@ -200,6 +204,10 @@ function ResultsHeader({
           handlePerPageChange={handlePerPageChange}
         />
       </div>
+      <Button variant="outline" className="gap-2">
+        <Icons.plus className="h-4 w-4" />
+        Create Post
+      </Button>
     </div>
   );
 }
@@ -267,109 +275,55 @@ function PerPageSelect({
 
 function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
-      {drafts.map((draft, index) => (
-        <DraftCard key={draft.id} draft={draft} index={index} />
-      ))}
-    </div>
-  );
-}
-
-function DraftCard({
-  draft,
-  index,
-}: {
-  draft: Partial<PostData>;
-  index: number;
-}) {
-  const [blurDataUrl, setBlurDataUrl] = useState<string | null>(null);
-  useEffect(() => {
-    const fetchBlurDataUrl = async () => {
-      const url = await dynamicBlurDataUrl(draft.feature_image_url || "");
-      setBlurDataUrl(url);
-    };
-    fetchBlurDataUrl();
-  }, [draft.feature_image_url]);
-  return (
-    <div className="group relative flex flex-col">
-      {/* Delete button container */}
-      <div className="absolute top-2 right-2 z-10">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
-          transition-opacity hover:bg-destructive hover:text-destructive-foreground"
-          onClick={(e) => {
-            e.preventDefault();
-            console.log("delete");
-          }}
-        >
-          <Icons.trash className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Main article card */}
-      <article
-        className="flex flex-col bg-card hover:bg-card/50 border border-muted 
-        rounded-xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1"
-      >
-        <div className="relative w-full pt-[25%] overflow-hidden">
-          <Image
-            src={
-              draft.feature_image_url || `/placeholders/${(index % 6) + 1}.jpg`
+    <div className="container max-w-7xl">
+      <div className="grid grid-cols-1 gap-6 auto-rows-fr sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+        {drafts.map((draft, index) => (
+          <PostCard
+            key={draft.id}
+            id={draft.id!}
+            href={`/drafts/${draft.id}`}
+            index={index}
+            media={
+              <PostCardMedia
+                src={
+                  draft.feature_image_url ||
+                  `/placeholders/${(index % 6) + 1}.jpg`
+                }
+                alt={draft.title || ""}
+                index={index}
+              />
             }
-            alt={draft.title || ""}
-            fill
-            className="absolute inset-0 object-cover transition-transform duration-300 
-                group-hover:scale-105"
-            priority={index <= 1}
-            blurDataURL={blurDataUrl ?? undefined}
-            placeholder={blurDataUrl ? "blur" : undefined}
-          />
-        </div>
-        <div className="flex flex-col flex-1 p-6 space-y-4">
-          {draft.tag && (
-            <div className="flex flex-wrap gap-2">
-              <span
-                className="px-2.5 py-1 text-xs font-medium rounded-full 
-                bg-primary/10 text-primary"
+            tag={draft.tag && <PostCardTag>{draft.tag}</PostCardTag>}
+            title={
+              <PostCardTitle>
+                {draft.title || `Draft ${index + 1}`}
+              </PostCardTitle>
+            }
+            excerpt={
+              draft.excerpt && (
+                <PostCardExcerpt>{draft.excerpt}</PostCardExcerpt>
+              )
+            }
+            footer={
+              <PostCardFooter date={draft.created_at} actionText="Edit →" />
+            }
+            actions={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
+                transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log("delete");
+                }}
               >
-                {draft.tag}
-              </span>
-            </div>
-          )}
-
-          <h2
-            className="text-xl font-bold leading-tight line-clamp-2 
-            group-hover:text-primary transition-colors"
-          >
-            {draft.title || `Draft ${index + 1}`}
-          </h2>
-
-          {draft.excerpt && (
-            <p className="text-sm text-muted-foreground line-clamp-3">
-              {draft.excerpt}
-            </p>
-          )}
-
-          <div className="flex items-center justify-between mt-auto pt-4">
-            {draft.created_at && (
-              <time className="text-sm text-muted-foreground">
-                {format(new Date(draft.created_at), "MMMM dd, yyyy")}
-              </time>
-            )}
-            <span
-              className="text-sm font-medium text-primary opacity-0 
-              group-hover:opacity-100 transition-opacity"
-            >
-              Edit →
-            </span>
-          </div>
-        </div>
-        <Link href={`/drafts/${draft.id}`} className="absolute inset-0">
-          <span className="sr-only">View Article</span>
-        </Link>
-      </article>
+                <Icons.trash className="h-4 w-4" />
+              </Button>
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 }

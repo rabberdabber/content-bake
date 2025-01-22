@@ -22,6 +22,7 @@ async function getDrafts() {
       ...(cookies().get(cookieName) && {
         Authorization: `Bearer ${cookies().get(cookieName)?.value}`,
       }),
+      cache: "no-store",
     },
   });
 
@@ -92,7 +93,7 @@ export default async function Page({
   };
 }) {
   return (
-    <div className="min-h-[calc(100vh-8rem)] container max-w-4xl py-6 lg:py-10">
+    <div className="min-h-[calc(100vh-8rem)] w-full lg:py-10 px-4">
       <Suspense
         fallback={
           <div className="grid gap-5 sm:grid-cols-2">

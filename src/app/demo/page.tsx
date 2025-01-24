@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import extensions from "@/features/editor/components/extensions";
 import { generateHTML, JSONContent } from "@tiptap/react";
+import { useEffect, useState } from "react";
 
 const demoContent: JSONContent = {
   type: "doc",
@@ -42,10 +43,16 @@ const EditorContainer = dynamic(
 );
 
 export default function Page() {
+  const [isClient, setIsClient] = useState(false);
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    setIsClient(true);
+    setContent(generateHTML(demoContent, extensions));
+  }, []);
+
+  if (!isClient) return null;
   return (
-    <EditorContainer
-      type="initial"
-      initialContent={generateHTML(demoContent, extensions)}
-    />
+    <EditorContainer type="initial" initialContent={content} isDraft={true} />
   );
 }

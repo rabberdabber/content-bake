@@ -2,13 +2,16 @@ import { useState, useCallback, useEffect } from "react";
 import { useCompletion } from "ai/react";
 import json5 from "json5";
 import { JSONContent } from "@tiptap/react";
-import { validateSchema } from "@/lib/utils";
+import { validateAndFilterJsonContent } from "@/lib/utils";
 import extensions from "@/features/editor/components/extensions";
 import { useDebouncedValue } from "@mantine/hooks";
 import { ContentTone } from "@/types/content-generator";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 export function useContentGeneration(id: string, tone: ContentTone) {
+  const { data: session } = useSession();
+  const authenticated = !!session;
   // Track both last valid and current parsing content
   const [lastValidContent, setLastValidContent] = useState<JSONContent | null>(
     null
@@ -24,9 +27,12 @@ export function useContentGeneration(id: string, tone: ContentTone) {
     error: completionError,
     stop,
   } = useCompletion({
-    api: `${process.env.NEXT_PUBLIC_API_URL}/ai/generate-draft-content?tone=${tone}`,
+    api: `${process.env.NEXT_PUBLIC_API_URL}/ai/${
+      authenticated ? "private" : "public"
+    }/generate-draft-content?tone=${tone}`,
     headers: {
       Accept: "text/event-stream",
+      Authorization: `Bearer ${session?.accessToken}`,
     },
     streamProtocol: "text",
     id,
@@ -83,14 +89,17 @@ export function useContentGeneration(id: string, tone: ContentTone) {
         JSON.stringify(content, null, 2)
       );
       try {
-        validateSchema(content, extensions);
+        const parseResult = validateAndFilterJsonContent(content);
+        if (!parseResult.success) {
+          console.error("Content failed schema validation", parseResult.error);
+          return null;
+        }
+        setParsingError(null);
+        return parseResult.data;
       } catch (e) {
         console.error("Content failed schema validation", e);
         return null;
       }
-
-      setParsingError(null);
-      return content;
     } catch (e) {
       const errorMessage =
         e instanceof Error ? e.message : "Unknown parsing error";

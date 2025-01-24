@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { publicPostsSchema } from "@/schemas/post";
+import { PostWithContentData, publicPostsSchema } from "@/schemas/post";
 import { PostsMain } from "@/features/posts/posts-main";
 import PostHero from "@/features/posts/post-hero";
 
@@ -34,7 +34,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
     }
   );
   // const postData = await postWithContentSchema.parseAsync(await post.json());
-  const postData = await post.json();
+  const postData = (await post.json()) as PostWithContentData;
 
   // if (!postDataSafeParse.success) {
   //   console.log(postDataSafeParse.error);
@@ -49,14 +49,7 @@ export default async function PostPage({ params }: { params: { id: string } }) {
   );
   return (
     <div className="container max-w-full py-6 lg:py-10">
-      <PostHero
-        title={postData.title || "title"}
-        publishedOn={postData.created_at || new Date().toISOString()}
-        coverImage={{
-          src: postData.feature_image_url || "",
-          alt: postData.title || "title",
-        }}
-      />
+      <PostHero data={postData} />
       <article
         className={cn(
           "relative w-full min-h-screen mx-auto",
@@ -88,7 +81,6 @@ export default async function PostPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </article>
-      );
     </div>
   );
 }

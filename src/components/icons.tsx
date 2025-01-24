@@ -54,6 +54,9 @@ import {
   CornerDownLeft,
   CornerUpRight,
   GripVertical,
+  SlidersHorizontal,
+  Filter,
+  Search,
 
   // Editor & Content
   Code,
@@ -112,6 +115,7 @@ import {
   ArrowRightToLine,
   ArrowDownToLine,
   ArrowUpToLine,
+  Play,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -173,10 +177,15 @@ export const Icons = {
   cornerDownLeft: CornerDownLeft,
   cornerUpRight: CornerUpRight,
   gripVertical: GripVertical,
+  sliders: SlidersHorizontal,
+  filter: Filter,
+  search: Search,
+
   maximize: Maximize,
   stop: StopCircle,
   minimize: Minimize,
   edit: Pencil,
+  play: Play,
 
   // Editor & Content
   code: Code,

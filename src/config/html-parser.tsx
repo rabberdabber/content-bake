@@ -308,7 +308,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
       case "video":
         return (
           <div
-            className="mb-2"
+            className="mb-2 relative rounded-lg overflow-hidden"
             style={{
               width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
               height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
@@ -316,8 +316,19 @@ export const htmlParserOptions: HTMLReactParserOptions = {
           >
             <VideoPlayer
               src={attribs.src as string}
-              width={attribs.width ? Number(attribs.width) : 500}
-              height={attribs.height ? Number(attribs.height) : 500}
+              width={
+                attribs.width
+                  ? Number(attribs.width)
+                  : DEFAULT_IMAGE_GENERATION_CONFIG.width
+              }
+              height={
+                attribs.height
+                  ? Number(attribs.height)
+                  : DEFAULT_IMAGE_GENERATION_CONFIG.height
+              }
+              poster={attribs.poster}
+              onError={(error) => console.error("Video error:", error)}
+              className="w-full h-full object-cover"
             />
           </div>
         );

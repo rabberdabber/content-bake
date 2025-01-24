@@ -179,7 +179,7 @@ const extensions = [
   }),
   CustomFocus.configure({
     className: cn("rounded shadow-[0_0_0_2px_green]"),
-    mode: "deepest",
+    mode: "shallowest",
   }),
   YoutubeInput,
   AIImageGeneratorExtension,

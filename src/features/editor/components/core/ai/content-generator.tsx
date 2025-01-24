@@ -102,9 +102,8 @@ export function AIContentGenerator({
     >
       <DialogContent
         className={cn(
-          "min-h-screen p-4 md:p-6",
-          "h-[calc(100vh-2rem)] w-[min(calc(100vw-2rem),1200px)]",
-          "md:h-[90vh] md:max-w-[90vw]",
+          "p-4 md:p-6",
+          "max-h-[80vh] md:max-w-[80vw]",
           "overflow-auto m-auto"
         )}
       >

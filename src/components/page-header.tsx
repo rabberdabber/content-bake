@@ -15,7 +15,7 @@ import { Breadcrumb } from "./ui/breadcrumb";
 import { SidebarTrigger } from "./ui/sidebar";
 import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 
 // Map of route segments to display names
 const segmentNames: Record<string, string> = {
@@ -28,6 +28,15 @@ const segmentNames: Record<string, string> = {
 export default function PageHeader() {
   const mounted = useMounted();
   const segments = useSelectedLayoutSegments();
+  const logicalSegments = useMemo(
+    () =>
+      segments
+        .filter(
+          (segment) => !(segment.startsWith("(") && segment.endsWith(")"))
+        )
+        .map((segment) => segmentNames[segment] || segment),
+    [segments]
+  );
 
   if (!mounted) {
     return (
@@ -43,20 +52,18 @@ export default function PageHeader() {
           <BreadcrumbItem>
             <BreadcrumbLink href="/">Home</BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          {segments.length > 0 &&
-            segments.map((segment, index) => (
+          {logicalSegments.length > 0 && <BreadcrumbSeparator />}
+          {logicalSegments.length > 0 &&
+            logicalSegments.map((segment, index) => (
               <Fragment key={index}>
                 <BreadcrumbItem>
                   {index === segments.length - 1 ? (
-                    <BreadcrumbPage>
-                      {segmentNames[segment] || segment}
-                    </BreadcrumbPage>
+                    <BreadcrumbPage>{segment}</BreadcrumbPage>
                   ) : (
                     <BreadcrumbLink
                       href={`/${segments.slice(0, index + 1).join("/")}`}
                     >
-                      {segmentNames[segment] || segment}
+                      {segment}
                     </BreadcrumbLink>
                   )}
                 </BreadcrumbItem>

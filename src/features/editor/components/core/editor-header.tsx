@@ -45,7 +45,7 @@ export default function EditorHeader({
         "sticky top-0 flex flex-row flex-wrap gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
         "transition-all duration-200",
         "backdrop-blur-md backdrop-saturate-150 border-border/40 bg-muted-foreground/5",
-        !fullscreen && "sticky top-16"
+        !fullscreen && "sticky top-16 mx-2"
       )}
     >
       {/* Mode toggles */}

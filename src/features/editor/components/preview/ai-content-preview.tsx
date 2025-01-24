@@ -1,16 +1,16 @@
-import { useEffect, useRef } from "react";
+import React, { useState, memo, useMemo, useEffect, useRef } from "react";
 import { JSONContent } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import React, { useState, memo, useMemo } from "react";
 import { generateHTML } from "@tiptap/react";
 import parse from "html-react-parser";
 import { validateSchema } from "@/lib/utils";
 import { htmlParserOptions } from "@/config/html-parser";
 import extensions from "@/features/editor/components/extensions";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useScrollIntoView } from "@mantine/hooks";
 
 interface AIContentPreviewProps {
   content: JSONContent | null;
@@ -26,13 +26,6 @@ export function AIContentPreview({
   className,
 }: AIContentPreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to bottom when new content arrives
-  useEffect(() => {
-    if (previewRef.current) {
-      previewRef.current.scrollTop = previewRef.current.scrollHeight;
-    }
-  }, [content]);
 
   if (!editor) return null;
 
@@ -83,14 +76,32 @@ interface BlogPreviewProps {
   className?: string;
   blogRef?: React.RefObject<HTMLDivElement>;
   content: JSONContent;
+  targetRef?: React.RefObject<HTMLDivElement>;
 }
 
 const BlogPreview = memo(
   ({ className, blogRef, content }: BlogPreviewProps) => {
     const [htmlContent, setHtmlContent] = useState<string>("");
     const debouncedSetHtmlContent = useDebounce(setHtmlContent, 500);
-    const containerRef = useRef<HTMLDivElement>(null);
     const renderCount = useRef(0);
+
+    const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
+      duration: 200,
+      offset: 60,
+      cancelable: true,
+      isList: false,
+    });
+
+    useEffect(() => {
+      // Wait for content to be processed and rendered
+      const timeoutId = setTimeout(() => {
+        if (targetRef.current && htmlContent) {
+          scrollIntoView({ alignment: "end" });
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }, [htmlContent, scrollIntoView]);
 
     // Memoize the parsed HTML content
     const parsedHtmlContent = useMemo(() => {
@@ -98,19 +109,6 @@ const BlogPreview = memo(
       console.log(`BlogPreview has rendered ${renderCount.current} times`);
       return parse(htmlContent, htmlParserOptions);
     }, [htmlContent]); // Only re-parse when htmlContent changes
-
-    // useEffect(() => {
-    // Scroll to center when content updates
-    // if (containerRef.current) {
-    // const timer = setTimeout(() => {
-    // containerRef.current?.scrollIntoView({
-    // behavior: "smooth",
-    // block: "center",
-    // });
-    // }, 100);
-    // return () => clearTimeout(timer);
-    // }
-    // }, [htmlContent]);
 
     useEffect(() => {
       const processContent = () => {
@@ -132,7 +130,6 @@ const BlogPreview = memo(
 
     return (
       <article
-        ref={containerRef}
         className={cn(
           "relative w-full min-h-screen mx-auto",
           "p-8 sm:p-12 md:p-16",
@@ -163,6 +160,7 @@ const BlogPreview = memo(
           )}
         >
           <div className="flex flex-col">{parsedHtmlContent}</div>
+          <div ref={targetRef} className="h-4" />
         </div>
       </article>
     );

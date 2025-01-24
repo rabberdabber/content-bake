@@ -3,7 +3,7 @@ import { Extensions, getSchema, JSONContent } from "@tiptap/core";
 import { Editor } from "@tiptap/react";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import json5 from "json5";
+import { JsonContentSchema } from "@/schemas/post";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,4 +61,26 @@ export const validateSchema = (doc: JSONContent, extensions: Extensions) => {
   // } catch (e) {
   //   return false;
   // }
+};
+
+export const validateAndFilterJsonContent = (jsonContent: JSONContent) => {
+  const safeParseResult = JsonContentSchema.safeParse(jsonContent);
+
+  if (!safeParseResult.success) {
+    // If parsing fails, return the error or handle it
+    return { success: false, error: safeParseResult.error };
+  }
+
+  // Filter out nodes with null content
+  const filteredContent = safeParseResult.data.content?.filter(
+    (node) => node.content !== null
+  );
+
+  return {
+    success: true,
+    data: {
+      ...safeParseResult.data,
+      content: filteredContent,
+    },
+  };
 };

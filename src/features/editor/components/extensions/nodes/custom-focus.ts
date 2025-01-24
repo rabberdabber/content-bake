@@ -14,7 +14,7 @@ export const CustomFocus = Extension.create<FocusOptions>({
   addOptions() {
     return {
       className: "has-focus",
-      mode: "deepest",
+      mode: "shallowest",
     };
   },
 

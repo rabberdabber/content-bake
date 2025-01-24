@@ -178,6 +178,9 @@ const useBlockEditor = (params: useBlockEditorParams) => {
     shouldRerenderOnTransaction: false,
     autofocus: true,
     onCreate: (ctx) => {
+      editor.view.dom.setAttribute("spellcheck", "false");
+      editor.view.dom.setAttribute("autocomplete", "off");
+      editor.view.dom.setAttribute("autocapitalize", "off");
       if (params.type === "local") {
         ctx.editor.commands.setContent(localContent);
       } else {

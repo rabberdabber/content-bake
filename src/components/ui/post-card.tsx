@@ -93,6 +93,7 @@ export function PostCardMedia({
         priority={priority}
         blurDataURL={blurDataUrl ?? undefined}
         placeholder={blurDataUrl ? "blur" : undefined}
+        sizes="(max-width: 768px) 100vw, 50vw"
       />
     </div>
   );

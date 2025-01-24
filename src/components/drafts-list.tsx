@@ -31,6 +31,8 @@ import {
   PostCardExcerpt,
   PostCardFooter,
 } from "@/components/ui/post-card";
+import { usePostFilters } from "@/hooks/use-post-filters";
+import { PaginationControls } from "@/components/pagination-controls";
 
 interface DraftsListProps {
   drafts: Partial<PostData>[];
@@ -38,51 +40,16 @@ interface DraftsListProps {
 }
 
 export default function DraftsList({ drafts, totalDrafts }: DraftsListProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const currentPage = Number(searchParams.get("page")) || 1;
-  const searchQuery = searchParams.get("search");
-  const currentTag = searchParams.get("tag");
-  const perPage = Number(searchParams.get("perPage")) || POSTS_PER_PAGE;
-
-  // URL helper functions
-  const getUrlWithoutParam = (paramToRemove: string) => {
-    const params = new URLSearchParams();
-    if (searchQuery && paramToRemove !== "search")
-      params.set("search", searchQuery);
-    if (currentTag && currentTag !== "all" && paramToRemove !== "tag")
-      params.set("tag", currentTag);
-    if (currentPage > 1 && paramToRemove !== "page")
-      params.set("page", currentPage.toString());
-    const queryString = params.toString();
-    return `/drafts${queryString ? `?${queryString}` : ""}`;
-  };
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const searchValue = formData.get("search") as string;
-
-    const params = new URLSearchParams();
-    if (searchValue) params.set("search", searchValue);
-    if (currentTag && currentTag !== "all") params.set("tag", currentTag);
-    router.push(`/drafts${params.toString() ? `?${params.toString()}` : ""}`);
-  };
-
-  const handleTagChange = (value: string) => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (value && value !== "all") params.set("tag", value);
-    router.push(`/drafts${params.toString() ? `?${params.toString()}` : ""}`);
-  };
-
-  const handlePerPageChange = (value: string) => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (currentTag && currentTag !== "all") params.set("tag", currentTag);
-    params.set("per_page", value);
-    router.push(`/drafts${params.toString() ? `?${params.toString()}` : ""}`);
-  };
+  const {
+    currentPage,
+    searchQuery,
+    currentTag,
+    perPage,
+    getUrlWithoutParam,
+    handleSearch,
+    handleTagChange,
+    handlePerPageChange,
+  } = usePostFilters("/drafts");
 
   return (
     <div className="space-y-8">
@@ -109,8 +76,7 @@ export default function DraftsList({ drafts, totalDrafts }: DraftsListProps) {
         currentPage={currentPage}
         totalPosts={totalDrafts}
         perPage={perPage}
-        searchQuery={searchQuery}
-        currentTag={currentTag}
+        basePath="/drafts"
       />
     </div>
   );
@@ -291,6 +257,7 @@ function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
                 }
                 alt={draft.title || ""}
                 index={index}
+                priority={index <= 1}
               />
             }
             tag={draft.tag && <PostCardTag>{draft.tag}</PostCardTag>}
@@ -325,68 +292,5 @@ function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
         ))}
       </div>
     </div>
-  );
-}
-
-// New component for pagination controls
-function PaginationControls({
-  currentPage,
-  totalPosts,
-  perPage,
-  searchQuery,
-  currentTag,
-}: {
-  currentPage: number;
-  totalPosts: number;
-  perPage: number;
-  searchQuery: string | null;
-  currentTag: string | null;
-}) {
-  if (Math.ceil(totalPosts / perPage) <= 1) return null;
-
-  return (
-    <Pagination className="justify-center">
-      <PaginationContent>
-        {currentPage > 1 && (
-          <PaginationItem>
-            <PaginationPrevious
-              href={`/posts?page=${currentPage - 1}${
-                searchQuery ? `&search=${searchQuery}` : ""
-              }${
-                currentTag && currentTag !== "all" ? `&tag=${currentTag}` : ""
-              }`}
-            />
-          </PaginationItem>
-        )}
-        {Array.from(
-          { length: Math.ceil(totalPosts / perPage) },
-          (_, i) => i + 1
-        ).map((pageNum) => (
-          <PaginationItem key={pageNum}>
-            <PaginationLink
-              href={`/posts?page=${pageNum}${
-                searchQuery ? `&search=${searchQuery}` : ""
-              }${
-                currentTag && currentTag !== "all" ? `&tag=${currentTag}` : ""
-              }`}
-              isActive={pageNum === currentPage}
-            >
-              {pageNum}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-        {currentPage < Math.ceil(totalPosts / perPage) && (
-          <PaginationItem>
-            <PaginationNext
-              href={`/posts?page=${currentPage + 1}${
-                searchQuery ? `&search=${searchQuery}` : ""
-              }${
-                currentTag && currentTag !== "all" ? `&tag=${currentTag}` : ""
-              }`}
-            />
-          </PaginationItem>
-        )}
-      </PaginationContent>
-    </Pagination>
   );
 }

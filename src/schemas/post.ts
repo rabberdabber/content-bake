@@ -1,6 +1,18 @@
 import { z } from "zod";
 
 // Schema for the post form
+
+const NodeSchema = z.object({
+  type: z.string(),
+  content: z.array(z.any()).optional(),
+});
+
+export const JsonContentSchema = z.object({
+  type: z.string(),
+  attrs: z.object({}).optional(),
+  content: z.array(NodeSchema),
+});
+
 export const postFormSchema = z.object({
   author_id: z.string().uuid(),
   title: z
@@ -41,6 +53,13 @@ export const postWithContentSchema = z.object({
   author_id: z.string().uuid(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
+  author: z
+    .object({
+      full_name: z.string(),
+      email: z.string().email(),
+      image_url: z.string().url().optional(),
+    })
+    .optional(),
 });
 
 export const draftFormSchema = postWithContentSchema.pick({

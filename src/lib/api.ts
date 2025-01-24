@@ -125,23 +125,27 @@ export const aiApi = {
 
   generateImage: async (
     prompt: string,
-    config: Partial<ImageGenerationConfig> = {}
+    config: Partial<ImageGenerationConfig> = {},
+    isPrivate: boolean = false
   ): Promise<AIImageResponse> => {
-    const response = await api.post("/ai/generate-image", {
-      prompt,
-      width: config.width || DEFAULT_IMAGE_GENERATION_CONFIG.width,
-      height: config.height || DEFAULT_IMAGE_GENERATION_CONFIG.height,
-      model: config.model || DEFAULT_IMAGE_GENERATION_CONFIG.model,
-      promptUpsampling:
-        config.promptUpsampling ||
-        DEFAULT_IMAGE_GENERATION_CONFIG.promptUpsampling,
-      outputFormat:
-        config.outputFormat || DEFAULT_IMAGE_GENERATION_CONFIG.outputFormat,
-      safetyTolerance:
-        config.safetyTolerance ||
-        DEFAULT_IMAGE_GENERATION_CONFIG.safetyTolerance,
-      raw: config.raw || DEFAULT_IMAGE_GENERATION_CONFIG.raw,
-    });
+    const response = await api.post(
+      `/ai/${isPrivate ? "private" : "public"}/generate-image`,
+      {
+        prompt,
+        width: config.width || DEFAULT_IMAGE_GENERATION_CONFIG.width,
+        height: config.height || DEFAULT_IMAGE_GENERATION_CONFIG.height,
+        model: config.model || DEFAULT_IMAGE_GENERATION_CONFIG.model,
+        promptUpsampling:
+          config.promptUpsampling ||
+          DEFAULT_IMAGE_GENERATION_CONFIG.promptUpsampling,
+        outputFormat:
+          config.outputFormat || DEFAULT_IMAGE_GENERATION_CONFIG.outputFormat,
+        safetyTolerance:
+          config.safetyTolerance ||
+          DEFAULT_IMAGE_GENERATION_CONFIG.safetyTolerance,
+        raw: config.raw || DEFAULT_IMAGE_GENERATION_CONFIG.raw,
+      }
+    );
     return response.data;
   },
 };

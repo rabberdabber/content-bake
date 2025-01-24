@@ -59,6 +59,9 @@ async function Posts({ params }: { params: PostsSearchParams }) {
 
   const startIndex = (page - 1) * perPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
+  console.log(`perPage: ${perPage}`);
+  console.log("length of paginatedPosts", paginatedPosts.length);
+  console.log(paginatedPosts);
 
   return (
     <PostsList
@@ -79,6 +82,7 @@ export default async function Page({
     perPage?: string;
   };
 }) {
+  console.log("searchParams", searchParams);
   return (
     <div className="min-h-[calc(100vh-8rem)] w-full py-6 lg:py-10 px-4">
       <Suspense

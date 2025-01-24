@@ -15,66 +15,89 @@ import { useMounted } from "@/lib/hooks/use-mounted";
 import { Skeleton } from "./ui/skeleton";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "./theme-toggle";
+import { useSession } from "next-auth/react";
 
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: Icons.dashboard,
-      items: [
-        {
-          title: "General",
-          url: "/dashboard",
-        },
-      ],
-    },
-    {
-      title: "Posts",
-      url: "/posts",
-      icon: Icons.post,
-      public: true,
-      isActive: true,
-      items: [
-        {
-          title: "Playground",
-          url: "/edit",
-          icon: Icons.create,
-        },
-        {
-          title: "Explore All Posts",
-          url: "/posts",
-          public: true,
-        },
-        {
-          title: "Published",
-          url: "/published",
-        },
-        {
-          title: "Drafts",
-          url: "/drafts",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Icons.settings,
-      disabled: true,
-      items: [
-        {
-          title: "General",
-          url: "#",
-          disabled: true,
-          reason: "Coming soon",
-        },
-      ],
-    },
-  ],
-};
+export const navMainPrivate = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: Icons.dashboard,
+    items: [
+      {
+        title: "General",
+        url: "/dashboard",
+      },
+    ],
+  },
+  {
+    title: "Posts",
+    url: "/posts",
+    icon: Icons.post,
+    public: true,
+    isActive: true,
+    items: [
+      {
+        title: "Playground",
+        url: "/edit",
+        icon: Icons.create,
+      },
+      {
+        title: "Explore All Posts",
+        url: "/posts",
+        public: true,
+      },
+      {
+        title: "Published",
+        url: "/published",
+      },
+      {
+        title: "Drafts",
+        url: "/drafts",
+      },
+    ],
+  },
+  {
+    title: "Settings",
+    url: "#",
+    icon: Icons.settings,
+    disabled: true,
+    items: [
+      {
+        title: "General",
+        url: "#",
+        disabled: true,
+        reason: "Coming soon",
+      },
+    ],
+  },
+];
+
+export const navMainPublic = [
+  {
+    title: "Home",
+    url: "/",
+    icon: Icons.layout,
+    public: true,
+    items: [
+      {
+        title: "Demo",
+        url: "/demo",
+        icon: Icons.play,
+        public: true,
+      },
+      {
+        title: "Explore Posts",
+        url: "/posts",
+        icon: Icons.post,
+        public: true,
+      },
+    ],
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const mounted = useMounted();
+  const { data: session } = useSession();
 
   if (!mounted)
     return <Skeleton className="w-[var(--sidebar-width)]"></Skeleton>;
@@ -91,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       )}
     >
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={session ? navMainPrivate : navMainPublic} />
         <SidebarRail />
       </SidebarContent>
       <SidebarFooter className="border-t-2 border-border/50">

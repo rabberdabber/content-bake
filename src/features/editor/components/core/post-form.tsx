@@ -32,6 +32,8 @@ import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { useEditor } from "../../context/editor-context";
 import useLocalStorage from "@/lib/hooks/use-local-storage";
+import { PostsMain } from "@/features/posts/posts-main";
+import { Switch } from "@/components/ui/switch";
 
 interface PostFormProps {
   isDraft?: boolean;
@@ -48,6 +50,7 @@ export function PostForm({
   const { type, editor } = useEditor();
   const [_, setLocalStorageContent] = useLocalStorage("editor-content", "");
   const [featuredImage, setFeaturedImage] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const form = useForm<PostFormData>({
     resolver: zodResolver(postFormSchema),
     defaultValues: {
@@ -58,12 +61,14 @@ export function PostForm({
     },
   });
   const validatePost = async (formData: FormData) => {
+    console.log("validatePost", formData);
     try {
       const validationSchema = isDraft
         ? postFormSchema.partial({
             tag: true,
             excerpt: true,
             feature_image_url: true,
+            author_id: true,
           })
         : postFormSchema;
 
@@ -121,150 +126,188 @@ export function PostForm({
     return <div>Not logged in</div>;
   }
 
+  console.log("session", session);
   return (
     <Form {...form}>
-      <form
-        className="space-y-4"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const formData = new FormData(event.target as HTMLFormElement);
-          formData.append("content", JSON.stringify(editor?.getJSON() || ""));
-          formData.append("feature_image_url", featuredImage);
-          formData.append("author_id", session?.user.id as string);
-          formData.append("is_published", isDraft ? "false" : "true");
-          try {
-            setIsPublishing(true);
-            await validatePost(formData);
-            const post = await publishPost(formData);
-            toast.success(
-              <>
-                {isDraft ? "Draft" : "Post"} saved successfully!{" "}
-                <Link
-                  className="underline"
-                  href={`/${isDraft ? "drafts" : "posts"}/${post.id}`}
-                >
-                  View {isDraft ? "Draft" : "Post"}
-                </Link>
-              </>
-            );
-            onSuccess?.();
-            router.push(isDraft ? "/drafts" : "/posts");
-          } catch (error) {
-            toast.error(
-              `Failed to ${isDraft ? "save draft" : "publish post"}, error: ` +
-                error
-            );
-          } finally {
-            setIsPublishing(false);
-            if (type === "local") {
-              setLocalStorageContent("");
+      <div className="space-y-4">
+        <form
+          className="space-y-4"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target as HTMLFormElement);
+            formData.append("content", JSON.stringify(editor?.getJSON() || ""));
+            formData.append("feature_image_url", featuredImage);
+            formData.append("author_id", session?.user.id as string);
+            formData.append("is_published", isDraft ? "false" : "true");
+            let success = false;
+            try {
+              setIsPublishing(true);
+              await validatePost(formData);
+              const post = await publishPost(formData);
+              toast.success(
+                <>
+                  {isDraft ? "Draft" : "Post"} saved successfully!{" "}
+                  <Link
+                    className="underline"
+                    href={`/${isDraft ? "drafts" : "posts"}/${post.id}`}
+                  >
+                    View {isDraft ? "Draft" : "Post"}
+                  </Link>
+                </>
+              );
+              success = true;
+              onSuccess?.();
+              router.push(isDraft ? "/drafts" : "/posts");
+            } catch (error) {
+              toast.error(
+                `Failed to ${
+                  isDraft ? "save draft" : "publish post"
+                }, error: ` + error
+              );
+            } finally {
+              setIsPublishing(false);
+              if (success) {
+                if (type === "local") {
+                  setLocalStorageContent("");
+                }
+                editor!.commands.setContent("");
+              }
             }
-            editor!.commands.setContent("");
-          }
-        }}
-      >
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter post title" {...field} required />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          }}
+        >
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter post title" {...field} required />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="tag"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tag {!isDraft && "*"}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter post tag"
-                  {...field}
-                  required={!isDraft}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="excerpt"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Excerpt</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter post excerpt"
-                  className="min-h-[100px]"
-                  {...field}
-                  required
-                  minLength={10}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="feature_image_url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Featured Image</FormLabel>
-              <Tabs defaultValue="upload" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="upload">Upload</TabsTrigger>
-                  <TabsTrigger value="generate">Generate</TabsTrigger>
-                  <TabsTrigger value="url">URL</TabsTrigger>
-                </TabsList>
-                <TabsContent value="upload">
-                  <FeatureImageUpload
-                    featuredImage={featuredImage}
-                    setFeaturedImage={setFeaturedImage}
+          <FormField
+            control={form.control}
+            name="tag"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tag {!isDraft && "*"}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter post tag"
+                    {...field}
+                    required={!isDraft}
                   />
-                </TabsContent>
-                <TabsContent value="generate">
-                  <div className="border rounded-lg">
-                    <FeatureImageGenerator
-                      onImageGenerated={(url) => setFeaturedImage(url)}
-                    />
-                  </div>
-                </TabsContent>
-                <TabsContent value="url">
-                  <FormControl>
-                    <Input placeholder="Enter image URL" {...field} required />
-                  </FormControl>
-                </TabsContent>
-              </Tabs>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button className="w-full gap-2" disabled={isPublishing || !editor}>
-          {isPublishing ? (
-            <>
-              <Spinner className="h-6 w-6" />
-              {isDraft ? "Saving..." : "Publishing..."}
-            </>
-          ) : (
-            <>
-              <Icons.send className="h-6 w-6" />
-              {submitLabel}
-            </>
-          )}
-        </Button>
-      </form>
+          <FormField
+            control={form.control}
+            name="excerpt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Excerpt</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter post excerpt"
+                    className="min-h-[100px]"
+                    {...field}
+                    required
+                    minLength={10}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="feature_image_url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Featured Image</FormLabel>
+                <Tabs defaultValue="upload" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                    <TabsTrigger value="generate">Generate</TabsTrigger>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="upload">
+                    <FeatureImageUpload
+                      featuredImage={featuredImage}
+                      setFeaturedImage={setFeaturedImage}
+                    />
+                  </TabsContent>
+                  <TabsContent value="generate">
+                    <div className="border rounded-lg">
+                      <FeatureImageGenerator
+                        onImageGenerated={(url) => setFeaturedImage(url)}
+                      />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="url">
+                    <FormControl>
+                      <Input
+                        placeholder="Enter image URL"
+                        {...field}
+                        required
+                      />
+                    </FormControl>
+                  </TabsContent>
+                </Tabs>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <FormLabel className="text-base">Private Post</FormLabel>
+              <div className="text-sm text-muted-foreground">
+                Make this post private (coming soon)
+              </div>
+            </div>
+            <FormControl>
+              <Switch
+                checked={isPrivate}
+                onCheckedChange={setIsPrivate}
+                disabled
+                aria-readonly
+              />
+            </FormControl>
+          </FormItem>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">Preview</h3>
+            <div className="h-[400px] overflow-y-auto rounded-lg border">
+              <div className="p-4">
+                {editor?.getJSON() && (
+                  <PostsMain postContent={editor.getJSON()} />
+                )}
+              </div>
+            </div>
+          </div>
+          <Button className="w-full gap-2" disabled={isPublishing || !editor}>
+            {isPublishing ? (
+              <>
+                <Spinner className="h-6 w-6" />
+                {isDraft ? "Saving..." : "Publishing..."}
+              </>
+            ) : (
+              <>
+                <Icons.send className="h-6 w-6" />
+                {submitLabel}
+              </>
+            )}
+          </Button>
+        </form>
+      </div>
     </Form>
   );
 }

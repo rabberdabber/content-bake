@@ -13,6 +13,7 @@ import { Icons } from "@/components/icons";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function ResultsHeader({
   currentPosts,
@@ -31,7 +32,13 @@ export function ResultsHeader({
   getUrlWithoutParam: (param: string) => string;
   handlePerPageChange: (value: string) => void;
 }) {
+  const router = useRouter();
   const { data: session } = useSession();
+
+  const handleCreatePost = () => {
+    router.push("/edit");
+  };
+
   return (
     <div className="relative">
       <div className="mx-auto max-w-4xl">
@@ -87,7 +94,11 @@ export function ResultsHeader({
               </div>
             )}
 
-            <Button className="h-8 gap-2" disabled={!session}>
+            <Button
+              className="h-8 gap-2"
+              disabled={!session}
+              onClick={handleCreatePost}
+            >
               {session ? (
                 <>
                   <span className="hidden sm:inline">Create Post</span>

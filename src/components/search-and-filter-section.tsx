@@ -19,20 +19,40 @@ import {
 import { Button } from "./ui/button";
 import { Icons } from "@/components/icons";
 import { Separator } from "./ui/separator";
-
-const tags = ["all", "tech", "life", "code", "travel"] as const;
+import { TagsResponse, tagsResponseSchema } from "@/schemas/post";
+import { useEffect } from "react";
+import { useState } from "react";
 
 export function SearchAndFilterSection({
   searchQuery,
   currentTag,
   handleSearch,
   handleTagChange,
+  sortBy,
+  dateRange,
+  handleSortChange,
+  handleDateRangeChange,
 }: {
   searchQuery: string | null;
   currentTag: string | null;
   handleSearch: (e: React.FormEvent<HTMLFormElement>) => void;
   handleTagChange: (value: string) => void;
+  sortBy: string;
+  dateRange: string;
+  handleSortChange: (value: string) => void;
+  handleDateRangeChange: (value: string) => void;
 }) {
+  const [tags, setTags] = useState<TagsResponse | null>(null);
+  const getAllTags = async () => {
+    const response = await fetch(`/api/tags`);
+    const data = await response.json();
+    setTags(tagsResponseSchema.parse(data) as TagsResponse);
+  };
+
+  useEffect(() => {
+    getAllTags();
+  }, []);
+
   return (
     <div className="relative">
       <div className="mx-auto max-w-4xl space-y-4">
@@ -69,9 +89,11 @@ export function SearchAndFilterSection({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All tags</SelectItem>
-                <SelectItem value="tutorial">Tutorial</SelectItem>
-                <SelectItem value="news">News</SelectItem>
-                <SelectItem value="review">Review</SelectItem>
+                {tags?.map((tag) => (
+                  <SelectItem key={tag.id} value={tag.name}>
+                    {tag.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -95,7 +117,7 @@ export function SearchAndFilterSection({
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Sort By</h4>
-                    <Select defaultValue="newest">
+                    <Select value={sortBy} onValueChange={handleSortChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
@@ -109,7 +131,10 @@ export function SearchAndFilterSection({
                   <Separator />
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Date Range</h4>
-                    <Select defaultValue="all-time">
+                    <Select
+                      value={dateRange}
+                      onValueChange={handleDateRangeChange}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Date range" />
                       </SelectTrigger>

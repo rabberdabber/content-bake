@@ -1,6 +1,5 @@
 "use client";
 
-import { useCollections } from "@/app/(collections)/collections-context";
 import {
   Pagination,
   PaginationContent,

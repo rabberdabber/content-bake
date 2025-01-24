@@ -9,6 +9,8 @@ export function usePostFilters(basePath: string) {
   const searchQuery = searchParams.get("search");
   const currentTag = searchParams.get("tag");
   const perPage = Number(searchParams.get("perPage")) || POSTS_PER_PAGE;
+  const sortBy = searchParams.get("sort") || "newest";
+  const dateRange = searchParams.get("dateRange") || "all-time";
 
   const getUrlWithoutParam = (paramToRemove: string) => {
     const params = new URLSearchParams();
@@ -18,6 +20,11 @@ export function usePostFilters(basePath: string) {
       params.set("tag", currentTag);
     if (currentPage > 1 && paramToRemove !== "page")
       params.set("page", currentPage.toString());
+    if (sortBy !== "newest" && paramToRemove !== "sort")
+      params.set("sort", sortBy);
+    if (dateRange !== "all-time" && paramToRemove !== "dateRange")
+      params.set("dateRange", dateRange);
+
     const queryString = params.toString();
     return `${basePath}${queryString ? `?${queryString}` : ""}`;
   };
@@ -30,6 +37,8 @@ export function usePostFilters(basePath: string) {
     const params = new URLSearchParams();
     if (searchValue) params.set("search", searchValue);
     if (currentTag && currentTag !== "all") params.set("tag", currentTag);
+    if (sortBy !== "newest") params.set("sort", sortBy);
+    if (dateRange !== "all-time") params.set("dateRange", dateRange);
     router.push(
       `${basePath}${params.toString() ? `?${params.toString()}` : ""}`
     );
@@ -39,6 +48,8 @@ export function usePostFilters(basePath: string) {
     const params = new URLSearchParams();
     if (searchQuery) params.set("search", searchQuery);
     if (value && value !== "all") params.set("tag", value);
+    if (sortBy !== "newest") params.set("sort", sortBy);
+    if (dateRange !== "all-time") params.set("dateRange", dateRange);
     router.push(
       `${basePath}${params.toString() ? `?${params.toString()}` : ""}`
     );
@@ -48,7 +59,31 @@ export function usePostFilters(basePath: string) {
     const params = new URLSearchParams();
     if (searchQuery) params.set("search", searchQuery);
     if (currentTag && currentTag !== "all") params.set("tag", currentTag);
+    if (sortBy !== "newest") params.set("sort", sortBy);
+    if (dateRange !== "all-time") params.set("dateRange", dateRange);
     params.set("perPage", value);
+    router.push(
+      `${basePath}${params.toString() ? `?${params.toString()}` : ""}`
+    );
+  };
+
+  const handleSortChange = (value: string) => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("search", searchQuery);
+    if (currentTag && currentTag !== "all") params.set("tag", currentTag);
+    if (value !== "newest") params.set("sort", value);
+    if (dateRange !== "all-time") params.set("dateRange", dateRange);
+    router.push(
+      `${basePath}${params.toString() ? `?${params.toString()}` : ""}`
+    );
+  };
+
+  const handleDateRangeChange = (value: string) => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("search", searchQuery);
+    if (currentTag && currentTag !== "all") params.set("tag", currentTag);
+    if (sortBy !== "newest") params.set("sort", sortBy);
+    if (value !== "all-time") params.set("dateRange", value);
     router.push(
       `${basePath}${params.toString() ? `?${params.toString()}` : ""}`
     );
@@ -59,9 +94,13 @@ export function usePostFilters(basePath: string) {
     searchQuery,
     currentTag,
     perPage,
+    sortBy,
+    dateRange,
     getUrlWithoutParam,
     handleSearch,
     handleTagChange,
     handlePerPageChange,
+    handleSortChange,
+    handleDateRangeChange,
   };
 }

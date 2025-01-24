@@ -9,7 +9,6 @@ import { redirect } from "next/navigation";
 import { PaginationControls } from "@/components/pagination-controls";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 async function getPublishedPosts() {
   const env = process.env.NEXT_ENV;
@@ -80,7 +79,12 @@ async function Posts({ params }: { params: PostsSearchParams }) {
         totalPosts={filteredPosts.length}
         isPublic={false}
       />
-      <PaginationControls totalPosts={filteredPosts.length} />
+      <PaginationControls
+        totalPosts={filteredPosts.length}
+        currentPage={page}
+        perPage={perPage}
+        basePath="/published"
+      />
     </>
   );
 }

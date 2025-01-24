@@ -62,6 +62,14 @@ export const postWithContentSchema = z.object({
     .optional(),
 });
 
+export const tagResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  post_count: z.number(),
+});
+
+export const tagsResponseSchema = z.array(tagResponseSchema);
+
 export const draftFormSchema = postWithContentSchema.pick({
   content: true,
   author_id: true,
@@ -83,6 +91,9 @@ export const draftPostsSchema = z.object({
   data: draftSchema.extend({ id: z.string() }).array(),
   count: z.number(),
 });
+
+export type TagResponse = z.infer<typeof tagResponseSchema>;
+export type TagsResponse = z.infer<typeof tagsResponseSchema>;
 export type GetPostsResponse = z.infer<typeof publicPostsSchema>;
 export type PostWithContentData = z.infer<typeof postWithContentSchema>;
 export type PostData = z.infer<typeof postSchema>;

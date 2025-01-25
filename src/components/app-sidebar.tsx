@@ -74,21 +74,27 @@ export const navMainPrivate = [
 
 export const navMainPublic = [
   {
-    title: "Home",
-    url: "/",
-    icon: Icons.layout,
+    title: "Explore Posts",
+    icon: Icons.post,
+    url: "/posts",
+    public: true,
+    items: [
+      {
+        title: "Posts",
+        url: "/posts",
+        public: true,
+      },
+    ],
+  },
+  {
+    title: "Playground Demo",
+    icon: Icons.play,
+    url: "/demo",
     public: true,
     items: [
       {
         title: "Demo",
         url: "/demo",
-        icon: Icons.play,
-        public: true,
-      },
-      {
-        title: "Explore Posts",
-        url: "/posts",
-        icon: Icons.post,
         public: true,
       },
     ],

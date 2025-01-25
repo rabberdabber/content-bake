@@ -6,11 +6,24 @@ export const generateImageWithConfig = async (
   config?: Partial<ImageGenerationConfig>
 ) => {
   try {
-    const { url } = await aiApi.generateImage(prompt, config);
-    return url;
-  } catch (error) {
-    console.error("Error generating image:", error);
-    throw error;
+    const response = await aiApi.generateImage(prompt, config);
+    return response.data.url;
+  } catch (error: any) {
+    if (error?.response?.status === 429) {
+      throw new Error(
+        "Too many requests. Please try again later or login for more requests."
+      );
+    } else if (error?.response?.status === 401) {
+      throw new Error("Authentication error. Please login to continue.");
+    } else if (error?.response?.status === 400) {
+      throw new Error(
+        "Invalid request. Please check your prompt and try again."
+      );
+    } else if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error("Failed to generate image. Please try again later.");
+    }
   }
 };
 

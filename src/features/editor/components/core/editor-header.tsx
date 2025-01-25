@@ -20,7 +20,6 @@ interface EditorHeaderProps {
 export default function EditorHeader({
   mode,
   onChangeMode,
-  fullscreen,
   onSave,
 }: EditorHeaderProps) {
   const isSplitPane = mode === "split-pane";
@@ -42,10 +41,9 @@ export default function EditorHeader({
   return (
     <div
       className={cn(
-        "sticky top-0 flex flex-row flex-wrap gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+        "flex flex-row flex-wrap gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
         "transition-all duration-200",
-        "backdrop-blur-md backdrop-saturate-150 border-border/40 bg-muted-foreground/5",
-        !fullscreen && "sticky top-16 mx-2"
+        "backdrop-blur-md backdrop-saturate-150 border-border/40 bg-muted-foreground/5"
       )}
     >
       {/* Mode toggles */}

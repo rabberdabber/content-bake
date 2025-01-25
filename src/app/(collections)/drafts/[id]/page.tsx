@@ -60,6 +60,7 @@ export default function DraftPage({ params }: { params: { id: string } }) {
       onSave={handleSave}
       isDraft
       type="initial"
+      isDemo={false}
     />
   );
 }

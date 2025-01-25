@@ -1,30 +1,39 @@
 "use client";
 
 import { PostForm } from "./post-form";
-import { saveDraft } from "@/lib/actions/post";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
-import { Spinner } from "@/components/ui/spinner";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useEditor } from "../../context/editor-context";
 import { useSession } from "next-auth/react";
-import { useLocalStorage } from "@mantine/hooks";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 //TODO: we should differentiate between drafts and normal posts
 export function EditorActions() {
+  const router = useRouter();
   const { data: session } = useSession();
-  const { editor, type, isDraft } = useEditor();
+  const { isDemo } = useEditor();
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [_, setLocalStorageContent] = useLocalStorage({
-    key: "editor-content",
-    defaultValue: "",
-  });
+
+  const onClickPublish = () => {
+    if (session) {
+      setIsPublishing(true);
+    } else {
+      router.push("/auth/signin");
+    }
+  };
+
+  const onClickSaveDraft = () => {
+    if (session) {
+      setIsPublishing(false);
+    } else {
+      router.push("/auth/signin");
+    }
+  };
 
   return (
     <>
@@ -36,10 +45,10 @@ export function EditorActions() {
                 variant="ghost"
                 className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10 p-1"
                 disabled={isSavingDraft}
-                onClick={() => setIsPublishing(false)}
+                onClick={onClickSaveDraft}
               >
                 <Icons.save className="h-6 w-6" />
-                Save Draft
+                {session ? "Save Draft" : "Login to Save Draft"}
               </Button>
             </DialogTrigger>
           </div>
@@ -49,10 +58,10 @@ export function EditorActions() {
               <Button
                 className="flex items-center gap-2 hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
                 variant="ghost"
-                onClick={() => setIsPublishing(true)}
+                onClick={onClickPublish}
               >
                 <Icons.send className="h-6 w-6" />
-                Publish
+                {session ? "Publish" : "Login to Publish"}
               </Button>
             </DialogTrigger>
           </div>

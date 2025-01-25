@@ -1,8 +1,6 @@
 import React, { useEffect, useReducer, useState } from "react";
-import {
-  SandpackPredefinedTemplate,
-  SandpackProvider,
-} from "@codesandbox/sandpack-react";
+import dynamic from "next/dynamic";
+import { SandpackPredefinedTemplate } from "@codesandbox/sandpack-react";
 import { NodeViewWrapper } from "@tiptap/react";
 import { atomDark } from "@codesandbox/sandpack-themes";
 import CollapsibleWrapper from "@/components/collapsible-wrapper";
@@ -11,7 +9,6 @@ import {
   sandboxReducer,
   SandboxState,
 } from "@/contexts/sandbox/context";
-import { SandboxContent } from "./sandbox-components";
 import { templateFiles } from "@/config/sandbox";
 
 type SandPackContentProps = {
@@ -49,6 +46,24 @@ const initialState: SandboxState = {
   showTitleBar: true,
 };
 
+// Add dynamic imports for SandpackProvider and components
+const DynamicSandpackProvider = dynamic(
+  () =>
+    import("@codesandbox/sandpack-react").then((mod) => mod.SandpackProvider),
+  {
+    ssr: false,
+    loading: () => <div>Loading sandbox...</div>,
+  }
+);
+
+const DynamicSandboxContent = dynamic(
+  () => import("./sandbox-components").then((mod) => mod.SandboxContent),
+  {
+    ssr: false,
+    loading: () => <div>Loading content...</div>,
+  }
+);
+
 function SandboxProvider({ children }: SandboxProviderProps) {
   const [isClient, setIsClient] = useState(false);
 
@@ -63,10 +78,9 @@ function SandboxProvider({ children }: SandboxProviderProps) {
     return null;
   }
 
-  // TODO: React for now, but we should make this dynamic
   return (
     <SandboxContext.Provider value={{ state, dispatch }}>
-      <SandpackProvider
+      <DynamicSandpackProvider
         template="react"
         theme={atomDark}
         files={state.files}
@@ -80,42 +94,46 @@ function SandboxProvider({ children }: SandboxProviderProps) {
         }}
       >
         {children}
-      </SandpackProvider>
+      </DynamicSandpackProvider>
     </SandboxContext.Provider>
   );
 }
 
-const Sandbox = ({
-  files = templateFiles,
-  template = "react",
-  showFileExplorer = false,
-  showPreview = true,
-  showEditor = true,
-  showConsole = false,
-  showTitleBar = true,
-  previewOnly = false,
-}: SandboxProps) => {
-  return (
-    <NodeViewWrapper className="live-code-block w-full">
-      <div className="mt-[1rem] w-full">
-        <CollapsibleWrapper>
-          <div className="relative w-full" style={{ minHeight: "500px" }}>
-            <SandboxProvider
-              initialFiles={files}
-              initialShowFileExplorer={showFileExplorer}
-              initialShowPreview={showPreview}
-              initialShowEditor={showEditor}
-              initialShowConsole={showConsole}
-              initialShowTitleBar={showTitleBar}
-              template={template}
-            >
-              <SandboxContent previewOnly={previewOnly} />
-            </SandboxProvider>
-          </div>
-        </CollapsibleWrapper>
-      </div>
-    </NodeViewWrapper>
-  );
-};
+const Sandbox = React.memo(
+  ({
+    files = templateFiles,
+    template = "react",
+    showFileExplorer = false,
+    showPreview = true,
+    showEditor = true,
+    showConsole = false,
+    showTitleBar = true,
+    previewOnly = false,
+  }: SandboxProps) => {
+    return (
+      <NodeViewWrapper className="live-code-block w-full">
+        <div className="mt-[1rem] w-full">
+          <CollapsibleWrapper>
+            <div className="relative w-full" style={{ minHeight: "500px" }}>
+              <SandboxProvider
+                initialFiles={files}
+                initialShowFileExplorer={showFileExplorer}
+                initialShowPreview={showPreview}
+                initialShowEditor={showEditor}
+                initialShowConsole={showConsole}
+                initialShowTitleBar={showTitleBar}
+                template={template}
+              >
+                <DynamicSandboxContent previewOnly={previewOnly} />
+              </SandboxProvider>
+            </div>
+          </CollapsibleWrapper>
+        </div>
+      </NodeViewWrapper>
+    );
+  }
+);
+
+Sandbox.displayName = "Sandbox";
 
 export default Sandbox;

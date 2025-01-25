@@ -4,7 +4,7 @@ import {
   User,
   UserCreate,
 } from "@/types/api";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { getSession } from "next-auth/react";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import type { ImageGenerationConfig } from "@/config/image-generation";
@@ -122,12 +122,24 @@ export const aiApi = {
 
     return response.data;
   },
+  generateSandboxContent: async (
+    prompt: string,
+    isPrivate: boolean = false
+  ) => {
+    const response = await api.post(
+      `/ai/${isPrivate ? "private" : "public"}/generate-sandbox-content`,
+      {
+        prompt,
+      }
+    );
+    return response;
+  },
 
   generateImage: async (
     prompt: string,
     config: Partial<ImageGenerationConfig> = {},
     isPrivate: boolean = false
-  ): Promise<AIImageResponse> => {
+  ): Promise<AxiosResponse<AIImageResponse>> => {
     const response = await api.post(
       `/ai/${isPrivate ? "private" : "public"}/generate-image`,
       {
@@ -146,7 +158,7 @@ export const aiApi = {
         raw: config.raw || DEFAULT_IMAGE_GENERATION_CONFIG.raw,
       }
     );
-    return response.data;
+    return response;
   },
 };
 

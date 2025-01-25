@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { dynamicBlurDataUrl, generateImageWithConfig } from "@/lib/image/utils";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { AxiosError } from "axios";
 
 export function AIImageGenerator({
   node,
@@ -59,9 +60,14 @@ export function AIImageGenerator({
       }
     } catch (error) {
       console.error("Error generating image:", error);
-      toast.error("Failed to generate image. Please try again.");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to generate image. Please try again later.");
+      }
     } finally {
       setIsGenerating(false);
+      setAiPrompt("");
     }
   };
 

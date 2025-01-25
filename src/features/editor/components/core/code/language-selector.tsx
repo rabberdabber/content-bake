@@ -25,6 +25,7 @@ interface LanguageSelectorProps {
   defaultLanguage: SupportedLanguage;
   languages: SupportedLanguage[];
   updateAttributes: (attrs: { language: SupportedLanguage }) => void;
+  className?: string;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
@@ -35,6 +36,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   defaultLanguage,
   languages,
   updateAttributes,
+  className,
 }) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -43,7 +45,10 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[min-content] bg-background border border-input hover:bg-accent hover:text-accent-foreground"
+          className={cn(
+            "w-[min-content]border-input hover:bg-accent hover:text-accent-foreground",
+            className
+          )}
         >
           <span className="text-foreground">
             {value

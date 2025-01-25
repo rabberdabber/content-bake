@@ -2,7 +2,6 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import type { EditorMode } from "@/types/editor";
 import { sanitizeConfig } from "@/config/sanitize-config";
 import DOMPurify from "dompurify";
@@ -17,13 +16,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { EditorProvider, useEditor } from "../context/editor-context";
 
-// const TipTapEditor = dynamic(() => import("./core/editor"), {
-//   ssr: false,
-// });
-
 type EditorContainerProps = {
   onSave?: (content: string) => Promise<void>;
   isDraft: boolean;
+  isDemo: boolean;
 } & (
   | {
       type: "initial";
@@ -91,6 +87,7 @@ function Editor({
 export function EditorContainer({
   onSave,
   isDraft = false,
+  isDemo = false,
   ...props
 }: EditorContainerProps) {
   const { editor, content, setContent } = useBlockEditor(props);
@@ -112,8 +109,8 @@ export function EditorContainer({
   }, [searchParams]);
 
   const editorContent = (
-    <div className="absolute inset-0">
-      <div className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="relative">
+      <div className="sticky top-16 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="border-b mt-4">
           <EditorHeader
             mode={mode}
@@ -143,13 +140,14 @@ export function EditorContainer({
 
   return (
     <EditorProvider
+      isDemo={isDemo}
       isDraft={isDraft}
       content={content}
       setContent={setContent}
       editor={editor}
       {...props}
     >
-      <div className="container relative mx-auto min-h-[800px] px-[1rem]">
+      <div className="container relative mx-auto min-h-screen border-2 border-border/50 rounded-md mt-4">
         <AnimatePresence>
           {fullscreen ? (
             <Dialog open={fullscreen} modal onOpenChange={toggle}>

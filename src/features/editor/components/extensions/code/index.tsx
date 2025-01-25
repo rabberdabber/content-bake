@@ -64,7 +64,7 @@ const CodeBlockContent = ({
         )}
         spellCheck="false"
       >
-        <div className="absolute top-2 right-2">
+        <div className="absolute top-2 right-0 -translate-x-12">
           <LanguageSelector
             value={value}
             open={open}
@@ -73,6 +73,7 @@ const CodeBlockContent = ({
             defaultLanguage={defaultLanguage}
             languages={extension.options.lowlight.listLanguages()}
             updateAttributes={updateAttributes}
+            className="bg-background/80 backdrop-blur-sm"
           />
         </div>
         <NodeViewContent as="code" spellCheck="false" />
@@ -94,12 +95,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
 
   return (
     <NodeViewWrapper>
-      <CollapsibleWrapper maxHeight={400} className="group relative">
+      <CollapsibleWrapper className="group relative">
         <Button
           variant="ghost"
           size="icon"
           className={cn(
-            "absolute top-2 left-2 z-10 h-8 w-8",
+            "absolute top-2 right-2 z-10 h-8 w-8",
             "bg-background/80 backdrop-blur-sm",
             "opacity-0 group-hover:opacity-100",
             "transition-all duration-200",
@@ -120,14 +121,17 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
         />
         <span
           className={cn(
-            "absolute top-2 left-12 text-md",
+            "absolute bottom-2 right-2 text-sm",
             "opacity-0 group-hover:opacity-100",
             "transition-all duration-200",
             "bg-background/80 backdrop-blur-sm",
             "px-2 py-1 rounded-sm"
           )}
         >
-          &apos;⌘ + Enter&apos; to exit
+          <code className="text-sm p-1 bg-background/80 backdrop-blur-sm">
+            ⌘ + Enter
+          </code>{" "}
+          to exit
         </span>
       </CollapsibleWrapper>
     </NodeViewWrapper>

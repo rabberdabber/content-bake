@@ -51,6 +51,7 @@ export function MediaUploader({
         command.deleteRange({ from: getPos(), to: getPos() }).focus().run();
 
         toast.success(`${mediaType} uploaded successfully.`);
+        editor.commands.focus("end");
       }
     },
     [editor, getPos, mediaType]

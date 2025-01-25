@@ -19,6 +19,11 @@ export const siteConfig = {
       href: "/edit",
       protected: true,
     },
+    {
+      title: "Sandbox",
+      href: "/sandbox",
+      protected: false,
+    },
   ],
   links: {
     linkedin: "https://www.linkedin.com/in/bereket-assefa-251a79178/",

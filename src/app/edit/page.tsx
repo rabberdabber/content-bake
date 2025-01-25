@@ -12,6 +12,11 @@ const EditorContainer = dynamic(
 
 export default function Page() {
   return (
-    <EditorContainer type="local" storageKey="editor-content" isDraft={false} />
+    <EditorContainer
+      type="local"
+      storageKey="editor-content"
+      isDraft={false}
+      isDemo={false}
+    />
   );
 }

@@ -2,6 +2,7 @@ import { Editor } from "@tiptap/react";
 import { createContext, useContext } from "react";
 
 type EditorContextType = {
+  isDemo: boolean;
   isDraft: boolean;
   content: string;
   setContent: (content: string) => void;
@@ -20,6 +21,7 @@ type EditorContextType = {
 const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({
+  isDemo,
   isDraft,
   children,
   content,
@@ -30,6 +32,7 @@ export function EditorProvider({
   return (
     <EditorContext.Provider
       value={{
+        isDemo,
         isDraft,
         content,
         setContent,

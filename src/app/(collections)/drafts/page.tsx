@@ -8,7 +8,6 @@ import DraftsList from "@/components/drafts-list";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 async function getDrafts() {
   const env = process.env.NEXT_ENV;

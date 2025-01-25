@@ -5,10 +5,4 @@ export const FOCUS_ALLOWED_NODES = [
   "imageBlock",
   "codeBlock",
   "table",
-  // "sandbox",
-  // "live-code-block",
-  "imageInput",
-  "aiImageGenerator",
-  "aiContentGenerator",
-  "mediaUploader",
 ];

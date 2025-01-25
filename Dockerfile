@@ -71,5 +71,9 @@ COPY --from=build /usr/src/app/. ./.
 # Expose the port that the application listens on.
 EXPOSE 3001
 
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3001/ || exit 1
+
 # Run the application.
 CMD npm start

@@ -1,43 +1,30 @@
-import { Editor } from "@tiptap/react";
 import { createContext, useContext } from "react";
+import { EditorContextType } from "@/types/editor";
 
-type EditorContextType = {
-  isDemo: boolean;
-  isDraft: boolean;
-  content: string;
-  setContent: (content: string) => void;
-  editor: Editor | null;
-} & (
-  | {
-      type: "initial";
-      initialContent: string;
-    }
-  | {
-      type: "local";
-      storageKey: string;
-    }
+export const EditorContext = createContext<EditorContextType | undefined>(
+  undefined
 );
 
-const EditorContext = createContext<EditorContextType | undefined>(undefined);
-
 export function EditorProvider({
-  isDemo,
-  isDraft,
   children,
   content,
   setContent,
   editor,
-  ...props
+  mode,
+  setMode,
+  openDialog,
+  setOpenDialog,
 }: EditorContextType & { children: React.ReactNode }) {
   return (
     <EditorContext.Provider
       value={{
-        isDemo,
-        isDraft,
         content,
         setContent,
         editor,
-        ...props,
+        mode,
+        setMode,
+        openDialog,
+        setOpenDialog,
       }}
     >
       {children}

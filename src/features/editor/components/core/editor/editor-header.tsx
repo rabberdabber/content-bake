@@ -3,45 +3,23 @@
 import { cn } from "@/lib/utils";
 import ToggleGroup from "@/components/ui/toggle-group";
 import { Icons } from "@/components/icons";
-import { EditorActions } from "@/features/editor/components/core/editor-actions";
-import type { EditorMode } from "@/types/editor";
 import { Button } from "@/components/ui/button";
 import { useEditor } from "@/features/editor/context/editor-context";
-import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 
-interface EditorHeaderProps {
-  mode: EditorMode;
-  onChangeMode: (mode: EditorMode) => void;
-  fullscreen: boolean;
-  onSave?: () => Promise<void>;
-}
-
 export default function EditorHeader({
-  mode,
-  onChangeMode,
-  onSave,
-}: EditorHeaderProps) {
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const { editor, mode, setMode } = useEditor();
   const isSplitPane = mode === "split-pane";
-  const { editor } = useEditor();
-  const [isSaving, setIsSaving] = useState(false);
-
   if (!editor) return null;
-
-  const handleSave = async () => {
-    if (!onSave) return;
-    try {
-      setIsSaving(true);
-      await onSave();
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div
       className={cn(
-        "flex flex-row flex-wrap gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg m-0 z-40",
+        "mt-2 sticky top-16 flex flex-row flex-wrap max-w-full gap-2 items-center justify-between border border-border/40 p-2 rounded-t-lg mx-2 z-40",
         "transition-all duration-200",
         "backdrop-blur-md backdrop-saturate-150 border-border/40 bg-muted-foreground/5"
       )}
@@ -52,19 +30,19 @@ export default function EditorHeader({
           {
             icon: Icons.splitPane,
             tooltip: "split pane",
-            onClick: () => onChangeMode("split-pane"),
+            onClick: () => setMode("split-pane"),
             selected: isSplitPane,
           },
           {
             icon: Icons.edit,
             tooltip: "Editor",
-            onClick: () => onChangeMode("editor"),
+            onClick: () => setMode("editor"),
             selected: mode === "editor",
           },
           {
             icon: Icons.eye,
             tooltip: "Preview",
-            onClick: () => onChangeMode("preview"),
+            onClick: () => setMode("preview"),
             selected: mode === "preview",
           },
         ]}
@@ -92,8 +70,7 @@ export default function EditorHeader({
           </Button>
         </div>
 
-        {/* Editor actions */}
-        <EditorActions />
+        {children}
       </div>
     </div>
   );

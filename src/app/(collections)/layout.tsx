@@ -1,5 +1,3 @@
-"use client";
-
 import "@/app/globals.css";
 import { Metadata, type Viewport } from "next";
 import { Merriweather, Roboto, Inter as FontSans } from "next/font/google";
@@ -47,7 +45,7 @@ export default function CollectionsLayout({
         <SearchAndFilterSection />
         <ResultsHeader />
         {children}
-        {/* PaginationControls will be rendered by the page components since they need the totalPosts count */}
+        <PaginationControls />
       </div>
     </CollectionsProvider>
   );

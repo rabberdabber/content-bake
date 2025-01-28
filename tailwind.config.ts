@@ -130,7 +130,7 @@ const config = {
       },
       boxShadow: {
         "page-light":
-          "0px 1px 2px hsl(50deg 60% 50% / 0.25), 0px 3px 6px hsl(50deg 60% 50% / 0.25), 0px 9px 18px hsl(50deg 60% 50% / 0.25), 0px 18px 36px hsl(50deg 60% 50% / 0.25), 0px 54px 108px hsl(50deg 60% 50% / 0.25)",
+          "0px 1px 2px hsl(50deg 60% 50% / 0.15), 0px 2px 4px hsl(50deg 60% 50% / 0.15), 0px 4px 8px hsl(50deg 60% 50% / 0.15)",
         "page-dark": "none",
         "card-light":
           "0px 1px 2px hsl(50deg 20% 50% / 0.1), 0px 2px 4px hsl(50deg 20% 50% / 0.1), 0px 4px 8px hsl(50deg 20% 50% / 0.1), 0px 8px 16px hsl(50deg 20% 50% / 0.1)",

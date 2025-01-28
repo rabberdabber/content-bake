@@ -1,3 +1,4 @@
+import { JSONContent } from "@tiptap/react";
 import { z } from "zod";
 
 // Schema for the post form
@@ -15,11 +16,12 @@ export const JsonContentSchema = z.object({
 
 export const postFormSchema = z.object({
   author_id: z.string().uuid(),
+  slug: z.string(),
   title: z
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be less than 255 characters"),
-  tag: z.string().max(50, "Tag must be less than 50 characters").optional(),
+  tags: z.array(z.string()).max(5, "Tags must be less than 5").optional(),
   excerpt: z
     .string()
     .min(10, "Excerpt must be at least 10 characters")
@@ -38,7 +40,8 @@ export const postWithContentSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(255, "Title must be less than 255 characters"),
-  content: z.object({}),
+  slug: z.string(),
+  content: z.custom<JSONContent>(),
   excerpt: z
     .string()
     .min(10, "Excerpt must be at least 10 characters")
@@ -49,7 +52,7 @@ export const postWithContentSchema = z.object({
     .max(100, "Image URL must be less than 100 characters")
     .optional(),
   is_published: z.boolean(),
-  tag: z.string().max(50, "Tag must be less than 50 characters").optional(),
+  tags: z.array(z.string()).max(5, "Tags must be less than 5").optional(),
   author_id: z.string().uuid(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
@@ -70,10 +73,16 @@ export const tagResponseSchema = z.object({
 
 export const tagsResponseSchema = z.array(tagResponseSchema);
 
-export const draftFormSchema = postWithContentSchema.pick({
-  content: true,
-  author_id: true,
-  is_published: true,
+export const draftFormSchema = z.object({
+  id: z.string().uuid(),
+  slug: z.string(),
+  content: z.custom<JSONContent>(),
+  author_id: z.string().uuid(),
+  is_published: z.boolean(),
+  title: z.string(),
+  excerpt: z.string().optional(),
+  feature_image_url: z.string().optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 export const postSchema = postWithContentSchema.omit({
@@ -100,3 +109,4 @@ export type PostData = z.infer<typeof postSchema>;
 export type PostFormData = z.infer<typeof postFormSchema>;
 export type DraftData = z.infer<typeof draftSchema>;
 export type DraftWithContentData = z.infer<typeof draftFormSchema>;
+export type DraftResponse = DraftWithContentData & { id: string; slug: string };

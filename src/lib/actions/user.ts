@@ -110,7 +110,6 @@ export async function sendVerificationEmail() {
       ),
     } as any,
   });
-  console.log(token);
 
   if (!token) {
     throw new Error("Not authenticated");

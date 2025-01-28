@@ -1,4 +1,4 @@
-export const ALLOWED_TAGS = ["live-code-block", "iframe"];
+export const ALLOWED_TAGS = ["livecodeblock", "iframe"];
 
 export const ALLOWED_ATTRIBUTES = [
   // YouTube iframe attributes
@@ -20,6 +20,10 @@ export const ALLOWED_ATTRIBUTES = [
   // Custom data attributes
   "data-youtube-video",
   "data-is-widget", // for live-code-block
+  "data-id", // for live-code-block
+  "data-files", // for live-code-block
+  "data-template", // for live-code-block
+  "data-language", // for live-code-block
 ];
 
 export const sanitizeConfig = {

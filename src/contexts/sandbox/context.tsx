@@ -1,16 +1,29 @@
 import { createContext, useContext, useReducer } from "react";
 
 type SandboxState = {
-  files: { [key: string]: string };
+  id: string;
   showFileExplorer: boolean;
   showPreview: boolean;
   showEditor: boolean;
   showConsole: boolean;
   showTitleBar: boolean;
   isExpanded: boolean;
+  files: { [key: string]: string };
+};
+
+const initialState: SandboxState = {
+  id: "",
+  showFileExplorer: false,
+  showPreview: true,
+  showEditor: true,
+  showConsole: false,
+  showTitleBar: true,
+  isExpanded: false,
+  files: {},
 };
 
 type SandboxAction =
+  | { type: "SET_ID"; payload: string }
   | { type: "UPDATE_FILES"; payload: { [key: string]: string } }
   | { type: "TOGGLE_FILE_EXPLORER" }
   | { type: "TOGGLE_PREVIEW" }
@@ -24,6 +37,8 @@ const sandboxReducer = (
   action: SandboxAction
 ): SandboxState => {
   switch (action.type) {
+    case "SET_ID":
+      return { ...state, id: action.payload };
     case "UPDATE_FILES":
       return { ...state, files: action.payload };
     case "TOGGLE_FILE_EXPLORER":

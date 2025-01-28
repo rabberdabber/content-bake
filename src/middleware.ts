@@ -136,6 +136,6 @@ export const config = {
     // Include verify route for email verification
     "/verify",
     // Exclude all public routes including home path
-    "/((?!posts|auth/signup|api|_next/static|_next/image|favicon.ico|public|$|demo).*)",
+    "/((?!posts|auth/signup|api|_next/static|_next/image|favicon.ico|public|demo).*)",
   ],
 };

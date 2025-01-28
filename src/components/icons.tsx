@@ -116,6 +116,9 @@ import {
   ArrowDownToLine,
   ArrowUpToLine,
   Play,
+  Tag,
+  Tags,
+  FileText,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -145,7 +148,7 @@ export const Icons = {
   heading4: Heading4,
   heading5: Heading5,
   heading6: Heading6,
-
+  tag: Tag,
   // Lists & Content Structure
   list: List,
   listOrdered: ListOrdered,
@@ -180,6 +183,8 @@ export const Icons = {
   sliders: SlidersHorizontal,
   filter: Filter,
   search: Search,
+  fileText: FileText,
+  tags: Tags,
 
   maximize: Maximize,
   stop: StopCircle,

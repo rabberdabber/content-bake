@@ -14,7 +14,7 @@ interface PostCardProps {
   // that should appear above the media section
   header?: ReactNode;
   media?: ReactNode;
-  tag?: ReactNode;
+  tags?: ReactNode;
   title?: ReactNode;
   excerpt?: ReactNode;
   footer?: ReactNode;
@@ -25,7 +25,7 @@ export function PostCard({
   href,
   header,
   media,
-  tag,
+  tags,
   title,
   excerpt,
   footer,
@@ -46,7 +46,7 @@ export function PostCard({
         {media}
 
         <div className="flex flex-col flex-1 p-4 space-y-4">
-          {tag}
+          {tags}
           {title}
           {excerpt}
           {footer}

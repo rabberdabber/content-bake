@@ -15,6 +15,8 @@ const useLocalStorage = <T>(
     // Save to localStorage
     window.localStorage.setItem(key, JSON.stringify(value));
   };
+  console.log("storedValue for key", key, storedValue);
+  console.log("initialValue for key", key, initialValue);
   return [storedValue, setValue];
 };
 

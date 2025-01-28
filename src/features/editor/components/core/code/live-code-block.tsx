@@ -1,7 +1,7 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { SandpackPredefinedTemplate } from "@codesandbox/sandpack-react";
-import { NodeViewWrapper } from "@tiptap/react";
+import { NodeViewWrapper, NodeViewProps, Editor } from "@tiptap/react";
 import { atomDark } from "@codesandbox/sandpack-themes";
 import CollapsibleWrapper from "@/components/collapsible-wrapper";
 import {
@@ -23,6 +23,7 @@ type SandPackContentProps = {
 type SandboxProps = {
   files?: { [key: string]: string };
   template?: SandpackPredefinedTemplate;
+  id?: string;
 } & SandPackContentProps;
 
 type SandboxProviderProps = {
@@ -34,9 +35,10 @@ type SandboxProviderProps = {
   initialShowConsole?: boolean;
   initialShowTitleBar?: boolean;
   template?: SandpackPredefinedTemplate;
+  id?: string;
 };
 
-const initialState: SandboxState = {
+const initialState: Omit<SandboxState, "id"> = {
   files: templateFiles,
   isExpanded: false,
   showFileExplorer: false,
@@ -64,11 +66,15 @@ const DynamicSandboxContent = dynamic(
   }
 );
 
-function SandboxProvider({ children }: SandboxProviderProps) {
+function SandboxProvider({ children, id, initialFiles }: SandboxProviderProps) {
   const [isClient, setIsClient] = useState(false);
 
   // UI state
-  const [state, dispatch] = useReducer(sandboxReducer, initialState);
+  const [state, dispatch] = useReducer(sandboxReducer, {
+    ...initialState,
+    id: id || crypto.randomUUID(),
+    files: initialFiles || templateFiles,
+  });
 
   useEffect(() => {
     setIsClient(true);
@@ -99,41 +105,80 @@ function SandboxProvider({ children }: SandboxProviderProps) {
   );
 }
 
-const Sandbox = React.memo(
-  ({
-    files = templateFiles,
-    template = "react",
-    showFileExplorer = false,
-    showPreview = true,
-    showEditor = true,
-    showConsole = false,
-    showTitleBar = true,
-    previewOnly = false,
-  }: SandboxProps) => {
-    return (
-      <NodeViewWrapper className="live-code-block w-full">
-        <div className="mt-[1rem] w-full">
-          <CollapsibleWrapper>
-            <div className="relative w-full" style={{ minHeight: "500px" }}>
-              <SandboxProvider
-                initialFiles={files}
-                initialShowFileExplorer={showFileExplorer}
-                initialShowPreview={showPreview}
-                initialShowEditor={showEditor}
-                initialShowConsole={showConsole}
-                initialShowTitleBar={showTitleBar}
-                template={template}
-              >
-                <DynamicSandboxContent previewOnly={previewOnly} />
-              </SandboxProvider>
-            </div>
-          </CollapsibleWrapper>
+// Base Sandbox component without NodeViewWrapper
+export function BaseSandbox({ previewOnly = false, id, files }: SandboxProps) {
+  return (
+    <div className="mt-[1rem] w-full">
+      <CollapsibleWrapper>
+        <div className="relative w-full" style={{ minHeight: "500px" }}>
+          <SandboxProvider id={id} initialFiles={files}>
+            <DynamicSandboxContent previewOnly={previewOnly} />
+          </SandboxProvider>
         </div>
+      </CollapsibleWrapper>
+    </div>
+  );
+}
+
+// Editor-specific version with NodeViewWrapper
+const EditorSandbox = React.memo(
+  ({
+    editor,
+    node,
+    updateAttributes,
+    getPos,
+    ...props
+  }: SandboxProps & Partial<NodeViewProps>) => {
+    const sandboxId = node?.attrs?.id;
+    const sandboxTemplate = node?.attrs?.template || "react";
+
+    // Try to get files from localStorage first, fallback to node attrs or template
+    const sandboxFiles = useMemo(() => {
+      if (sandboxId) {
+        const storedFiles = localStorage.getItem(`sandbox-files-${sandboxId}`);
+        if (storedFiles) {
+          try {
+            return JSON.parse(storedFiles);
+          } catch (e) {
+            console.error("Failed to parse stored sandbox files:", e);
+          }
+        }
+      }
+      return node?.attrs?.files || templateFiles;
+    }, [sandboxId, node?.attrs?.files]);
+
+    // const onUpdate = (files: { [key: string]: string }) => {
+    //   if (!editor || !updateAttributes) return;
+
+    //   // Update the node attributes with new files
+    //   updateAttributes({
+    //     files,
+    //     template: sandboxTemplate,
+    //     id: sandboxId,
+    //   });
+
+    //   // Store in localStorage as backup
+    //   if (sandboxId) {
+    //     localStorage.setItem(
+    //       `sandbox-files-${sandboxId}`,
+    //       JSON.stringify(files)
+    //     );
+    //   }
+
+    //   // Optional: Focus the editor at the end of the operation
+    //   editor.commands.focus();
+    // };
+
+    return (
+      <NodeViewWrapper className="w-full">
+        <BaseSandbox {...props} id={sandboxId} files={sandboxFiles} />
       </NodeViewWrapper>
     );
   }
 );
 
-Sandbox.displayName = "Sandbox";
+EditorSandbox.displayName = "EditorSandbox";
 
-export default Sandbox;
+// Export both versions
+export { EditorSandbox };
+export default BaseSandbox;

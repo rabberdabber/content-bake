@@ -12,7 +12,7 @@ type PostHeroProps = {
 };
 
 function PostHero({ data }: PostHeroProps) {
-  const { title, created_at, feature_image_url, author, tag } = data;
+  const { title, created_at, feature_image_url, author, tags } = data;
   const humanizedDate = format(new Date(created_at as string), "MMMM do, yyyy");
 
   return (
@@ -23,9 +23,6 @@ function PostHero({ data }: PostHeroProps) {
     >
       {/* Decorative elements */}
       <div className="absolute inset-0 -z-10 bg-background/80 backdrop-blur-sm" />
-      <div className="absolute inset-0 -z-20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary/10 to-muted/10" />
-      </div>
 
       {/* Content */}
       <div className="relative w-full max-w-3xl mx-auto px-4 pt-16 pb-8">
@@ -73,28 +70,33 @@ function PostHero({ data }: PostHeroProps) {
       <div className="relative w-full max-w-6xl mx-auto px-4">
         <div className="relative rounded-xl overflow-hidden shadow-2xl ring-1 ring-foreground/10">
           <AspectRatio ratio={21 / 9}>
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent z-10" />
+            <div className="absolute inset-0 z-10" />
             <Image
               src={feature_image_url || "/placeholders/1.png"}
               alt={title}
-              className="object-cover w-full h-full animate-in fade-in duration-1000"
+              className="object-cover w-full h-full rounded-lg animate-in fade-in duration-1000"
               fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="100vw"
+              quality={100}
+              priority
             />
           </AspectRatio>
         </div>
       </div>
 
       {/* Badges */}
-      {tag && (
+      {tags && (
         <div className="relative w-full max-w-3xl mx-auto px-4 py-8">
           <div className="flex flex-wrap gap-2 justify-center animate-in slide-in-from-bottom-4 duration-700">
-            <Badge
-              variant="secondary"
-              className="text-sm font-medium bg-background/70 hover:bg-background/90 backdrop-blur-sm transition-colors shadow-sm"
-            >
-              {tag}
-            </Badge>
+            {tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-sm font-medium shadow-sm"
+              >
+                {tag}
+              </Badge>
+            ))}
           </div>
         </div>
       )}

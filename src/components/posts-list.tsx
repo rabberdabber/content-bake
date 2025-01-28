@@ -1,15 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { PostData } from "@/schemas/post";
-import { POSTS_PER_PAGE } from "@/config/post";
 import { Icons } from "./icons";
 import { PostCard } from "@/components/ui/post-card";
 import {
@@ -19,10 +11,12 @@ import {
   PostCardExcerpt,
   PostCardFooter,
 } from "@/components/ui/post-card";
-import { SearchAndFilterSection } from "@/components/search-and-filter-section";
-import { ResultsHeader } from "@/components/results-header";
-import { usePostFilters } from "@/hooks/use-post-filters";
-import { PaginationControls } from "@/components/pagination-controls";
+import { useCollections } from "@/app/(collections)/collections-context";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ConfirmationDialog } from "./ui/confirmation-dialog";
+import { deletePost } from "@/lib/actions/post";
+import Image from "next/image";
 
 interface PostsListProps {
   posts: PostData[];
@@ -35,44 +29,16 @@ export default function PostsList({
   totalPosts,
   isPublic,
 }: PostsListProps) {
-  const {
-    currentPage,
-    searchQuery,
-    currentTag,
-    perPage,
-    getUrlWithoutParam,
-    handleSearch,
-    handleTagChange,
-    handlePerPageChange,
-  } = usePostFilters("/posts");
+  const { setCurrentCollections, setTotalCollections } = useCollections();
+
+  useEffect(() => {
+    setCurrentCollections(posts);
+    setTotalCollections(totalPosts);
+  }, [posts, totalPosts]);
 
   return (
     <div className="space-y-8">
-      <SearchAndFilterSection
-        searchQuery={searchQuery}
-        currentTag={currentTag}
-        handleSearch={handleSearch}
-        handleTagChange={handleTagChange}
-      />
-
-      <ResultsHeader
-        currentPosts={posts.length}
-        totalPosts={totalPosts}
-        searchQuery={searchQuery}
-        currentTag={currentTag}
-        perPage={perPage}
-        getUrlWithoutParam={getUrlWithoutParam}
-        handlePerPageChange={handlePerPageChange}
-      />
-
       <PostGrid posts={posts} isPublic={isPublic} />
-
-      <PaginationControls
-        currentPage={currentPage}
-        totalPosts={totalPosts}
-        perPage={perPage}
-        basePath="/posts"
-      />
     </div>
   );
 }
@@ -84,6 +50,26 @@ function PostGrid({
   posts: PostData[];
   isPublic: boolean;
 }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<PostData | null>(null);
+
+  const handleDelete = async () => {
+    if (!selectedPost) return;
+    setIsDeleting(true);
+    try {
+      await deletePost(selectedPost.id);
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    } finally {
+      setIsDeleting(false);
+      setOpen(false);
+      setSelectedPost(null);
+    }
+  };
+
   return (
     <div className="container max-w-7xl transition-transform duration-300 transform will-change-transform">
       <div className="grid grid-cols-1 gap-6 auto-rows-fr sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -92,7 +78,7 @@ function PostGrid({
             key={post.id}
             id={post.id}
             index={index}
-            href={`/posts/${post.id}`}
+            href={`/posts/${post.slug}`}
             media={
               post.feature_image_url && (
                 <PostCardMedia
@@ -103,7 +89,10 @@ function PostGrid({
                 />
               )
             }
-            tag={post.tag && <PostCardTag>{post.tag}</PostCardTag>}
+            tags={
+              post.tags &&
+              post.tags.map((tag) => <PostCardTag key={tag}>{tag}</PostCardTag>)
+            }
             title={<PostCardTitle>{post.title}</PostCardTitle>}
             excerpt={
               post.excerpt && <PostCardExcerpt>{post.excerpt}</PostCardExcerpt>
@@ -113,23 +102,93 @@ function PostGrid({
             }
             actions={
               !isPublic && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
+                  transition-opacity hover:bg-primary hover:text-primary-foreground"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push(`/edit/${post.slug}`);
+                    }}
+                  >
+                    <Icons.edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 bg-background/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 
                   transition-opacity hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    console.log("delete");
-                  }}
-                >
-                  <Icons.trash className="h-4 w-4" />
-                </Button>
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpen(true);
+                      setSelectedPost(post);
+                    }}
+                  >
+                    <Icons.trash className="h-4 w-4" />
+                  </Button>
+                </div>
               )
             }
           />
         ))}
       </div>
+      {selectedPost && (
+        <ConfirmationDialog
+          open={open}
+          onOpenChange={setOpen}
+          title="Delete Post"
+          description="Are you sure you want to delete this post? This action cannot be undone."
+          onConfirm={handleDelete}
+          onReject={() => {
+            setOpen(false);
+            setSelectedPost(null);
+          }}
+          confirmText="Delete Post"
+          rejectText="Cancel"
+          loading={isDeleting}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              {selectedPost.feature_image_url && (
+                <div className="relative w-20 h-20 overflow-hidden rounded-md">
+                  <Image
+                    src={selectedPost.feature_image_url}
+                    alt={selectedPost.title}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+              )}
+              <div>
+                <h3 className="font-medium">{selectedPost.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  Slug: {selectedPost.slug}
+                </p>
+              </div>
+            </div>
+            {selectedPost.excerpt && (
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {selectedPost.excerpt}
+              </p>
+            )}
+            {selectedPost.tags && selectedPost.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {selectedPost.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 text-xs rounded-md bg-muted"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </ConfirmationDialog>
+      )}
     </div>
   );
 }

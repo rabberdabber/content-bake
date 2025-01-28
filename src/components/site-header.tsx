@@ -12,12 +12,11 @@ export function SiteHeader() {
   return (
     <div className="sticky top-0 left-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
       <div className="flex h-16 items-center px-4">
-        <MainNav items={siteConfig.mainNav} />
-        <div className="flex items-center space-x-4">
-          <nav className="flex items-center space-x-2">
+        <MainNav>
+          <nav className="flex items-center ml-auto space-x-2">
             {session ? <NavUser /> : <></>}
           </nav>
-        </div>
+        </MainNav>
       </div>
     </div>
   );

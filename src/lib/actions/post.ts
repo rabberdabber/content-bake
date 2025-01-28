@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { getToken } from "next-auth/jwt";
 import { cookies, headers } from "next/headers";
-import { draftFormSchema, PostData } from "@/schemas/post";
+import { draftFormSchema, PostData, PostFormData } from "@/schemas/post";
+import { slugify } from "@/lib/utils";
+import { JSONContent } from "@tiptap/react";
 
 async function getAuthToken() {
   const token = await getToken({
@@ -68,6 +70,7 @@ export async function createDraft(formData: FormData) {
 export async function createPost(formData: FormData) {
   console.log("Creating post", formData);
   const token = await getAuthToken();
+  const title = formData.get("title") as string;
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/`, {
     method: "POST",
@@ -78,10 +81,11 @@ export async function createPost(formData: FormData) {
     body: JSON.stringify({
       content: JSON.parse(formData.get("content") as string),
       is_published: Boolean(formData.get("is_published") === "true"),
-      title: formData.get("title"),
+      title: title,
+      slug: slugify(title),
       author_id: formData.get("author_id"),
       excerpt: formData.get("excerpt"),
-      tag: formData.get("tag"),
+      tags: JSON.parse(formData.get("tags") as string),
       feature_image_url: formData.get("feature_image_url"),
     }),
   });
@@ -91,7 +95,9 @@ export async function createPost(formData: FormData) {
     console.log("Error creating post", error);
     throw new Error(error?.message || "Failed to create post");
   }
-
+  revalidatePath("/posts");
+  revalidatePath("/published");
+  revalidatePath("/drafts");
   return response.json();
 }
 
@@ -107,6 +113,47 @@ export async function publishPost(formData: FormData) {
   revalidatePath("/posts");
   revalidatePath("/published");
   return post;
+}
+
+export async function patchPost(id: string, formData: FormData, slug?: string) {
+  console.log("Patching post with id", id, formData);
+  const token = await getAuthToken();
+  const content = JSON.parse(formData.get("content") as string);
+  const is_published = Boolean(formData.get("is_published"));
+  const tags = formData.get("tags") as string;
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.accessToken}`,
+      },
+      body: JSON.stringify({
+        ...Object.fromEntries(formData.entries()),
+        ...(content ? { content } : {}),
+        ...(is_published ? { is_published: true } : {}),
+        ...(tags ? { tags } : {}),
+      }),
+    }
+  );
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    console.log("Error patching post", error);
+    throw new Error(error?.message || "Failed to patch post");
+  }
+
+  // Revalidate based on whether we have a slug
+  if (slug) {
+    revalidatePath(`/posts/${slug}`);
+  } else {
+    // Revalidate all relevant paths for drafts
+    revalidatePath("/drafts");
+    revalidatePath("/posts");
+    revalidatePath("/published");
+  }
+
+  return response.json() as Promise<PostData>;
 }
 
 export async function deletePost(postId: string) {

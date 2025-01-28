@@ -20,6 +20,8 @@ import { Icons } from "@/components/icons";
 import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance, Props, type GetReferenceClientRect } from "tippy.js";
 import { cn } from "@/lib/utils";
+import { templateFiles } from "@/config/sandbox";
+import { toast } from "sonner";
 
 interface EditorCommandOutProps {
   query: string;
@@ -311,7 +313,7 @@ export const suggestions = {
             },
           },
           {
-            key: "liveCodeBlock",
+            key: "livecodeblock",
             title: "Live Code Block",
             description: "Add an interactive code block",
             icon: <Icons.codePen />,
@@ -320,8 +322,17 @@ export const suggestions = {
                 .chain()
                 .focus()
                 .deleteRange(range)
-                .insertContent("<live-code-block></live-code-block>")
+                .insertContent({
+                  type: "livecodeblock",
+                  attrs: {
+                    language: "javascript",
+                  },
+                  content: [],
+                })
                 .run();
+              toast.warning(
+                "Some issues with live code blocks, working on it!"
+              );
             },
           },
           {
@@ -335,7 +346,7 @@ export const suggestions = {
                 .focus()
                 .deleteRange(range)
                 .insertContent({
-                  type: "live-code-block",
+                  type: "livecodeblock",
                   attrs: {
                     language: "javascript",
                     isWidget: true,

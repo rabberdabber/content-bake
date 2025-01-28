@@ -1,5 +1,6 @@
 import { aiApi, imageApi } from "@/lib/api";
 import type { ImageGenerationConfig } from "@/config/image-generation";
+import { toast } from "sonner";
 
 export const generateImageWithConfig = async (
   prompt: string,
@@ -10,15 +11,13 @@ export const generateImageWithConfig = async (
     return response.data.url;
   } catch (error: any) {
     if (error?.response?.status === 429) {
-      throw new Error(
-        "Too many requests. Please try again later or login for more requests."
+      toast.error(
+        "Too many requests. Please try again later or login for more requests if not already logged in."
       );
     } else if (error?.response?.status === 401) {
-      throw new Error("Authentication error. Please login to continue.");
+      toast.error("Authentication error. Please login to continue.");
     } else if (error?.response?.status === 400) {
-      throw new Error(
-        "Invalid request. Please check your prompt and try again."
-      );
+      toast.error("Invalid request. Please check your prompt and try again.");
     } else if (error instanceof Error) {
       throw error;
     } else {

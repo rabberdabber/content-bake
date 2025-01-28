@@ -1,6 +1,6 @@
 import React from "react";
 import { Editor as CoreEditor } from "@tiptap/core";
-import { Editor } from "@tiptap/react";
+import { Editor, JSONContent } from "@tiptap/react";
 import { EditorState } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
@@ -20,3 +20,28 @@ export interface ShouldShowProps {
   from?: number;
   to?: number;
 }
+
+export type ActionType = "saveDraft" | "publish";
+
+export type DatabaseEditorProps = {
+  onUpdate: (content: string) => Promise<void>;
+  initialContent: JSONContent;
+};
+
+export type LocalEditorProps = {
+  onUpdate: (content: string) => Promise<void>;
+  storageKey: string;
+};
+
+export type EditorStateType = {
+  editor: Editor;
+  content: string;
+  setContent: (content: string) => void;
+};
+
+export type EditorContextType = {
+  mode: EditorMode;
+  setMode: (mode: EditorMode) => void;
+  openDialog: boolean;
+  setOpenDialog: (openDialog: boolean) => void;
+} & EditorStateType;

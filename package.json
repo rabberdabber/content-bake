@@ -66,6 +66,7 @@
     "gray-matter": "^4.0.3",
     "html-react-parser": "^5.1.12",
     "json5": "^2.2.3",
+    "lodash": "^4.17.21",
     "lowlight": "^3.1.0",
     "lucide-react": "^0.427.0",
     "motion": "^11.11.17",
@@ -94,6 +95,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.14",
     "@types/dompurify": "^3.0.5",
+    "@types/lodash": "^4.17.14",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

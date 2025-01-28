@@ -21,6 +21,7 @@ export interface PostPublic {
   id: string;
   feature_image_url?: string;
   title: string;
+  slug: string;
   tag?: string;
   is_published: boolean;
   excerpt: string;

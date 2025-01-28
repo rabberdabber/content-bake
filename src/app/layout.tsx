@@ -12,7 +12,6 @@ import { Toaster } from "@/components/ui/sonner";
 import NextAuthProvider from "@/providers/session-provider";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { PageLayout } from "@/components/page-layout";
 
 const merriweather = Merriweather({
   subsets: ["latin"],
@@ -83,7 +82,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 </div>
                 <div className="flex flex-1 flex-col w-full ">
                   <SiteHeader />
-                  <PageLayout>{children}</PageLayout>
+                  {children}
                 </div>
               </div>
             </SidebarProvider>

@@ -4,6 +4,7 @@ import { Editor } from "@tiptap/react";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { JsonContentSchema } from "@/schemas/post";
+import lodash from "lodash";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -83,4 +84,35 @@ export const validateAndFilterJsonContent = (jsonContent: JSONContent) => {
       content: filteredContent,
     },
   };
+};
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove non-word chars (except spaces and dashes)
+    .replace(/\s+/g, "-") // Replace spaces with dashes
+    .replace(/-+/g, "-") // Replace multiple dashes with single dash
+    .replace(/^-+/, "") // Remove leading dashes
+    .replace(/-+$/, ""); // Remove trailing dashes
+}
+
+export const shouldRenderSearchAndFilterSection = (pathname: string) => {
+  return ["/posts", "/drafts", "/published"].includes(pathname);
+};
+
+/**
+ * Deep comparison function to check if two values are equal
+ * Handles primitives, arrays, and objects
+ */
+export const isEqual = (a: any, b: any): boolean => {
+  if (a === b) return true;
+
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return (
+      a.length === b.length && a.every((item, index) => isEqual(item, b[index]))
+    );
+  }
+  console.log("comparing a and b", a, b);
+  return lodash.isEqual(a, b);
 };

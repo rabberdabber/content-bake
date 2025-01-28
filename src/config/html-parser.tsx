@@ -7,10 +7,11 @@ import {
 } from "html-react-parser";
 
 import { cn } from "../lib/utils";
-import Sandbox from "@/features/editor/components/core/code/live-code-block";
 import CodeBlock from "@/features/editor/components/core/code/code-block";
 import VideoPlayer from "@/components/video-player";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "./image-generation";
+import BaseSandbox from "@/features/editor/components/core/code/live-code-block";
+import { templateFiles } from "./sandbox";
 
 export const htmlParserOptions: HTMLReactParserOptions = {
   replace({
@@ -286,11 +287,14 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </code>
         );
-      case "live-code-block":
+      case "livecodeblock":
         if (attribs["data-is-widget"] !== undefined) {
           return (
             <div className="mb-2">
-              <Sandbox
+              <BaseSandbox
+                files={JSON.parse(
+                  attribs["files"] || JSON.stringify(templateFiles)
+                )}
                 showPreview
                 previewOnly
                 showConsole={false}
@@ -302,7 +306,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         }
         return (
           <div className="mb-2">
-            <Sandbox showEditor showPreview />
+            <BaseSandbox
+              files={JSON.parse(
+                attribs["files"] || JSON.stringify(templateFiles)
+              )}
+              showEditor
+              showPreview
+            />
           </div>
         );
       case "video":

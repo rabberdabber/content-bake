@@ -6,6 +6,7 @@ import { Merriweather, Roboto, Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -89,6 +90,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           </NextAuthProvider>
           <TailwindIndicator />
           <Toaster />
+          <SiteFooter />
         </ThemeProvider>
       </body>
     </html>

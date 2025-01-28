@@ -1,7 +1,7 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Bake's CMS",
+  name: "Content Bake",
   description: "Bake's Content Management System",
   mainNav: [
     {

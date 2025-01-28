@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useState } from "react";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import {
@@ -6,84 +7,17 @@ import {
   SandpackPreview,
   useSandpack,
   SandpackLayout,
+  useActiveCode,
+  SandpackPreviewRef,
 } from "@codesandbox/sandpack-react";
 import { useSandbox } from "@/contexts/sandbox/context";
 import { aiApi } from "@/lib/api";
-import { useState } from "react";
 import { toast } from "sonner";
-
-function AIPrompt() {
-  const { dispatch: sandpackDispatch, listen } = useSandpack();
-  const { dispatch } = useSandbox();
-  const [prompt, setPrompt] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      setIsLoading(true);
-      const response = await aiApi.generateSandboxContent(prompt);
-      if (response.data) {
-        dispatch({ type: "UPDATE_FILES", payload: response.data });
-        sandpackDispatch({ type: "refresh" });
-        toast.success("AI generated code added to sandbox");
-      }
-    } catch (error: any) {
-      if (error?.response?.status === 429) {
-        throw new Error(
-          "Too many requests. Please try again later or login for more requests."
-        );
-      } else if (error?.response?.status === 401) {
-        throw new Error("Authentication error. Please login to continue.");
-      } else if (error?.response?.status === 400) {
-        throw new Error(
-          "Invalid request. Please check your prompt and try again."
-        );
-      } else if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error("Failed to generate image. Please try again later.");
-      }
-    } finally {
-      setIsLoading(false);
-      setPrompt("");
-    }
-  };
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex gap-2 border-t border-zinc-700 p-3 bg-zinc-800"
-    >
-      <input
-        disabled={isLoading}
-        type="text"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Ask AI to help with your code..."
-        className="flex-1 px-3 py-1.5 bg-zinc-900 text-white rounded-md border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button
-        disabled={isLoading}
-        type="submit"
-        className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {isLoading ? (
-          <Icons.loader className="w-4 h-4 animate-spin" />
-        ) : (
-          <Icons.send className="w-4 h-4" />
-        )}
-      </button>
-    </form>
-  );
-}
+import { useSession } from "next-auth/react";
 
 function TitleBar() {
-  const {
-    state: { showEditor, showPreview, showFileExplorer },
-    dispatch,
-  } = useSandbox();
+  const { state, dispatch } = useSandbox();
+  const { showEditor, showPreview, showFileExplorer } = state;
 
   return (
     <div className="mb-0 flex justify-between items-center sm:rounded-t-lg bg-zinc-700 px-3 py-2">
@@ -135,6 +69,69 @@ function Console() {
   );
 }
 
+function AIPrompt() {
+  const { data: session } = useSession();
+  const { dispatch } = useSandbox();
+  const [prompt, setPrompt] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await aiApi.generateSandboxContent(prompt, !!session);
+      if (response.data) {
+        dispatch({ type: "UPDATE_FILES", payload: response.data });
+      }
+    } catch (error: any) {
+      if (error?.response?.status === 429) {
+        toast.error(
+          "Too many requests. Please try again later or login for more requests if not already logged in."
+        );
+      } else if (error?.response?.status === 401) {
+      } else if (error?.response?.status === 401) {
+        toast.error("Authentication error. Please login to continue.");
+      } else if (error?.response?.status === 400) {
+        toast.error("Invalid request. Please check your prompt and try again.");
+      } else if (error instanceof Error) {
+        throw error;
+      } else {
+        toast.error("Failed to generate code. Please try again later.");
+      }
+    } finally {
+      setIsLoading(false);
+      setPrompt("");
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex gap-2 border-t border-zinc-700 p-3 bg-zinc-100 dark:bg-zinc-800"
+    >
+      <input
+        type="text"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Ask AI to help with your code..."
+        className="flex-1 px-3 py-1.5 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white rounded-md border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-zinc-500 dark:placeholder-zinc-400"
+        disabled={isLoading}
+      />
+      <button
+        type="submit"
+        className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <Icons.loader className="w-4 h-4 animate-spin" />
+        ) : (
+          <Icons.send className="w-4 h-4" />
+        )}
+      </button>
+    </form>
+  );
+}
+
 function PreviewOnly() {
   return (
     <div className="w-full min-h-[500px] h-full">
@@ -151,17 +148,37 @@ function PreviewOnly() {
   );
 }
 
-const SandboxContent = ({ previewOnly }: { previewOnly?: boolean }) => {
+export function SandboxContent({
+  previewOnly,
+  onUpdate,
+}: {
+  previewOnly?: boolean;
+  onUpdate?: (attributes: { [key: string]: string }) => void;
+}) {
+  const { state } = useSandbox();
   const {
-    state: {
-      showEditor,
-      showPreview,
-      showFileExplorer,
-      showTitleBar,
-      isExpanded,
-      showConsole,
-    },
-  } = useSandbox();
+    showFileExplorer,
+    showPreview,
+    showEditor,
+    showConsole,
+    showTitleBar,
+    isExpanded,
+  } = state;
+  const { sandpack } = useSandpack();
+  const { code } = useActiveCode();
+  const previewRef = useRef<SandpackPreviewRef>(null);
+
+  const { activeFile, files } = sandpack;
+
+  useEffect(() => {
+    const client = previewRef.current?.getClient();
+    client?.dispatch({ type: "refresh" });
+    // onUpdate?.({
+    //   files: JSON.stringify(Object.keys(files).map((key) => files[key].code)),
+    //   template: "react",
+    //   id: state.id,
+    // });
+  }, [code, activeFile, files]);
 
   return previewOnly ? (
     <PreviewOnly />
@@ -192,8 +209,9 @@ const SandboxContent = ({ previewOnly }: { previewOnly?: boolean }) => {
             {showPreview && (
               <div className="border-l border-zinc-700 flex-1">
                 <SandpackPreview
+                  ref={previewRef}
                   showOpenInCodeSandbox={false}
-                  showRefreshButton={false}
+                  showRefreshButton={true}
                   style={{
                     width: "100%",
                     height: isExpanded ? "600px" : "400px",
@@ -210,6 +228,4 @@ const SandboxContent = ({ previewOnly }: { previewOnly?: boolean }) => {
       </SandpackLayout>
     </div>
   );
-};
-
-export { SandboxContent };
+}

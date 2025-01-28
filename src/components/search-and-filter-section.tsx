@@ -22,26 +22,22 @@ import { Separator } from "./ui/separator";
 import { TagsResponse, tagsResponseSchema } from "@/schemas/post";
 import { useEffect } from "react";
 import { useState } from "react";
+import { usePostFilters } from "@/hooks/use-post-filters";
+import { usePathname } from "next/navigation";
+import { shouldRenderSearchAndFilterSection } from "@/lib/utils";
 
-export function SearchAndFilterSection({
-  searchQuery,
-  currentTag,
-  handleSearch,
-  handleTagChange,
-  sortBy,
-  dateRange,
-  handleSortChange,
-  handleDateRangeChange,
-}: {
-  searchQuery: string | null;
-  currentTag: string | null;
-  handleSearch: (e: React.FormEvent<HTMLFormElement>) => void;
-  handleTagChange: (value: string) => void;
-  sortBy: string;
-  dateRange: string;
-  handleSortChange: (value: string) => void;
-  handleDateRangeChange: (value: string) => void;
-}) {
+export function SearchAndFilterSection() {
+  const pathname = usePathname();
+  const {
+    handleSearch,
+    handleTagChange,
+    handleSortChange,
+    handleDateRangeChange,
+    searchQuery,
+    currentTag,
+    sortBy,
+    dateRange,
+  } = usePostFilters(pathname);
   const [tags, setTags] = useState<TagsResponse | null>(null);
   const getAllTags = async () => {
     const response = await fetch(`/api/tags`);
@@ -53,6 +49,9 @@ export function SearchAndFilterSection({
     getAllTags();
   }, []);
 
+  if (!shouldRenderSearchAndFilterSection(pathname)) {
+    return null;
+  }
   return (
     <div className="relative">
       <div className="mx-auto max-w-4xl space-y-4">

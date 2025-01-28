@@ -1,5 +1,6 @@
 "use client";
 
+import { useCollections } from "@/app/(collections)/collections-context";
 import {
   Pagination,
   PaginationContent,
@@ -9,30 +10,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useSearchParams } from "next/navigation";
+import { usePostFilters } from "@/hooks/use-post-filters";
+import { shouldRenderSearchAndFilterSection } from "@/lib/utils";
+import { usePathname, useSearchParams } from "next/navigation";
 
-interface PaginationControlsProps {
-  currentPage: number;
-  totalPosts: number;
-  perPage: number;
-  basePath: string;
-}
-
-export function PaginationControls({
-  currentPage,
-  totalPosts,
-  perPage,
-  basePath,
-}: PaginationControlsProps) {
+export function PaginationControls() {
+  const { totalCollections } = useCollections();
+  const pathname = usePathname();
+  const { perPage, currentPage } = usePostFilters("/posts");
   const searchParams = useSearchParams();
-  const totalPages = Math.ceil(totalPosts / perPage);
+  const totalPages = Math.ceil(totalCollections / perPage);
 
   if (totalPages <= 1) return null;
 
   const createPageUrl = (pageNum: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", pageNum.toString());
-    return `${basePath}?${params.toString()}`;
+    return `${pathname}?${params.toString()}`;
   };
 
   const renderPageNumbers = () => {
@@ -90,6 +84,9 @@ export function PaginationControls({
     return pages;
   };
 
+  if (!shouldRenderSearchAndFilterSection(pathname)) {
+    return null;
+  }
   return (
     <Pagination className="justify-center">
       <PaginationContent>

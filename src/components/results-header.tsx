@@ -13,25 +13,21 @@ import { Icons } from "@/components/icons";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useCollections } from "@/app/(collections)/collections-context";
+import { usePostFilters } from "@/hooks/use-post-filters";
+import { shouldRenderSearchAndFilterSection } from "@/lib/utils";
 
-export function ResultsHeader({
-  currentPosts,
-  totalPosts,
-  searchQuery,
-  currentTag,
-  perPage,
-  getUrlWithoutParam,
-  handlePerPageChange,
-}: {
-  currentPosts: number;
-  totalPosts: number;
-  searchQuery: string | null;
-  currentTag: string | null;
-  perPage: number;
-  getUrlWithoutParam: (param: string) => string;
-  handlePerPageChange: (value: string) => void;
-}) {
+export function ResultsHeader() {
+  const { currentCollections, totalCollections } = useCollections();
+  const pathname = usePathname();
+  const {
+    searchQuery,
+    currentTag,
+    perPage,
+    handlePerPageChange,
+    getUrlWithoutParam,
+  } = usePostFilters(pathname);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -39,6 +35,9 @@ export function ResultsHeader({
     router.push("/edit");
   };
 
+  if (!shouldRenderSearchAndFilterSection(pathname)) {
+    return null;
+  }
   return (
     <div className="relative">
       <div className="mx-auto max-w-4xl">
@@ -46,7 +45,7 @@ export function ResultsHeader({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">
-                {currentPosts} of {totalPosts} posts
+                {currentCollections.length} of {totalCollections} posts
               </span>
               <Separator orientation="vertical" className="h-4" />
               <Select

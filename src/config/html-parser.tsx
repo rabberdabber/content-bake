@@ -196,6 +196,8 @@ export const htmlParserOptions: HTMLReactParserOptions = {
                 width: "100%",
                 height: "auto",
                 objectFit: "cover",
+                maxWidth: "100%",
+                maxHeight: "500px",
               }}
               priority
             />

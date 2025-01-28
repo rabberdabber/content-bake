@@ -105,29 +105,42 @@ function HighlightedCode({
           ref={contentRef}
           className={cn(
             className,
-            "p-6 rounded-lg overflow-x-auto font-mono relative not-prose",
-            !isExpanded && "max-h-[400px]"
+            "p-4 md:p-6 rounded-b-lg overflow-x-auto font-mono relative not-prose",
+            !isExpanded && "max-h-[400px]",
+            "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 dark:hover:scrollbar-thumb-gray-500"
           )}
           style={{
             ...style,
-            backgroundColor: "#011627",
+            backgroundColor: "#282c34",
             fontSize: fontSize,
-            lineHeight: "1.5",
+            lineHeight: "1.6",
             overflow: !isExpanded ? "hidden" : "auto",
           }}
         >
-          <div className="relative">
+          <div className="relative table min-w-full">
             {tokens.map((line, i) => (
-              <div key={i} {...getLineProps({ line })} className="table-row">
+              <div
+                key={i}
+                {...getLineProps({ line })}
+                className={cn(
+                  "table-row relative group",
+                  "hover:bg-gray-700/20 transition-colors duration-150"
+                )}
+              >
                 {showLineNumbers && (
                   <span
-                    className="table-cell text-gray-500 text-right pr-4 select-none w-12 opacity-50"
+                    className={cn(
+                      "table-cell text-gray-500 text-right pr-4 select-none pl-4",
+                      "w-[3.5rem] sticky left-0 bg-inherit",
+                      "border-r border-r-gray-700/30",
+                      "group-hover:text-gray-400 transition-colors duration-150"
+                    )}
                     style={{ fontSize }}
                   >
                     {i + 1}
                   </span>
                 )}
-                <span className="table-cell">
+                <span className="table-cell pl-4 whitespace-pre">
                   {line.map((token, key) => (
                     <span
                       key={key}
@@ -159,22 +172,33 @@ function CodeBlockHeader({
   onCopy,
   onDownload,
   copied,
+  deleteNode,
 }: {
   language: string;
   onCopy: () => void;
   onDownload: () => void;
   copied: boolean;
+  deleteNode?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
-      <div className="flex items-center gap-2">
-        <div className="relative w-8 h-8">
+    <div
+      className={cn(
+        "flex items-center justify-between px-4 py-3",
+        "border-b border-gray-200 dark:border-gray-700",
+        "bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm",
+        "rounded-t-lg sticky top-0 z-10"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div className="relative w-6 h-6 md:w-8 md:h-8 transition-all duration-200">
           <Image
             src={getLanguageIcon(language)}
             alt={`${language} icon`}
-            className="absolute inset-0 object-contain not-prose"
+            className={cn(
+              "absolute inset-0 object-contain not-prose",
+              "transition-all duration-200 hover:scale-110"
+            )}
             onError={(e) => {
-              // Fallback to generic code icon if image fails to load
               e.currentTarget.src =
                 "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/devicon/devicon-original.svg";
             }}
@@ -182,11 +206,29 @@ function CodeBlockHeader({
             unoptimized
           />
         </div>
-        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+        <span
+          className={cn(
+            "text-sm font-medium text-gray-600 dark:text-gray-300",
+            "hidden sm:inline-block"
+          )}
+        >
           {language.toLowerCase()}
         </span>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-1 md:gap-2">
+        {deleteNode && (
+          <Button
+            variant="destructive"
+            size="icon"
+            className={cn(
+              "absolute top-2 right-0 hidden focus:block h-8 w-8 md:h-9 md:w-9",
+              "transition-all duration-200 hover:scale-105"
+            )}
+            onClick={deleteNode}
+          >
+            <Icons.trash className="h-4 w-4" />
+          </Button>
+        )}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -194,12 +236,16 @@ function CodeBlockHeader({
                 variant="ghost"
                 size="sm"
                 onClick={onDownload}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className={cn(
+                  "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200",
+                  "transition-all duration-200 hover:scale-105",
+                  "h-8 w-8 md:h-9 md:w-9"
+                )}
               >
                 <Icons.download className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Download code</TooltipContent>
+            <TooltipContent side="left">Download code</TooltipContent>
           </Tooltip>
 
           <Tooltip>
@@ -208,7 +254,12 @@ function CodeBlockHeader({
                 variant="ghost"
                 size="sm"
                 onClick={onCopy}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className={cn(
+                  "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200",
+                  "transition-all duration-200 hover:scale-105",
+                  "h-8 w-8 md:h-9 md:w-9",
+                  copied && "text-green-500 dark:text-green-400"
+                )}
               >
                 {copied ? (
                   <Icons.check className="h-4 w-4" />
@@ -217,7 +268,9 @@ function CodeBlockHeader({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{copied ? "Copied!" : "Copy code"}</TooltipContent>
+            <TooltipContent side="left">
+              {copied ? "Copied!" : "Copy code"}
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
@@ -231,9 +284,12 @@ function CodeBlock({
   fontSize = "14px",
   theme = themes.nightOwl,
   className,
-}: CodeBlockProps) {
+  deleteNode,
+}: CodeBlockProps & { deleteNode?: () => void }) {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
+  const blockRef = useRef<HTMLDivElement>(null);
 
   const { code, language } = useMemo(
     () => parseCodeContent(children),
@@ -244,6 +300,24 @@ function CodeBlock({
     const timer = setTimeout(() => setIsLoading(false), 100);
     return () => clearTimeout(timer);
   }, [code]);
+
+  useEffect(() => {
+    const handleFocus = (e: FocusEvent) => {
+      if (blockRef.current?.contains(e.target as Node)) {
+        setIsFocused(true);
+      } else {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener("focusin", handleFocus);
+    document.addEventListener("focusout", handleFocus);
+
+    return () => {
+      document.removeEventListener("focusin", handleFocus);
+      document.removeEventListener("focusout", handleFocus);
+    };
+  }, []);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(code);
@@ -265,21 +339,41 @@ function CodeBlock({
 
   const renderCodeBlock = () => (
     <div
+      ref={blockRef}
       className={cn(
         "relative group rounded-lg border border-gray-200 dark:border-gray-700",
+        "transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600",
+        "shadow-lg hover:shadow-xl",
         className
       )}
     >
+      <div
+        className={cn(
+          "absolute -bottom-3 right-3 z-20 px-2 py-1 rounded-full",
+          "bg-gray-700/80 backdrop-blur-sm text-white text-xs",
+          "opacity-0 scale-75 shadow-lg",
+          "group-hover:opacity-100 group-hover:scale-100",
+          isFocused && "opacity-100 scale-100",
+          "transition-all duration-200"
+        )}
+      >
+        <kbd className="hidden focus:inline-block px-2 py-0.5 text-xs font-semibold bg-gray-600/50 rounded-md">
+          ⌘ + Enter
+        </kbd>
+        <span className="ml-1">to exit</span>
+      </div>
+
       <CodeBlockHeader
         language={language}
         onCopy={copyToClipboard}
         onDownload={downloadSnippet}
         copied={copied}
+        deleteNode={deleteNode}
       />
 
       {isLoading ? (
-        <div className="h-32 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+        <div className="h-32 flex items-center justify-center bg-[#282c34] rounded-b-lg">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
         </div>
       ) : (
         <HighlightedCode
@@ -294,7 +388,7 @@ function CodeBlock({
   );
 
   return (
-    <CollapsibleWrapper maxHeight={400}>{renderCodeBlock()}</CollapsibleWrapper>
+    <CollapsibleWrapper maxHeight={600}>{renderCodeBlock()}</CollapsibleWrapper>
   );
 }
 

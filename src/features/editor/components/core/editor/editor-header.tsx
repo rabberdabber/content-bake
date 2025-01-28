@@ -30,22 +30,21 @@ export default function EditorHeader({
           {
             icon: Icons.splitPane,
             tooltip: "split pane",
-            onClick: () => setMode("split-pane"),
-            selected: isSplitPane,
+            mode: "split-pane",
           },
           {
             icon: Icons.edit,
             tooltip: "Editor",
-            onClick: () => setMode("editor"),
-            selected: mode === "editor",
+            mode: "editor",
           },
           {
             icon: Icons.eye,
             tooltip: "Preview",
-            onClick: () => setMode("preview"),
-            selected: mode === "preview",
+            mode: "preview",
           },
         ]}
+        selectedMode={mode}
+        onClick={setMode}
       />
 
       <div className="flex items-center gap-4">

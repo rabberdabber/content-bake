@@ -95,15 +95,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
 
   return (
     <NodeViewWrapper>
-      <CollapsibleWrapper className="group relative">
+      <CollapsibleWrapper className="relative">
         <Button
           variant="ghost"
           size="icon"
           className={cn(
             "absolute top-2 right-2 z-10 h-8 w-8",
-            "bg-background/80 backdrop-blur-sm",
-            "opacity-0 group-hover:opacity-100",
-            "transition-all duration-200",
             "hover:bg-destructive hover:text-destructive-foreground"
           )}
           onClick={deleteNode}

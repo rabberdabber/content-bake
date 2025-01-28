@@ -113,6 +113,5 @@ export const isEqual = (a: any, b: any): boolean => {
       a.length === b.length && a.every((item, index) => isEqual(item, b[index]))
     );
   }
-  console.log("comparing a and b", a, b);
   return lodash.isEqual(a, b);
 };

@@ -31,6 +31,5 @@ async function getDraft(id: string) {
 
 export default async function Page({ params }: { params: { id: string } }) {
   const draft = await getDraft(params.id);
-  console.log("draftData", draft);
   return <EditDraft draft={draft} />;
 }

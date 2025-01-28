@@ -9,7 +9,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import BlogPreview from "@/features/editor/components/preview/blog-preview";
-import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/features/editor/context/editor-context";
 
@@ -43,6 +42,13 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
     // scrollIntoView();
   }, [content, scrollIntoView]);
 
+  useEffect(() => {
+    console.log("editor body on mount");
+    return () => {
+      console.log("editor body on unmount");
+    };
+  }, []);
+
   return (
     <motion.div
       ref={ref}
@@ -73,13 +79,13 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
             </ResizablePanelGroup>
           ) : (
             <>
-              <div className={cn({ hidden: mode === "preview" })}>
+              <div style={{ display: mode === "preview" ? "none" : "block" }}>
                 <div className="rounded-lg rounded-t-none p-4">
                   <TipTapEditor />
                 </div>
               </div>
-              <div className={cn({ hidden: mode === "editor" })}>
-                {mode === "preview" && <BlogPreview />}
+              <div style={{ display: mode === "editor" ? "none" : "block" }}>
+                <BlogPreview />
               </div>
             </>
           )}

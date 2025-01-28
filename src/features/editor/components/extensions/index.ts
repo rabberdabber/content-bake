@@ -39,6 +39,24 @@ const extensions = [
     addNodeView() {
       return ReactNodeViewRenderer(CodeBlock);
     },
+    addKeyboardShortcuts() {
+      return {
+        "Mod-Enter": () => {
+          return this.editor.commands.exitCode();
+        },
+        Enter: ({ editor }) => {
+          // If we're at the end of the code block
+          if (
+            editor.state.selection.$anchor.parentOffset ===
+            editor.state.selection.$anchor.parent.content.size
+          ) {
+            // Insert a newline instead of exiting
+            return editor.commands.insertContent("\n");
+          }
+          return false; // Let TipTap handle normal Enter behavior
+        },
+      };
+    },
   }).configure({
     lowlight: createLowlight(common),
     languageClassPrefix: "language-",
@@ -148,10 +166,6 @@ const extensions = [
         height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
       },
     },
-  }),
-  CustomFocus.configure({
-    className: cn("rounded shadow-[0_0_0_2px_green]"),
-    mode: "shallowest",
   }),
   YoutubeInput,
   AIImageGeneratorExtension,

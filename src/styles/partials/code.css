@@ -1,17 +1,18 @@
 .ProseMirror {
   code {
-    @apply caret-white text-white bg-neutral-900 rounded-sm shadow-lg font-mono;
+    @apply caret-white text-white bg-neutral-900/90 rounded px-1.5 py-0.5 shadow-md font-mono transition-colors duration-200;
 
     &::selection {
-      @apply bg-white/30;
+      @apply bg-white/40;
     }
   }
 
   pre {
-    @apply caret-white bg-neutral-700 text-white rounded p-4 border border-black dark:bg-neutral-900 dark:border-neutral-800 my-0 pt-16;
+    @apply caret-white bg-[#282c34] text-[#abb2bf] rounded-lg px-5 pt-16 pb-0 border border-neutral-700 
+           dark:bg-[#21252b] dark:border-neutral-800 mt-2 shadow-xl relative;
 
     *::selection {
-      @apply bg-white/20;
+      @apply bg-white/25;
     }
 
     code {
@@ -20,7 +21,7 @@
 
     .hljs-comment,
     .hljs-quote {
-      @apply text-neutral-400;
+      @apply text-[#5c6370] italic;
     }
 
     .hljs-variable,
@@ -33,7 +34,7 @@
     .hljs-name,
     .hljs-selector-id,
     .hljs-selector-class {
-      @apply text-red-300;
+      @apply text-[#e06c75];
     }
 
     .hljs-number,
@@ -43,31 +44,31 @@
     .hljs-literal,
     .hljs-type,
     .hljs-params {
-      @apply text-orange-300;
+      @apply text-[#d19a66];
     }
 
     .hljs-string,
     .hljs-symbol,
     .hljs-bullet {
-      @apply text-lime-300;
+      @apply text-[#98c379];
     }
 
     .hljs-title,
     .hljs-section {
-      @apply text-yellow-300;
+      @apply text-[#61afef] font-semibold;
     }
 
     .hljs-keyword,
     .hljs-selector-tag {
-      @apply text-teal-300;
+      @apply text-[#c678dd];
     }
 
     .hljs-emphasis {
-      font-style: italic;
+      @apply italic;
     }
 
     .hljs-strong {
-      font-weight: 700;
+      @apply font-bold;
     }
   }
 }

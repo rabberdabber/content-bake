@@ -14,7 +14,6 @@ import { slugify } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DraftForm } from "@/features/editor/components/core/draft-form";
-import { all } from "axios";
 
 const EditorRoot = dynamic(
   () =>

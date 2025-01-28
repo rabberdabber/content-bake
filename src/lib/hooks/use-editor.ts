@@ -42,7 +42,6 @@ const useBlockLocalEditor = ({
     onUpdate: ({ editor }) => {
       const newContent = editor.getHTML();
       const sanitizedContent = DOMPurify.sanitize(newContent, sanitizeConfig);
-      console.log("setting local content", sanitizedContent);
       setLocalContent(sanitizedContent);
     },
     extensions: [...extensions],
@@ -83,7 +82,6 @@ const useBlockLocalEditor = ({
     editor?.commands.setContent(content);
   };
 
-  console.log("editorSchema", json5.stringify(editor?.getJSON(), null, 2));
   return {
     editor,
     content: localContent,

@@ -1,41 +1,54 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FileText, Tags, User } from "lucide-react";
+import { Icons } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DashboardStats } from "@/schemas/dashboard";
+import { cookies } from "next/headers";
 
-// Mock data
-const userData = {
-  email: "john.doe@example.com",
-  fullName: "John Doe",
-  avatar: "/avatar.png",
-};
+export async function getDashboardStats() {
+  const env = process.env.NEXT_ENV;
+  const cookieName =
+    env === "local"
+      ? "next-auth.session-token"
+      : "__Secure-next-auth.session-token";
+  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/dashboard`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(cookies().get(cookieName) && {
+        Authorization: `Bearer ${cookies().get(cookieName)?.value}`,
+      }),
+      cache: "no-store",
+    },
+  });
+  return response.json() as Promise<DashboardStats>;
+}
 
-const postStats = {
-  totalPosts: 100,
-  yourPosts: 32,
-  drafts: 8,
-  tags: [
-    { name: "Technology", count: 15 },
-    { name: "Programming", count: 10 },
-    { name: "Web Development", count: 5 },
-    { name: "React", count: 2 },
-  ],
-};
-
-export default function App() {
-  const yourPostsPercentage =
-    (postStats.yourPosts / postStats.totalPosts) * 100;
+export default async function App() {
+  const {
+    user,
+    total_posts,
+    user_posts,
+    user_drafts,
+    popular_tags,
+    tag_distribution,
+  } = await getDashboardStats();
+  const yourPostsPercentage = total_posts
+    ? (user_posts / total_posts) * 100
+    : 0;
 
   return (
-    <div className="flex flex-col bg-background p-8">
+    <div className="mx-auto container flex flex-col bg-background p-8">
       <div className="flex-1 space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <p className="text-sm font-medium">{userData.fullName}</p>
-              <p className="text-sm text-muted-foreground">{userData.email}</p>
+              <p className="text-sm font-medium">
+                {user?.full_name || "Anonymous User"}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {user?.email || "Anonymous Email"}
+              </p>
             </div>
           </div>
         </div>
@@ -44,19 +57,19 @@ export default function App() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <Icons.fileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{postStats.totalPosts}</div>
+              <div className="text-2xl font-bold">{total_posts}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Your Posts</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
+              <Icons.user className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{postStats.yourPosts}</div>
+              <div className="text-2xl font-bold">{user_posts}</div>
               <div className="mt-4 space-y-2">
                 <Progress value={yourPostsPercentage} className="h-1" />
                 <p className="text-xs text-muted-foreground">
@@ -68,10 +81,10 @@ export default function App() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Drafts</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
+              <Icons.fileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{postStats.drafts}</div>
+              <div className="text-2xl font-bold">{user_drafts}</div>
             </CardContent>
           </Card>
           <Card>
@@ -79,11 +92,11 @@ export default function App() {
               <CardTitle className="text-sm font-medium">
                 Popular Tags
               </CardTitle>
-              <Tags className="h-4 w-4 text-muted-foreground" />
+              <Icons.tags className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {postStats.tags.map((tag) => (
+                {popular_tags?.map((tag) => (
                   <Badge key={tag.name} variant="secondary">
                     {tag.name} ({tag.count})
                   </Badge>
@@ -103,7 +116,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium">Published Posts</div>
                   <div className="text-sm text-muted-foreground">
-                    {postStats.yourPosts} posts
+                    {user_posts} posts
                   </div>
                 </div>
                 <Progress value={yourPostsPercentage} className="h-2" />
@@ -112,15 +125,11 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium">Drafts</div>
                   <div className="text-sm text-muted-foreground">
-                    {postStats.drafts} drafts
+                    {user_drafts} drafts
                   </div>
                 </div>
                 <Progress
-                  value={
-                    (postStats.drafts /
-                      (postStats.yourPosts + postStats.drafts)) *
-                    100
-                  }
+                  value={(user_drafts / (user_posts + user_drafts)) * 100}
                   className="h-2"
                 />
               </div>
@@ -140,7 +149,7 @@ export default function App() {
               <CardTitle>Tag Distribution</CardTitle>
             </CardHeader>
             <CardContent className="space-y-8">
-              {postStats.tags.map((tag) => (
+              {tag_distribution?.map((tag) => (
                 <div key={tag.name} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="text-sm font-medium">{tag.name}</div>
@@ -149,7 +158,7 @@ export default function App() {
                     </div>
                   </div>
                   <Progress
-                    value={(tag.count / postStats.yourPosts) * 100}
+                    value={(tag.count / user_posts) * 100}
                     className="h-2"
                   />
                 </div>

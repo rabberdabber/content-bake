@@ -18,8 +18,15 @@ declare global {
   }
 }
 
-const useBlockLocalEditor = ({ onUpdate, storageKey }: LocalEditorProps) => {
-  const [localContent, setLocalContent] = useLocalStorage(storageKey, "");
+const useBlockLocalEditor = ({
+  onUpdate,
+  storageKey,
+  initialContent,
+}: LocalEditorProps) => {
+  const [localContent, setLocalContent] = useLocalStorage(
+    storageKey,
+    initialContent ? generateHTML(initialContent, extensions) : ""
+  );
   const [_, setDroppedImage] = useState<string | File | null>(null);
 
   const editor = useEditor({

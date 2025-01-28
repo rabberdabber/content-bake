@@ -31,6 +31,7 @@ export type DatabaseEditorProps = {
 export type LocalEditorProps = {
   onUpdate: (content: string) => Promise<void>;
   storageKey: string;
+  initialContent?: JSONContent;
 };
 
 export type EditorStateType = {

@@ -9,7 +9,7 @@ export default function ForgotPasswordPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Icons.logo className="size-16" />
           </div>
-          Bake&apos;s Blogging Platform
+          Content Platform by Bake
         </a>
         <ForgotPasswordForm />
       </div>

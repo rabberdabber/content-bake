@@ -3,6 +3,8 @@ import { PostWithContentData, publicPostsSchema } from "@/schemas/post";
 import { PostsMain } from "@/features/posts/posts-main";
 import PostHero from "@/features/posts/post-hero";
 import { slugify } from "@/lib/utils";
+import { Metadata } from "next";
+import { cache } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -25,16 +27,41 @@ export async function generateStaticParams() {
   return data.map((post) => ({ id: slugify(post.title) }));
 }
 
-export default async function PostPage({ params }: { params: { id: string } }) {
+type Props = {
+  params: { id: string };
+};
+
+const getPost = cache(async (slug: string): Promise<PostWithContentData> => {
   const post = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/posts/by-slug/${params.id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/posts/by-slug/${slug}`,
     {
       headers: {
         "Content-Type": "application/json",
       },
     }
   );
-  const postData = (await post.json()) as PostWithContentData;
+  return post.json();
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const post = await getPost(params.id);
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      ...(post.feature_image_url && {
+        images: [{ url: post.feature_image_url, width: 1200, height: 630 }],
+      }),
+    },
+  };
+}
+
+export default async function PostPage({ params }: Props) {
+  const postData = await getPost(params.id);
 
   console.log(
     "%c" + JSON.stringify(postData, null, 2),
@@ -62,8 +89,6 @@ export default async function PostPage({ params }: { params: { id: string } }) {
             "prose-p:text-base prose-p:leading-7",
             "prose-a:text-primary hover:prose-a:text-primary/80",
             "prose-strong:text-foreground",
-            "prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded-md",
-            "prose-pre:bg-muted prose-pre:text-muted-foreground",
             "prose-img:rounded-lg prose-img:shadow-md",
             "prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground",
             "[&_img]:mx-auto [&_img]:object-cover",

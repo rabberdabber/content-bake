@@ -14,16 +14,13 @@ import BaseSandbox from "@/features/editor/components/core/code/live-code-block"
 import { templateFiles } from "./sandbox";
 
 export const htmlParserOptions: HTMLReactParserOptions = {
-  replace({
-    name,
-    attribs,
-    children,
-  }: {
-    name: string;
-    attribs: Element["attribs"];
-    children: ChildNode[];
-  }) {
-    if (!attribs) return;
+  replace: (domNode: DOMNode) => {
+    if (!("name" in domNode && "attribs" in domNode)) {
+      return;
+    }
+
+    const { name, attribs, children } = domNode;
+    const parent = (domNode as Element).parent;
 
     switch (name) {
       case "h1":
@@ -42,7 +39,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h2
             className={cn(
-              "mt-10 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
+              "mt-3 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
               attribs.class
             )}
           >
@@ -113,26 +110,23 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "p":
         return (
-          <p
-            className={cn(
-              "leading-7 [&:not(:first-child)]:mt-6",
-              attribs.class
-            )}
-          >
+          <p className={cn("leading-7 mt-4 first:mt-0", attribs.class)}>
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </p>
         );
 
       case "ul":
         return (
-          <ul className={cn("my-6 ml-6 list-disc", attribs.class)}>
+          <ul className={cn("mt-4 ml-6 list-disc first:mt-0", attribs.class)}>
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </ul>
         );
 
       case "ol":
         return (
-          <ol className={cn("my-6 ml-6 list-decimal", attribs.class)}>
+          <ol
+            className={cn("mt-4 ml-6 list-decimal first:mt-0", attribs.class)}
+          >
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </ol>
         );
@@ -148,7 +142,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <blockquote
             className={cn(
-              "mt-6 border-l-2 pl-6 italic [&>*]:text-muted-foreground",
+              "mt-4 border-l-2 pl-6 italic [&>*]:text-muted-foreground first:mt-0",
               attribs.class
             )}
           >
@@ -181,7 +175,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <div
             className={cn(
-              "flex justify-center items-center p-4 m-4",
+              "flex justify-center items-center p-2 mt-2 first:mt-0",
               align === "left" && "mr-auto",
               align === "right" && "ml-auto",
               align === "center" && "mx-auto"
@@ -209,14 +203,14 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         );
 
       case "hr":
-        return <hr className="my-4 md:my-8" />;
+        return <hr className="mt-4 first:mt-0" />;
 
       case "table":
         return (
-          <div className="my-8 w-full overflow-y-auto">
+          <div className="mt-4 w-full overflow-y-auto first:mt-0">
             <table
               className={cn(
-                "w-full border-collapse border border-border bg-background text-sm",
+                "w-full border-collapse border border-border bg-background text-sm rounded-md",
                 attribs.class
               )}
             >
@@ -229,7 +223,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <tr
             className={cn(
-              "border-b border-border transition-colors hover:bg-muted/50",
+              "not-prose border-b border-border transition-colors hover:bg-muted/50",
               "even:bg-muted/50",
               attribs.class
             )}
@@ -242,7 +236,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <th
             className={cn(
-              "border border-border px-4 py-3 text-center font-medium text-foreground/80",
+              "not-prose border border-border px-3 py-2 text-center font-medium text-foreground/80",
               "bg-muted [&[align=left]]:text-left [&[align=right]]:text-right",
               attribs.class
             )}
@@ -255,7 +249,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <td
             className={cn(
-              "border border-border px-4 py-3 text-center text-foreground/80",
+              "not-prose border border-border px-3 py-2 text-center text-foreground/80",
               "[&[align=left]]:text-left [&[align=right]]:text-right",
               attribs.class
             )}
@@ -266,22 +260,27 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "pre":
         return (
-          <CodeBlock
-            className={cn(
-              "relative rounded px-[0.5rem] font-mono text-sm border border-transparent py-[1rem] mb-2",
-              attribs.class
-            )}
-          >
+          <CodeBlock>
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </CodeBlock>
         );
 
       case "code":
+        const isInPre = parent && "name" in parent && parent.name === "pre";
         return (
           <code
             className={cn(
-              "relative rounded px-[0.5rem] font-mono text-sm border border-slate-700 py-[1rem] w-full",
-              attribs.class
+              "font-mono",
+              isInPre
+                ? ["text-sm block", "p-4"]
+                : [
+                    "text-sm",
+                    "rounded",
+                    "bg-muted",
+                    "px-1.5 py-0.5",
+                    "border border-border",
+                  ],
+              attribs?.class
             )}
           >
             {domToReact(children as DOMNode[], htmlParserOptions)}
@@ -317,30 +316,12 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         );
       case "video":
         return (
-          <div
-            className="mb-2 relative rounded-lg overflow-hidden"
-            style={{
-              width: DEFAULT_IMAGE_GENERATION_CONFIG.width,
-              height: DEFAULT_IMAGE_GENERATION_CONFIG.height,
-            }}
-          >
-            <VideoPlayer
-              src={attribs.src as string}
-              width={
-                attribs.width
-                  ? Number(attribs.width)
-                  : DEFAULT_IMAGE_GENERATION_CONFIG.width
-              }
-              height={
-                attribs.height
-                  ? Number(attribs.height)
-                  : DEFAULT_IMAGE_GENERATION_CONFIG.height
-              }
-              poster={attribs.poster}
-              onError={(error) => console.error("Video error:", error)}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <VideoPlayer
+            src={attribs.src as string}
+            poster={attribs.poster}
+            onError={(error) => console.error("Video error:", error)}
+            className="w-full h-full object-cover"
+          />
         );
       case "div":
         if (attribs["data-youtube-video"] !== undefined) {

@@ -32,7 +32,7 @@ export default function PageHeader() {
   }
 
   return (
-    <div className="flex h-8 items-center gap-4 border-border/50">
+    <div className="flex h-8 items-center gap-4">
       <SidebarTrigger />
       <Breadcrumb>
         <BreadcrumbList>

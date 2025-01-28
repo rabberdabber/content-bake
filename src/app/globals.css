@@ -85,74 +85,62 @@
   }
 }
 
-pre {
-  background: #0d0d0d;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-family: "JetBrainsMono", monospace;
-  padding: 0.75rem 1rem;
-  width: 100%;
-  font-size: 1rem;
+/* Syntax highlighting */
+.prose {
+  pre {
+    .hljs-comment,
+    .hljs-quote {
+      @apply text-muted-foreground;
+    }
 
-  code {
-    background: none;
-    color: inherit;
-    font-size: 1rem;
-    padding: 0;
-  }
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-attribute,
+    .hljs-tag,
+    .hljs-name,
+    .hljs-regexp,
+    .hljs-link,
+    .hljs-selector-id,
+    .hljs-selector-class {
+      @apply text-red-400 dark:text-red-300;
+    }
 
-  .hljs-comment,
-  .hljs-quote {
-    color: #616161;
-  }
+    .hljs-number,
+    .hljs-meta,
+    .hljs-built_in,
+    .hljs-builtin-name,
+    .hljs-literal,
+    .hljs-type,
+    .hljs-params {
+      @apply text-orange-400 dark:text-orange-300;
+    }
 
-  .hljs-variable,
-  .hljs-template-variable,
-  .hljs-attribute,
-  .hljs-tag,
-  .hljs-name,
-  .hljs-regexp,
-  .hljs-link,
-  .hljs-name,
-  .hljs-selector-id,
-  .hljs-selector-class {
-    color: #f98181;
-  }
+    .hljs-string,
+    .hljs-symbol,
+    .hljs-bullet {
+      @apply text-green-400 dark:text-green-300;
+    }
 
-  .hljs-number,
-  .hljs-meta,
-  .hljs-built_in,
-  .hljs-builtin-name,
-  .hljs-literal,
-  .hljs-type,
-  .hljs-params {
-    color: #fbbc88;
-  }
+    .hljs-title,
+    .hljs-section {
+      @apply text-yellow-400 dark:text-yellow-300;
+    }
 
-  .hljs-string,
-  .hljs-symbol,
-  .hljs-bullet {
-    color: #b9f18d;
-  }
+    .hljs-keyword,
+    .hljs-selector-tag {
+      @apply text-blue-400 dark:text-blue-300;
+    }
 
-  .hljs-title,
-  .hljs-section {
-    color: #faf594;
-  }
+    .hljs-emphasis {
+      @apply italic;
+    }
 
-  .hljs-keyword,
-  .hljs-selector-tag {
-    color: #70cff8;
-  }
-
-  .hljs-emphasis {
-    font-style: italic;
-  }
-
-  .hljs-strong {
-    font-weight: 700;
+    .hljs-strong {
+      @apply font-bold;
+    }
   }
 }
+
 .tippy-box {
   @apply bg-white text-gray-800 shadow-lg rounded-lg border border-gray-200;
 }
@@ -356,4 +344,11 @@ ul[data-type="taskList"] li[data-checked="true"] > div > p {
 
 .prose::-webkit-scrollbar-thumb:hover {
   background-color: rgba(156, 163, 175, 0.7);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+  }
 }

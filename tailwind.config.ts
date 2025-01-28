@@ -149,10 +149,20 @@ const config = {
           css: {
             color: "var(--prose-text-light)",
             pre: {
-              backgroundColor: "#282C34",
-              color: "#ABB2BF",
+              marginTop: "1rem",
+              marginBottom: "0",
+              backgroundColor: "hsl(var(--muted))",
+              color: "hsl(var(--foreground))",
+              padding: "1.25rem",
+              borderRadius: "0.375rem",
+              border: "1px solid hsl(var(--border))",
               code: {
-                fontSize: "1rem",
+                fontSize: "0.875rem",
+                fontFamily: "var(--font-mono)",
+                fontWeight: "500",
+                backgroundColor: "transparent",
+                border: "none",
+                padding: "0",
               },
             },
             "h2 a": linkHeadingStyles,
@@ -168,9 +178,12 @@ const config = {
               },
             },
             figure: {
-              margin: 0,
+              marginTop: "1rem",
+              marginBottom: "0",
             },
             blockquote: {
+              marginTop: "1rem",
+              marginBottom: "0",
               fontSize: "90%",
               color: colors.zinc[500],
               borderLeftColor: colors.zinc[700],
@@ -209,17 +222,50 @@ const config = {
             "a code": {
               fontSize: "1em",
             },
+            h1: {
+              margin: "0",
+              padding: "0",
+            },
+            h2: {
+              margin: "0",
+              padding: "0",
+            },
+            h3: {
+              margin: "0",
+              padding: "0",
+            },
+            h4: {
+              margin: "0",
+              padding: "0",
+            },
+            p: {
+              margin: "0",
+              padding: "0",
+            },
+            ul: {
+              margin: "0",
+              padding: "0",
+            },
+            ol: {
+              margin: "0",
+              padding: "0",
+            },
+            table: {
+              margin: "0",
+              padding: "0",
+            },
+            hr: {
+              margin: "0",
+              padding: "0",
+            },
           },
         },
         dark: {
           css: {
             color: "var(--prose-text-dark)",
             pre: {
-              backgroundColor: "#FAFAFA",
-              color: "#333333",
-              code: {
-                fontSize: "0.75rem",
-              },
+              backgroundColor: "hsl(var(--muted))",
+              color: "hsl(var(--foreground))",
             },
           },
         },

@@ -1,8 +1,11 @@
 "use client";
 
+import { signOut, useSession } from "next-auth/react";
 import { Icons } from "@/components/icons";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { TooltipProvider } from "./ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +13,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "./ui/dropdown-menu";
 import { breakpoints, useMediaQuery } from "@/lib/hooks/use-media-query";
-import { signOut, useSession } from "next-auth/react";
-
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
-import { TooltipProvider } from "./ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export function NavUser() {

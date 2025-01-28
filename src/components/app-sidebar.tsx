@@ -127,21 +127,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex items-center space-x-4 max-w-[var(--sidebar-width)] overflow-hidden">
           <div className="flex items-center space-x-2">
             <Link
-              href={siteConfig.links.portfolio}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={buttonVariants({
-                  size: "icon",
-                  variant: "ghost",
-                })}
-              >
-                <Icons.globe className="h-5 w-5" />
-                <span className="sr-only">Portfolio</span>
-              </div>
-            </Link>
-            <Link
               href={siteConfig.links.github}
               target="_blank"
               rel="noreferrer"

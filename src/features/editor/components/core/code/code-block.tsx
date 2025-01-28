@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Highlight, themes } from "prism-react-renderer";
+import { Highlight, PrismTheme, themes } from "prism-react-renderer";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,9 @@ import Image from "next/image";
 interface CodeBlockProps {
   children: React.ReactNode;
   className?: string;
+  showLineNumbers?: boolean;
+  fontSize?: string;
+  theme?: PrismTheme;
 }
 
 interface CodeContent {
@@ -102,7 +105,7 @@ function HighlightedCode({
           ref={contentRef}
           className={cn(
             className,
-            "p-4 rounded-lg overflow-x-auto font-mono relative not-prose",
+            "p-6 rounded-lg overflow-x-auto font-mono relative not-prose",
             !isExpanded && "max-h-[400px]"
           )}
           style={{
@@ -227,6 +230,7 @@ function CodeBlock({
   showLineNumbers = true,
   fontSize = "14px",
   theme = themes.nightOwl,
+  className,
 }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -260,7 +264,12 @@ function CodeBlock({
   };
 
   const renderCodeBlock = () => (
-    <div className="relative group rounded-lg border border-gray-200 dark:border-gray-700">
+    <div
+      className={cn(
+        "relative group rounded-lg border border-gray-200 dark:border-gray-700",
+        className
+      )}
+    >
       <CodeBlockHeader
         language={language}
         onCopy={copyToClipboard}

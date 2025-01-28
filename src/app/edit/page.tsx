@@ -27,9 +27,7 @@ const EditorRoot = dynamic(
 function Page() {
   const router = useRouter();
   const { editor, content, setContent } = useBlockLocalEditor({
-    onUpdate: async (content) => {
-      console.log("local editor content", content);
-    },
+    onUpdate: async (content) => {},
     storageKey: "editor-content",
   });
   const { data: session } = useSession();

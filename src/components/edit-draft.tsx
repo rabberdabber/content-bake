@@ -30,9 +30,7 @@ const EditorRoot = dynamic(
 function EditDraft({ draft }: { draft: DraftResponse }) {
   const router = useRouter();
   const { editor, content, setContent } = useBlockDatabaseEditor({
-    onUpdate: async (content) => {
-      console.log("local editor content", content);
-    },
+    onUpdate: async (content) => {},
     initialContent: draft.content,
   });
   const { data: session } = useSession();

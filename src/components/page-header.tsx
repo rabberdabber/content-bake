@@ -10,12 +10,9 @@ import {
 } from "./ui/breadcrumb";
 import { Breadcrumb } from "./ui/breadcrumb";
 import { SidebarTrigger } from "./ui/sidebar";
-import { useMounted } from "@/lib/hooks/use-mounted";
-import { Skeleton } from "./ui/skeleton";
 import { Fragment, useMemo } from "react";
 
 export default function PageHeader() {
-  const mounted = useMounted();
   const segments = useSelectedLayoutSegments();
   const logicalSegments = useMemo(
     () =>
@@ -24,12 +21,6 @@ export default function PageHeader() {
       ),
     [segments]
   );
-
-  if (!mounted) {
-    return (
-      <Skeleton className="h-8 w-full mt-2 bg-muted/50 backdrop-blur-sm" />
-    );
-  }
 
   return (
     <div className="flex h-8 items-center gap-4">

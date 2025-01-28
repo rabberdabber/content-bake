@@ -34,9 +34,7 @@ function EditPost({ post }: { post: PostWithContentData }) {
     content: editorContent,
     setContent,
   } = useBlockDatabaseEditor({
-    onUpdate: async (content) => {
-      console.log("local editor content", content);
-    },
+    onUpdate: async (content) => {},
     initialContent: post.content,
   });
 

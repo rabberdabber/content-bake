@@ -6,6 +6,7 @@ import { CalendarDays, Clock, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { PostWithContentData } from "@/schemas/post";
+import { ReadingTime } from "@/components/reading-time";
 
 type PostHeroProps = {
   data: PostWithContentData;
@@ -59,7 +60,9 @@ function PostHero({ data }: PostHeroProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>5 min read</span>
+                <span>
+                  <ReadingTime content={data.content} />
+                </span>
               </div>
             </div>
           </div>

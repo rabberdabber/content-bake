@@ -5,21 +5,23 @@ import type { NextRequest } from "next/server";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const response = await fetch(`${process.env.NEXT_API_URL}/drafts/`, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token.accessToken}` }),
-        cache: "no-store",
-      },
-    });
+    const response = await fetch(
+      `${process.env.NEXT_API_URL}/drafts/by-slug/${params.id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token.accessToken}` }),
+          cache: "no-store",
+        },
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -29,9 +31,9 @@ export async function GET(req: NextRequest) {
     console.log(data);
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error fetching drafts:", error);
+    console.error("Error fetching published posts:", error);
     return NextResponse.json(
-      { error: "Failed to fetch drafts" },
+      { error: "Failed to fetch published posts" },
       { status: 500 }
     );
   }

@@ -8,8 +8,6 @@ export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    console.log(token);
-    console.log(process.env.NEXT_API_URL);
 
     const response = await fetch(`${process.env.NEXT_API_URL}/posts/me`, {
       headers: {

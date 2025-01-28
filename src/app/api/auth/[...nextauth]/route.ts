@@ -45,7 +45,6 @@ export const authOptions: AuthOptions = {
             );
 
             const userProfile = (await userProfileResponse.json()) as User;
-            console.log("userProfile", userProfile);
             return {
               ...userProfile,
               accessToken: response.access_token,

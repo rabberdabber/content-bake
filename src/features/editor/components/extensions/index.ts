@@ -23,7 +23,7 @@ import AIImageGeneratorExtension from "./ai/image";
 import TextAlign from "@tiptap/extension-text-align";
 import { cn } from "@/lib/utils";
 import { CustomFocus } from "./nodes/custom-focus";
-import { CustomDocument } from "./nodes/custom-document";
+import { Document } from "@tiptap/extension-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
@@ -104,20 +104,11 @@ const extensions = [
         }) => {
           switch (level) {
             case 1:
-              return cn(
-                "text-4xl font-bold tracking-tight",
-                HTMLAttributes?.class
-              );
+              return cn("font-bold tracking-tight", HTMLAttributes?.class);
             case 2:
-              return cn(
-                "text-3xl font-semibold tracking-tight",
-                HTMLAttributes?.class
-              );
+              return cn("font-semibold tracking-tight", HTMLAttributes?.class);
             case 3:
-              return cn(
-                "text-2xl font-semibold tracking-tight",
-                HTMLAttributes?.class
-              );
+              return cn("font-semibold tracking-tight", HTMLAttributes?.class);
             default:
               return HTMLAttributes?.class || "";
           }
@@ -125,31 +116,12 @@ const extensions = [
       },
     },
   }),
-  CustomDocument,
+  Document,
   Dropcursor,
   TrailingNodeExtension,
   CommandsExtension,
   Placeholder.configure({
     placeholder: ({ node, pos, editor }) => {
-      // Special placeholder for the first (title) node
-      if (pos === 0) {
-        // If it's not already a heading, make it one
-
-        // if (!editor.isActive("heading", { level: 1 })) {
-        //   editor
-        //     .chain()
-        //     .focus()
-        //     .setNode("heading", {
-        //       level: 1,
-        //       HTMLAttributes: {
-        //         class: cn("text-center border-blue-500"),
-        //       },
-        //     })
-        //     .run();
-        // }
-        return "Enter title...";
-      }
-
       // Only show placeholder for empty paragraph nodes
       if (node.type.name === "paragraph") {
         return "Press '/' for commands";

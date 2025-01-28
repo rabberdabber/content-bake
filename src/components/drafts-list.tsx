@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { PostData } from "@/schemas/post";
+import type { DraftData, PostData } from "@/schemas/post";
 import {
   PostCard,
   PostCardMedia,
@@ -18,10 +18,8 @@ import {
   PostCardExcerpt,
   PostCardFooter,
 } from "@/components/ui/post-card";
-import { usePostFilters } from "@/hooks/use-post-filters";
-import { SearchAndFilterSection } from "@/components/search-and-filter-section";
-import { ResultsHeader } from "@/components/results-header";
-import { PaginationControls } from "@/components/pagination-controls";
+import { useCollections } from "@/app/(collections)/collections-context";
+import { useEffect } from "react";
 
 interface DraftsListProps {
   drafts: Partial<PostData>[];
@@ -29,44 +27,16 @@ interface DraftsListProps {
 }
 
 export default function DraftsList({ drafts, totalDrafts }: DraftsListProps) {
-  const {
-    currentPage,
-    searchQuery,
-    currentTag,
-    perPage,
-    getUrlWithoutParam,
-    handleSearch,
-    handleTagChange,
-    handlePerPageChange,
-  } = usePostFilters("/drafts");
+  const { setCurrentCollections, setTotalCollections } = useCollections();
+
+  useEffect(() => {
+    setCurrentCollections(drafts);
+    setTotalCollections(totalDrafts);
+  }, [drafts, totalDrafts]);
 
   return (
     <div className="space-y-8">
-      <SearchAndFilterSection
-        searchQuery={searchQuery}
-        currentTag={currentTag}
-        handleSearch={handleSearch}
-        handleTagChange={handleTagChange}
-      />
-
-      <ResultsHeader
-        currentPosts={drafts.length}
-        totalPosts={totalDrafts}
-        searchQuery={searchQuery}
-        currentTag={currentTag}
-        perPage={perPage}
-        getUrlWithoutParam={getUrlWithoutParam}
-        handlePerPageChange={handlePerPageChange}
-      />
-
       <DraftGrid drafts={drafts} />
-
-      <PaginationControls
-        currentPage={currentPage}
-        totalPosts={totalDrafts}
-        perPage={perPage}
-        basePath="/drafts"
-      />
     </div>
   );
 }
@@ -103,7 +73,7 @@ function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
           <PostCard
             key={draft.id}
             id={draft.id!}
-            href={`/drafts/${draft.id}`}
+            href={`/drafts/${draft.slug}`}
             index={index}
             media={
               <PostCardMedia
@@ -116,7 +86,12 @@ function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
                 priority={index <= 1}
               />
             }
-            tag={draft.tag && <PostCardTag>{draft.tag}</PostCardTag>}
+            tags={
+              draft.tags &&
+              draft.tags.map((tag) => (
+                <PostCardTag key={tag}>{tag}</PostCardTag>
+              ))
+            }
             title={
               <PostCardTitle>
                 {draft.title || `Draft ${index + 1}`}

@@ -1,12 +1,16 @@
 "use client";
-
-import { useBlockLocalEditor } from "@/lib/hooks/use-editor";
+import { useBlockDatabaseEditor } from "@/lib/hooks/use-editor";
 import dynamic from "next/dynamic";
 import { EditorActionsDialog } from "@/features/editor/components/core/editor-actions";
 import { PostForm } from "@/features/editor/components/core/post-form";
-import { createPost } from "@/lib/actions/post";
+import { createPost, patchPost } from "@/lib/actions/post";
 import { toast } from "sonner";
-import { DraftWithContentData, PostData, PostFormData } from "@/schemas/post";
+import {
+  DraftResponse,
+  DraftWithContentData,
+  PostData,
+  PostFormData,
+} from "@/schemas/post";
 import { validatePost } from "@/lib/validation/post";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -14,7 +18,6 @@ import { slugify } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { DraftForm } from "@/features/editor/components/core/draft-form";
-import { all } from "axios";
 
 const EditorRoot = dynamic(
   () =>
@@ -24,19 +27,19 @@ const EditorRoot = dynamic(
   { ssr: false }
 );
 
-function Page() {
+function EditDraft({ draft }: { draft: DraftResponse }) {
   const router = useRouter();
-  const { editor, content, setContent } = useBlockLocalEditor({
+  const { editor, content, setContent } = useBlockDatabaseEditor({
     onUpdate: async (content) => {
       console.log("local editor content", content);
     },
-    storageKey: "editor-content",
+    initialContent: draft.content,
   });
   const { data: session } = useSession();
   const [isPublishing, setIsPublishing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handlePublishSubmit = async (data: PostFormData) => {
+  const handlePublishSubmit = async (data: DraftWithContentData) => {
     setIsPublishing(true);
     console.log("data", data);
     let success = false;
@@ -61,7 +64,7 @@ function Page() {
     formData.delete("content");
     formData.append("content", JSON.stringify(editor?.getJSON()));
     try {
-      post = await createPost(formData);
+      post = await patchPost(draft.id, formData, draft.slug);
       success = true;
     } catch (error) {
       console.error("Error patching post", error);
@@ -88,7 +91,7 @@ function Page() {
     router.push("/posts");
   };
 
-  const handleDraftSubmit = async (data: DraftWithContentData) => {
+  const handleDraftSubmit = async (data: PostFormData) => {
     setIsPublishing(true);
     let success = false;
     let post: PostData | null = null;
@@ -101,20 +104,12 @@ function Page() {
       is_published: false,
     };
 
+    // For drafts, we only validate the content
     const draftValidation = {
       ...allData,
-      title:
-        allData.title ||
-        `Draft ${new Date().toLocaleString("en-US", {
-          minute: "2-digit",
-          hour: "2-digit",
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })}`,
-      excerpt: allData.excerpt || "",
-      feature_image_url: allData.feature_image_url || "",
-      tags: allData.tags || [],
+      title: allData.title || `Draft ${new Date().toLocaleDateString()}`,
+      excerpt: allData.excerpt || null,
+      feature_image_url: allData.feature_image_url || null,
     };
 
     for (const key in draftValidation) {
@@ -122,7 +117,7 @@ function Page() {
       if (Array.isArray(value) || typeof value === "object") {
         formData.append(key, JSON.stringify(value));
       } else {
-        formData.append(key, String(value));
+        formData.append(key, value as string);
       }
     }
 
@@ -135,14 +130,7 @@ function Page() {
     } finally {
       setIsPublishing(false);
       if (success) {
-        toast.success(
-          <div>
-            <p className="inline-block mr-2">Draft saved successfully</p>
-            <Link className="underline" href={`/drafts/${post?.slug}`}>
-              View draft
-            </Link>
-          </div>
-        );
+        toast.success("Draft saved successfully");
         setContent("");
         router.push("/drafts");
       }
@@ -150,6 +138,7 @@ function Page() {
     setIsDialogOpen(false);
   };
 
+  console.log("draft", draft);
   return (
     <EditorRoot
       editor={editor}
@@ -161,13 +150,13 @@ function Page() {
           setOpen={setIsDialogOpen}
           buttons={[
             {
-              label: "Save Draft",
+              label: "Save",
               icon: "save",
               onClick: () => {
                 console.log("save");
               },
               children: (
-                <DraftForm
+                <PostForm
                   onSubmit={handleDraftSubmit}
                   isSubmitting={isPublishing}
                 />
@@ -180,7 +169,7 @@ function Page() {
                 console.log("publish");
               },
               children: (
-                <PostForm
+                <DraftForm
                   onSubmit={handlePublishSubmit}
                   isSubmitting={isPublishing}
                 />
@@ -193,4 +182,4 @@ function Page() {
   );
 }
 
-export default dynamic(() => Promise.resolve(Page), { ssr: false });
+export default dynamic(() => Promise.resolve(EditDraft), { ssr: false });

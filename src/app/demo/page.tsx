@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import extensions from "@/features/editor/components/extensions";
 import { generateHTML, JSONContent } from "@tiptap/react";
 import { useEffect, useState } from "react";
+import { useBlockLocalEditor } from "@/lib/hooks/use-editor";
 
 const demoContent: JSONContent = {
   type: "doc",
@@ -108,25 +109,24 @@ const demoContent: JSONContent = {
   ],
 };
 
-const EditorContainer = dynamic(
+const EditorRoot = dynamic(
   () =>
-    import("@/features/editor/components/editor-container").then(
-      (mod) => mod.EditorContainer
+    import("@/features/editor/components/core/editor/editor-root").then(
+      (mod) => mod.EditorRoot
     ),
   { ssr: false }
 );
 
-export default function Page() {
-  const [isClient, setIsClient] = useState(false);
-  const [content, setContent] = useState("");
-
-  useEffect(() => {
-    setIsClient(true);
-    setContent(generateHTML(demoContent, extensions));
-  }, []);
-
-  if (!isClient) return null;
+function Page() {
+  const { editor, content, setContent } = useBlockLocalEditor({
+    onUpdate: async (content) => {
+      console.log("local editor content", content);
+    },
+    storageKey: "demo-content",
+  });
   return (
-    <EditorContainer type="local" storageKey="demo-content" isDraft isDemo />
+    <EditorRoot editor={editor} content={content} setContent={setContent} />
   );
 }
+
+export default dynamic(() => Promise.resolve(Page), { ssr: false });

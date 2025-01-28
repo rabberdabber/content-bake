@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PostFormData, postFormSchema, TagResponse } from "@/schemas/post";
+import { DraftWithContentData, TagResponse } from "@/schemas/post";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,7 +17,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Spinner } from "@/components/ui/spinner";
-import { Switch } from "@/components/ui/switch";
+import { draftFormSchema } from "@/schemas/post";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Command,
   CommandEmpty,
@@ -27,42 +32,31 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FeatureImageUpload from "./feature-image-upload";
 import { FeatureImageGenerator } from "./ai/feature-image-generator";
-import { useSession } from "next-auth/react";
-import { useEditor } from "../../context/editor-context";
-import { PostsMain } from "@/features/posts/posts-main";
 import { cn } from "@/lib/utils";
 
-type PostFormProps = {
-  defaultValues?: Partial<PostFormData>;
+type DraftFormProps = {
+  defaultValues?: Partial<DraftWithContentData>;
+  onSubmit: (data: DraftWithContentData) => Promise<void>;
   submitButtonText?: string;
   isSubmitting?: boolean;
-  onSubmit: (data: PostFormData) => Promise<void>;
 };
 
-export function PostForm({
+export function DraftForm({
   defaultValues,
   onSubmit,
-  submitButtonText = "Publish",
+  submitButtonText = "Save Draft",
   isSubmitting = false,
-}: PostFormProps) {
-  const { data: session } = useSession();
-  const { editor } = useEditor();
-  const [featuredImage, setFeaturedImage] = useState(
-    defaultValues?.feature_image_url || ""
-  );
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [availableTags, setAvailableTags] = useState<TagResponse[]>([]);
+}: DraftFormProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>(
     defaultValues?.tags || []
   );
+  const [featuredImage, setFeaturedImage] = useState(
+    defaultValues?.feature_image_url || ""
+  );
+  const [availableTags, setAvailableTags] = useState<TagResponse[]>([]);
   const [openTagCommand, setOpenTagCommand] = useState(false);
   const [tagInput, setTagInput] = useState("");
 
@@ -79,42 +73,27 @@ export function PostForm({
     fetchTags();
   }, []);
 
-  const form = useForm<PostFormData>({
-    resolver: zodResolver(postFormSchema),
+  const form = useForm<DraftWithContentData>({
+    resolver: zodResolver(draftFormSchema.partial()),
     defaultValues: {
       title: defaultValues?.title || "",
-      tags: defaultValues?.tags || [],
       excerpt: defaultValues?.excerpt || "",
       feature_image_url: defaultValues?.feature_image_url || "",
+      tags: defaultValues?.tags || [],
     },
   });
-
-  useEffect(() => {
-    if (featuredImage) {
-      form.setValue("feature_image_url", featuredImage);
-    }
-  }, [featuredImage, form]);
-
-  if (!session) {
-    return <div>Not logged in</div>;
-  }
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formValues = form.getValues();
-
-    // For regular posts
-    const submitData = {
+    await onSubmit({
       ...formValues,
-      excerpt: formValues.excerpt || "", // Ensure excerpt is provided
-      feature_image_url: featuredImage,
+      is_published: false,
+      feature_image_url: featuredImage || undefined,
       tags: selectedTags,
-    };
-    const data = submitData as PostFormData;
-    await onSubmit(data);
+    });
   };
 
-  console.log("availableTags", availableTags);
   return (
     <Form {...form}>
       <div className="space-y-4">
@@ -124,9 +103,9 @@ export function PostForm({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
+                <FormLabel>Title (optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter post title" {...field} required />
+                  <Input placeholder="Enter draft title" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -138,7 +117,7 @@ export function PostForm({
             name="tags"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tags</FormLabel>
+                <FormLabel>Tags (optional)</FormLabel>
                 <FormControl>
                   <div className="space-y-2">
                     <DropdownMenu
@@ -152,7 +131,7 @@ export function PostForm({
                           className="w-full justify-start text-left font-normal"
                         >
                           <span className="text-muted-foreground">
-                            {(field.value || []).length > 0
+                            {selectedTags.length > 0
                               ? "Add more tags"
                               : "Select or create tags..."}
                           </span>
@@ -169,28 +148,25 @@ export function PostForm({
                             <CommandInput
                               placeholder="Search or create tags..."
                               value={tagInput}
-                              onValueChange={(value) => {
-                                setTagInput(value);
-                              }}
+                              onValueChange={setTagInput}
                             />
                             <CommandEmpty>
                               {tagInput && (
                                 <CommandItem
                                   value={tagInput}
                                   onSelect={(currentValue) => {
-                                    const currentTags = field.value || [];
                                     if (
                                       currentValue.trim() &&
-                                      currentTags.length < 5
+                                      selectedTags.length < 5
                                     ) {
                                       const newTag = currentValue.trim();
-                                      if (!currentTags.includes(newTag)) {
+                                      if (!selectedTags.includes(newTag)) {
                                         const newTags = [
-                                          ...currentTags,
+                                          ...selectedTags,
                                           newTag,
                                         ];
-                                        field.onChange(newTags);
                                         setSelectedTags(newTags);
+                                        field.onChange(newTags);
                                       }
                                       setTagInput("");
                                       setOpenTagCommand(false);
@@ -203,28 +179,27 @@ export function PostForm({
                               {!tagInput && "No tags found."}
                             </CommandEmpty>
                             <CommandGroup heading="Existing Tags">
-                              {(availableTags || [])
+                              {availableTags
                                 .filter((tag) =>
                                   tag.name
                                     .toLowerCase()
-                                    .includes((tagInput || "").toLowerCase())
+                                    .includes(tagInput.toLowerCase())
                                 )
                                 .map((tag) => (
                                   <CommandItem
                                     key={tag.id}
                                     value={tag.name}
                                     onSelect={(currentValue) => {
-                                      const currentTags = field.value || [];
-                                      if (currentTags.length < 5) {
+                                      if (selectedTags.length < 5) {
                                         if (
-                                          !currentTags.includes(currentValue)
+                                          !selectedTags.includes(currentValue)
                                         ) {
                                           const newTags = [
-                                            ...currentTags,
+                                            ...selectedTags,
                                             currentValue,
                                           ];
-                                          field.onChange(newTags);
                                           setSelectedTags(newTags);
+                                          field.onChange(newTags);
                                         }
                                         setTagInput("");
                                         setOpenTagCommand(false);
@@ -234,7 +209,7 @@ export function PostForm({
                                     <Icons.check
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        (field.value || []).includes(tag.name)
+                                        selectedTags.includes(tag.name)
                                           ? "opacity-100"
                                           : "opacity-0"
                                       )}
@@ -253,18 +228,17 @@ export function PostForm({
                       </DropdownMenuContent>
                     </DropdownMenu>
                     <div className="flex flex-wrap gap-2">
-                      {(field.value || []).map((tag) => (
+                      {selectedTags.map((tag) => (
                         <Badge
                           key={tag}
                           variant="secondary"
                           className="cursor-pointer"
                           onClick={() => {
-                            const currentTags = field.value || [];
-                            const newTags = currentTags.filter(
+                            const newTags = selectedTags.filter(
                               (t) => t !== tag
                             );
-                            field.onChange(newTags);
                             setSelectedTags(newTags);
+                            field.onChange(newTags);
                           }}
                         >
                           {tag}
@@ -284,14 +258,12 @@ export function PostForm({
             name="excerpt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Excerpt</FormLabel>
+                <FormLabel>Excerpt (optional)</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Enter post excerpt"
+                    placeholder="Enter draft excerpt"
                     className="min-h-[100px]"
                     {...field}
-                    required
-                    minLength={10}
                   />
                 </FormControl>
                 <FormMessage />
@@ -304,7 +276,7 @@ export function PostForm({
             name="feature_image_url"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Featured Image</FormLabel>
+                <FormLabel>Featured Image (optional)</FormLabel>
                 <Tabs defaultValue="upload" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="upload">Upload</TabsTrigger>
@@ -320,7 +292,9 @@ export function PostForm({
                   <TabsContent value="generate">
                     <div className="border rounded-lg">
                       <FeatureImageGenerator
-                        onImageGenerated={(url) => setFeaturedImage(url)}
+                        onImageGenerated={(url: string) =>
+                          setFeaturedImage(url)
+                        }
                       />
                     </div>
                   </TabsContent>
@@ -329,7 +303,11 @@ export function PostForm({
                       <Input
                         placeholder="Enter image URL"
                         {...field}
-                        required
+                        value={featuredImage}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setFeaturedImage(e.target.value);
+                        }}
                       />
                     </FormControl>
                   </TabsContent>
@@ -339,33 +317,7 @@ export function PostForm({
             )}
           />
 
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <FormLabel className="text-base">Private Post</FormLabel>
-              <div className="text-sm text-muted-foreground">
-                Make this post private (coming soon)
-              </div>
-            </div>
-            <FormControl>
-              <Switch
-                checked={isPrivate}
-                onCheckedChange={setIsPrivate}
-                disabled
-                aria-readonly
-              />
-            </FormControl>
-          </FormItem>
-          <div className="space-y-2">
-            <h3 className="text-lg font-medium">Preview</h3>
-            <div className="h-[400px] overflow-y-auto rounded-lg border">
-              <div className="p-4">
-                {editor?.getJSON() && (
-                  <PostsMain postContent={editor.getJSON()} />
-                )}
-              </div>
-            </div>
-          </div>
-          <Button className="w-full gap-2" disabled={isSubmitting || !editor}>
+          <Button className="w-full gap-2" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Spinner className="h-6 w-6" />
@@ -373,7 +325,7 @@ export function PostForm({
               </>
             ) : (
               <>
-                <Icons.send className="h-6 w-6" />
+                <Icons.save className="h-6 w-6" />
                 {submitButtonText}
               </>
             )}

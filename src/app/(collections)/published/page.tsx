@@ -6,7 +6,6 @@ import { publicPostsSchema } from "@/schemas/post";
 import { PostsSearchParams } from "@/types/post";
 import { POSTS_PER_PAGE } from "@/config/post";
 import { redirect } from "next/navigation";
-import { PaginationControls } from "@/components/pagination-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -66,26 +65,20 @@ async function Posts({ params }: { params: PostsSearchParams }) {
   }
 
   if (tag && tag !== "all") {
-    filteredPosts = filteredPosts.filter((post) => post.tag === tag);
+    filteredPosts = filteredPosts.filter((post) =>
+      post.tags?.includes(tag.toLowerCase())
+    );
   }
 
   const startIndex = (page - 1) * perPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
 
   return (
-    <>
-      <PostsList
-        posts={paginatedPosts}
-        totalPosts={filteredPosts.length}
-        isPublic={false}
-      />
-      <PaginationControls
-        totalPosts={filteredPosts.length}
-        currentPage={page}
-        perPage={perPage}
-        basePath="/published"
-      />
-    </>
+    <PostsList
+      posts={paginatedPosts}
+      totalPosts={filteredPosts.length}
+      isPublic={false}
+    />
   );
 }
 

@@ -54,14 +54,11 @@ async function Posts({ params }: { params: PostsSearchParams }) {
   }
 
   if (tag && tag !== "all") {
-    filteredPosts = filteredPosts.filter((post) => post.tag === tag);
+    filteredPosts = filteredPosts.filter((post) => post.tags?.includes(tag));
   }
 
   const startIndex = (page - 1) * perPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + perPage);
-  console.log(`perPage: ${perPage}`);
-  console.log("length of paginatedPosts", paginatedPosts.length);
-  console.log(paginatedPosts);
 
   return (
     <PostsList

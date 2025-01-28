@@ -9,7 +9,7 @@ export default function SignUpPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Icons.logo className="size-4" />
           </div>
-          Bake&apos;s Blogging Platform
+          Content Bake
         </a>
         <SignUpForm />
       </div>

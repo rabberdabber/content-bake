@@ -48,6 +48,10 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
 
+    if (!token && pathname === PUBLIC_ROUTES.HOME) {
+      return NextResponse.next();
+    }
+
     // Check for email verification token in query params
     if (pathname === "/verify") {
       const verifyToken = getVerifyEmailToken(req.nextUrl);
@@ -136,6 +140,6 @@ export const config = {
     // Include verify route for email verification
     "/verify",
     // Exclude all public routes including home path
-    "/((?!posts|auth/signup|api|_next/static|_next/image|favicon.ico|public|demo).*)",
+    "/((?!posts|auth/signup|api|_next/static|_next/image|favicon.ico|public|demo|$).*)",
   ],
 };

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/post-card";
 import { useCollections } from "@/app/(collections)/collections-context";
 import { useEffect } from "react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface DraftsListProps {
   drafts: Partial<PostData>[];
@@ -66,6 +67,20 @@ function PerPageSelect({
 }
 
 function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
+  if (drafts.length === 0) {
+    return (
+      <EmptyState
+        icon="pencil"
+        title="No drafts found"
+        description="You haven't created any drafts yet. Start writing your first draft!"
+        action={{
+          label: "Create Draft",
+          href: "/edit",
+        }}
+      />
+    );
+  }
+
   return (
     <div className="container max-w-7xl">
       <div className="grid grid-cols-1 gap-6 auto-rows-fr sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">

@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { ConfirmationDialog } from "./ui/confirmation-dialog";
 import { deletePost } from "@/lib/actions/post";
 import Image from "next/image";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface PostsListProps {
   posts: PostData[];
@@ -69,6 +70,28 @@ function PostGrid({
       setSelectedPost(null);
     }
   };
+
+  if (posts.length === 0) {
+    return (
+      <EmptyState
+        icon="post"
+        title="No posts found"
+        description={
+          isPublic
+            ? "There are no published posts yet. Check back later!"
+            : "You haven't published any posts yet. Start writing your first post!"
+        }
+        action={
+          !isPublic
+            ? {
+                label: "Create Post",
+                href: "/edit",
+              }
+            : undefined
+        }
+      />
+    );
+  }
 
   return (
     <div className="container max-w-7xl transition-transform duration-300 transform will-change-transform">

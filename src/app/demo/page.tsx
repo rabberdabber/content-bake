@@ -14,7 +14,7 @@ const EditorRoot = dynamic(
 
 function Page() {
   const { editor, content, setContent } = useBlockLocalEditor({
-    onUpdate: async (content) => {},
+    onUpdate: async () => {},
     storageKey: "demo-content",
     initialContent: demoContent,
   });

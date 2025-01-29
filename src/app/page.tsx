@@ -1,17 +1,12 @@
 "use client";
 import Link from "next/link";
-import {
-  Pencil,
-  BookOpen,
-  Sparkles,
-  ArrowRight,
-  Wrench,
-  Code,
-} from "lucide-react";
+import { Pencil, BookOpen, Sparkles, Wrench, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import GlowCard from "@/components/glow-card";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const container = {
   hidden: { opacity: 0 },
@@ -71,6 +66,13 @@ const descriptions = [
 ];
 
 export default function Home() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  if (session) {
+    router.push("/dashboard");
+  }
+
   return (
     <main className="min-h-[calc(100dvh-4rem)] bg-gradient-to-b from-background to-muted pt-16">
       <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-between text-center">

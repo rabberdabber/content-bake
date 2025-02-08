@@ -7,28 +7,6 @@ import extensions from "@/features/editor/components/extensions";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useEditor } from "../../context/editor-context";
 
-// TODO: add fonts
-// import { Merriweather, Montserrat, JetBrains_Mono } from "next/font/google";
-
-// const serif = Merriweather({
-//   subsets: ["latin"],
-//   weight: ["400", "700"],
-//   style: ["normal", "italic"],
-//   variable: "--font-serif",
-// });
-
-// const display = Montserrat({
-//   subsets: ["latin"],
-//   weight: ["500", "600", "700"],
-//   variable: "--font-display",
-// });
-
-// const mono = JetBrains_Mono({
-//   subsets: ["latin"],
-//   weight: ["400", "500"],
-//   variable: "--font-mono",
-// });
-
 interface BlogPreviewProps {
   className?: string;
   blogRef?: React.RefObject<HTMLDivElement>;
@@ -39,27 +17,10 @@ const BlogPreview = memo(({ className, blogRef }: BlogPreviewProps) => {
   const [htmlContent, setHtmlContent] = useState<string>("");
   const debouncedSetHtmlContent = useDebounce(setHtmlContent, 500);
   const containerRef = useRef<HTMLDivElement>(null);
-  const renderCount = useRef(0);
 
-  // Memoize the parsed HTML content
   const parsedHtmlContent = useMemo(() => {
-    renderCount.current += 1;
-    console.log(`BlogPreview has rendered ${renderCount.current} times`);
     return parse(htmlContent, htmlParserOptions);
-  }, [htmlContent]); // Only re-parse when htmlContent changes
-
-  // useEffect(() => {
-  // Scroll to center when content updates
-  // if (containerRef.current) {
-  // const timer = setTimeout(() => {
-  // containerRef.current?.scrollIntoView({
-  // behavior: "smooth",
-  // block: "center",
-  // });
-  // }, 100);
-  // return () => clearTimeout(timer);
-  // }
-  // }, [htmlContent]);
+  }, [htmlContent]);
 
   useEffect(() => {
     const processContent = () => {
@@ -80,40 +41,54 @@ const BlogPreview = memo(({ className, blogRef }: BlogPreviewProps) => {
   }, [content, debouncedSetHtmlContent]);
 
   return (
-    <article
-      ref={containerRef}
-      className={cn(
-        "relative w-full min-h-screen mx-auto",
-        "p-8 sm:p-12 md:p-16",
-        // "sm:border sm:border-page-border-light dark:border-page-border-dark",
-        // "bg-white dark:bg-slate-900",
-        "text-prose-text-light dark:text-prose-text-dark", // Updated text colors
-        "shadow-page-light dark:shadow-page-dark",
-        "sm:rounded-lg",
-        className
-      )}
-    >
-      <div
-        ref={blogRef}
+    <div className="container mx-auto py-4 lg:py-6">
+      <article
+        ref={containerRef}
         className={cn(
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl",
-          "mx-auto max-w-[65ch]",
-          "focus:outline-none",
-          "dark:prose-invert",
-          "prose-headings:font-[var(--font-display)]",
-          "prose-p:font-[var(--font-serif)]",
-          "prose-p:leading-relaxed",
-          "prose-a:font-medium",
-          "prose-pre:bg-slate-900",
-          "prose-pre:border prose-pre:border-slate-800",
-          "[&_img]:mx-auto [&_img]:object-contain",
-          "[&_pre]:!bg-slate-900 [&_pre]:border [&_pre]:border-slate-800",
-          "[&_code]:font-[var(--font-mono)] [&_code]:text-sky-500"
+          "relative w-full mx-auto",
+          "max-w-4xl",
+          "p-6 sm:p-8 md:p-10",
+          "text-prose-text-light dark:text-prose-text-dark",
+          "shadow-page-light dark:shadow-page-dark",
+          "sm:rounded-lg",
+          "bg-white dark:bg-gray-900",
+          "border border-gray-200 dark:border-gray-800",
+          className
         )}
       >
-        <div className="flex flex-col">{parsedHtmlContent}</div>
-      </div>
-    </article>
+        <div
+          ref={blogRef}
+          className={cn(
+            "prose dark:prose-invert max-w-none",
+            "prose-headings:font-display prose-headings:tracking-tight",
+            "prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-6",
+            "prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-8 prose-h2:mb-4",
+            "prose-h3:text-2xl prose-h3:font-medium prose-h3:mt-6 prose-h3:mb-3",
+            "prose-p:text-base prose-p:leading-7 prose-p:my-4",
+            "prose-a:text-primary prose-a:no-underline hover:prose-a:text-primary/80",
+            "prose-strong:text-foreground prose-strong:font-semibold",
+            "prose-img:rounded-lg prose-img:shadow-md prose-img:my-8",
+            "[&_img]:mx-auto [&_img]:object-cover",
+            "prose-blockquote:border-l-4 prose-blockquote:border-primary/60",
+            "prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50",
+            "prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:my-6",
+            "prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6",
+            "prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6",
+            "[&_pre]:!bg-gray-950 [&_pre]:border [&_pre]:border-gray-800",
+            "[&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-4",
+            "[&_code]:font-mono [&_code]:text-sm",
+            "[&>section]:border-b [&>section]:border-gray-200 [&>section]:dark:border-gray-800",
+            "[&>section]:pb-6 [&>section]:mb-6",
+            "prose-table:w-full prose-table:my-6",
+            "prose-th:bg-gray-100 dark:prose-th:bg-gray-800",
+            "prose-td:border prose-td:border-gray-200 dark:prose-td:border-gray-700",
+            "prose-hr:my-8"
+          )}
+        >
+          <div className="flex flex-col">{parsedHtmlContent}</div>
+        </div>
+      </article>
+    </div>
   );
 });
 

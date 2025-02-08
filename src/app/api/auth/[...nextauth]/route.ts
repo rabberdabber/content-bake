@@ -1,8 +1,46 @@
 import NextAuth, { User, type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { authApi } from "@/lib/api";
 import { signin } from "@/lib/actions/user";
 import { LoginResponse } from "@/types/api";
+import { JWT } from "next-auth/jwt";
+
+async function refreshAccessToken(token: JWT) {
+  try {
+    const url =
+      `${process.env.NEXT_PUBLIC_API_URL}/login/access-token` +
+      new URLSearchParams({
+        grant_type: "refresh_token",
+        token_data: token.refreshToken,
+      });
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      method: "POST",
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -75,7 +113,12 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.image = user.is_superuser ? "/profile.jpg" : "/avatar.png";
       }
-      return token;
+      if (Date.now() < token.accessTokenExpires) {
+        return token;
+      }
+
+      // Access token has expired, try to update it
+      return refreshAccessToken(token);
     },
     async session({ session, token }) {
       if (token) {

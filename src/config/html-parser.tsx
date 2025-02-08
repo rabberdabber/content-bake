@@ -27,7 +27,12 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h1
             className={cn(
-              "mt-2 scroll-m-20 text-4xl font-bold tracking-tight self-center",
+              "mt-2 scroll-m-20",
+              "text-4xl font-bold tracking-tight",
+              "pb-4 mb-4",
+              "border-b border-border",
+              "text-foreground/90",
+              "self-center",
               attribs.class
             )}
           >
@@ -39,11 +44,24 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h2
             className={cn(
-              "mt-3 scroll-m-20 border-b pb-1 text-3xl font-semibold tracking-tight first:mt-0",
+              "group relative",
+              "mt-10 scroll-m-20",
+              "text-3xl font-semibold tracking-tight",
+              "pb-2 mb-4",
+              "border-b border-border",
+              "first:mt-0",
+              "hover:text-primary transition-colors",
+              "[&:hover_span]:opacity-100",
               attribs.class
             )}
           >
             {domToReact(children as DOMNode[], htmlParserOptions)}
+            <span
+              className="absolute -left-5 opacity-0 transition-opacity text-primary"
+              aria-hidden="true"
+            >
+              #
+            </span>
           </h2>
         );
 
@@ -51,7 +69,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h3
             className={cn(
-              "mt-8 scroll-m-20 text-2xl font-semibold tracking-tight",
+              "group relative",
+              "mt-8 scroll-m-20",
+              "text-2xl font-semibold tracking-tight",
+              "pb-2 mb-4",
+              "text-foreground/80",
+              "pl-4 border-l-4 border-border",
+              "hover:border-primary transition-colors",
               attribs.class
             )}
           >
@@ -63,7 +87,12 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <h4
             className={cn(
-              "mt-8 scroll-m-20 text-xl font-semibold tracking-tight",
+              "mt-8 scroll-m-20",
+              "text-xl font-semibold tracking-tight",
+              "pb-1 mb-4",
+              "text-foreground/70",
+              "pl-4 border-l-2 border-border",
+              "hover:border-primary transition-colors",
               attribs.class
             )}
           >
@@ -110,7 +139,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "p":
         return (
-          <p className={cn("leading-7 mt-4 first:mt-0", attribs.class)}>
+          <p
+            className={cn(
+              "leading-7 [&:not(:first-child)]:mt-6",
+              "text-foreground/70",
+              attribs.class
+            )}
+          >
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </p>
         );
@@ -142,7 +177,13 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <blockquote
             className={cn(
-              "mt-4 border-l-2 pl-6 italic [&>*]:text-muted-foreground first:mt-0",
+              "mt-6 border-l-4",
+              "pl-6 py-4 italic",
+              "bg-muted/50",
+              "rounded-r-lg",
+              "border-primary/60",
+              "[&>*]:text-muted-foreground",
+              "first:mt-0",
               attribs.class
             )}
           >
@@ -262,9 +303,29 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "pre":
         return (
-          <CodeBlock>
-            {domToReact(children as DOMNode[], htmlParserOptions)}
-          </CodeBlock>
+          <div className="relative group">
+            <CodeBlock>
+              {domToReact(children as DOMNode[], htmlParserOptions)}
+            </CodeBlock>
+            <button
+              className={cn(
+                "absolute top-4 right-4",
+                "opacity-0 group-hover:opacity-100",
+                "transition-opacity",
+                "px-2 py-1",
+                "text-xs font-medium",
+                "bg-primary/10 text-primary",
+                "rounded border border-primary/20",
+                "hover:bg-primary/20"
+              )}
+              onClick={() => {
+                const code = (children[0] as Element)?.children[0]?.data;
+                if (code) navigator.clipboard.writeText(code);
+              }}
+            >
+              Copy
+            </button>
+          </div>
         );
 
       case "code":
@@ -274,13 +335,14 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             className={cn(
               "font-mono",
               isInPre
-                ? ["text-sm block", "p-4"]
+                ? ["text-sm block", "p-4", "bg-transparent", "overflow-x-auto"]
                 : [
                     "text-sm",
                     "rounded",
                     "bg-muted",
                     "px-1.5 py-0.5",
                     "border border-border",
+                    "text-primary",
                   ],
               attribs?.class
             )}

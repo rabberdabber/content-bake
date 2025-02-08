@@ -347,22 +347,6 @@ function CodeBlock({
         className
       )}
     >
-      <div
-        className={cn(
-          "absolute -bottom-3 right-3 z-20 px-2 py-1 rounded-full",
-          "bg-gray-700/80 backdrop-blur-sm text-white text-xs",
-          "opacity-0 scale-75 shadow-lg",
-          "group-hover:opacity-100 group-hover:scale-100",
-          isFocused && "opacity-100 scale-100",
-          "transition-all duration-200"
-        )}
-      >
-        <kbd className="hidden focus:inline-block px-2 py-0.5 text-xs font-semibold bg-gray-600/50 rounded-md">
-          ⌘ + Enter
-        </kbd>
-        <span className="ml-1">to exit</span>
-      </div>
-
       <CodeBlockHeader
         language={language}
         onCopy={copyToClipboard}

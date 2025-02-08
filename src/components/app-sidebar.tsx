@@ -119,6 +119,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         props.className
       )}
     >
+      <div className="h-16 flex items-center space-x-2 p-4 border-b bg-background/95">
+        <Link
+          href="/"
+          className="flex items-center space-x-2 transition-colors hover:text-foreground/80"
+        >
+          <Icons.logo className="h-6 w-6" />
+          <span className="font-bold transition-opacity duration-300 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:hidden">
+            {siteConfig.name}
+          </span>
+        </Link>
+      </div>
+
       <SidebarContent>
         <NavMain items={session ? navMainPrivate : navMainPublic} />
         <SidebarRail />

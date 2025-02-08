@@ -32,7 +32,7 @@ export function PostCard({
   actions,
 }: PostCardProps) {
   return (
-    <div className="group relative flex flex-col">
+    <div className="group relative flex flex-col mt-auto">
       {/* Actions container (e.g. delete button) */}
       {actions && <div className="absolute top-2 right-2 z-10">{actions}</div>}
 

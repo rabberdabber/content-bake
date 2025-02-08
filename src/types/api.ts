@@ -15,6 +15,8 @@ export type UserCreate = Omit<User, "id" | "is_active" | "is_superuser"> & {
 
 export interface LoginResponse {
   access_token: string;
+  refresh_token: string;
+  expires_in: number;
 }
 
 export interface PostPublic {

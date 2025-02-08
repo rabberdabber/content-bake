@@ -7,10 +7,10 @@ import { JWT } from "next-auth/jwt";
 async function refreshAccessToken(token: JWT) {
   try {
     const url =
-      `${process.env.NEXT_PUBLIC_API_URL}/login/access-token` +
+      `${process.env.NEXT_PUBLIC_API_URL}/login/access-token?` +
       new URLSearchParams({
         grant_type: "refresh_token",
-        token_data: token.refreshToken,
+        refresh_token: token.refreshToken,
       });
 
     const response = await fetch(url, {
@@ -69,10 +69,6 @@ export const authOptions: AuthOptions = {
           })) as LoginResponse;
 
           if (response.access_token) {
-            // Get user profile using the access token
-            // const userProfile = (await authApi.getUserProfile(
-            //   response.access_token
-            // )) as User;
             const userProfileResponse = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
               {
@@ -86,6 +82,8 @@ export const authOptions: AuthOptions = {
             return {
               ...userProfile,
               accessToken: response.access_token,
+              refreshToken: response.refresh_token,
+              accessTokenExpires: Date.now() + response.expires_in * 1000,
             };
           }
 

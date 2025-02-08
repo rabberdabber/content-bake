@@ -1,29 +1,11 @@
 import "@/app/globals.css";
-import { Metadata, type Viewport } from "next";
+import { type Viewport } from "next";
 import { Merriweather, Roboto, Inter as FontSans } from "next/font/google";
 
-import { siteConfig } from "@/config/site";
 import { CollectionsProvider } from "./collections-context";
 import { SearchAndFilterSection } from "@/components/search-and-filter-section";
 import { ResultsHeader } from "@/components/results-header";
 import { PaginationControls } from "@/components/pagination-controls";
-
-const merriweather = Merriweather({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-serif",
-});
-
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-sans",
-});
-
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
 
 export const viewport: Viewport = {
   themeColor: [

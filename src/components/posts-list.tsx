@@ -37,11 +37,7 @@ export default function PostsList({
     setTotalCollections(totalPosts);
   }, [posts, totalPosts]);
 
-  return (
-    <div className="space-y-8">
-      <PostGrid posts={posts} isPublic={isPublic} />
-    </div>
-  );
+  return <PostGrid posts={posts} isPublic={isPublic} />;
 }
 
 function PostGrid({

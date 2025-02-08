@@ -28,7 +28,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "storage.codebake.io",
+        hostname: "minio.codebake.io",
         port: "",
       },
     ],

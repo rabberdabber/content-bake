@@ -79,9 +79,8 @@ export default async function Page({
     perPage?: string;
   };
 }) {
-  console.log("searchParams", searchParams);
   return (
-    <div className="min-h-[calc(100vh-8rem)] w-full py-6 lg:py-10 px-4">
+    <div className="min-h-[calc(100dvh-16rem)] w-full py-6 lg:py-10 px-4">
       <Suspense
         fallback={
           <div className="grid gap-5 sm:grid-cols-2">

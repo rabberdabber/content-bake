@@ -24,6 +24,8 @@ declare module "next-auth" {
     is_superuser: boolean;
     full_name: string;
     accessToken: string;
+    refreshToken: string;
+    accessTokenExpires: number;
     email_verified: boolean;
     image: string;
   }

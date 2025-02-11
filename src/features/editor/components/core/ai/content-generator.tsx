@@ -5,6 +5,7 @@ import {
   SetStateAction,
   useCallback,
   useState,
+  useRef,
 } from "react";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ContentTone } from "@/types/content-generator";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AIContentGeneratorProps {
   editor: Editor;
@@ -92,6 +94,27 @@ export function AIContentGenerator({
     editor.commands.insertContent(parsedContent);
     handleClose();
   }, [editor, parsedContent, handleClose]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    if (scrollRef.current) {
+      const scrollTimeout = setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
+
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (completion) {
+      scrollToBottom();
+    }
+  }, [completion, scrollToBottom]);
 
   return (
     <Dialog
@@ -187,24 +210,39 @@ export function AIContentGenerator({
               </div>
             </form>
 
-            {/* Preview Area */}
-            <div
-              className={cn(
-                "flex-1 min-h-0 overflow-hidden",
-                "transition-opacity duration-200",
-                !completion && "opacity-0"
+            {/* Modified Preview Area with animations */}
+            <AnimatePresence mode="wait">
+              {completion && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className={cn(
+                    "flex-1 min-h-0 overflow-hidden",
+                    "transition-opacity duration-200"
+                  )}
+                >
+                  <ScrollArea
+                    className="h-full rounded-lg border bg-muted/30"
+                    ref={scrollRef}
+                  >
+                    <motion.div
+                      className="p-4"
+                      initial={{ y: 20 }}
+                      animate={{ y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <AIContentPreview
+                        content={parsedContent}
+                        editor={editor}
+                        isLoading={isLoading}
+                      />
+                    </motion.div>
+                  </ScrollArea>
+                </motion.div>
               )}
-            >
-              <ScrollArea className="h-full rounded-lg border bg-muted/30">
-                <div className="p-4">
-                  <AIContentPreview
-                    content={parsedContent}
-                    editor={editor}
-                    isLoading={isLoading}
-                  />
-                </div>
-              </ScrollArea>
-            </div>
+            </AnimatePresence>
           </div>
 
           {/* Footer */}

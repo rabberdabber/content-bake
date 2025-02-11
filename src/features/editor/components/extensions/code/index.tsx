@@ -1,9 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
 import { cn } from "@/lib/utils";
-import CollapsibleWrapper, {
-  useCollapsibleWrapper,
-} from "@/components/collapsible-wrapper";
 import LanguageSelector from "../../core/code/language-selector";
 import { SupportedLanguage } from "@/types/code";
 import { Button } from "@/components/ui/button";
@@ -45,22 +42,14 @@ const CodeBlockContent = ({
   extension,
   updateAttributes,
 }: CodeBlockContentProps) => {
-  const { isExpanded, setIsOverflowing, maxHeight } = useCollapsibleWrapper();
   const contentRef = useRef<HTMLPreElement>(null);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      setIsOverflowing(contentRef.current.scrollHeight > maxHeight);
-    }
-  }, [maxHeight]);
 
   return (
     <>
       <pre
         ref={contentRef}
         className={cn(
-          "overflow-x-auto relative max-w-full border border-slate-200 dark:border-slate-700 rounded-md not-prose p-4",
-          !isExpanded && "max-h-[400px] overflow-hidden"
+          "overflow-x-auto relative max-w-full border border-slate-200 dark:border-slate-700 rounded-md not-prose p-4"
         )}
         spellCheck="false"
       >
@@ -95,12 +84,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
 
   return (
     <NodeViewWrapper>
-      <CollapsibleWrapper className="relative">
+      <div className="relative">
         <Button
           variant="ghost"
           size="icon"
           className={cn(
-            "absolute top-2 right-2 z-10 h-8 w-8",
+            "absolute top-4 right-2 z-10 h-8 w-8",
             "hover:bg-destructive hover:text-destructive-foreground"
           )}
           onClick={deleteNode}
@@ -130,7 +119,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({
           </code>{" "}
           to exit
         </span>
-      </CollapsibleWrapper>
+      </div>
     </NodeViewWrapper>
   );
 };

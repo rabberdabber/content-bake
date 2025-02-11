@@ -6,19 +6,21 @@ import { JWT } from "next-auth/jwt";
 
 async function refreshAccessToken(token: JWT) {
   try {
-    const url =
-      `${process.env.NEXT_PUBLIC_API_URL}/login/access-token?` +
-      new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: token.refreshToken,
-      });
-
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      method: "POST",
+    const formData = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: token.refreshToken,
     });
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/login/access-token`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData,
+      }
+    );
 
     const refreshedTokens = await response.json();
 
@@ -103,6 +105,8 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.accessTokenExpires = user.accessTokenExpires;
         token.email = user.email;
         token.is_superuser = user.is_superuser;
         token.is_active = user.is_active;
@@ -111,9 +115,14 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.image = user.is_superuser ? "/profile.jpg" : "/avatar.png";
       }
+      console.log(
+        `${Date.now()} < ${token.accessTokenExpires}`,
+        Date.now() < token.accessTokenExpires
+      );
       if (Date.now() < token.accessTokenExpires) {
         return token;
       }
+      console.log("Refreshing access token");
 
       // Access token has expired, try to update it
       return refreshAccessToken(token);

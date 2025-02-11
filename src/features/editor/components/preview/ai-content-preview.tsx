@@ -1,4 +1,11 @@
-import React, { useState, memo, useMemo, useEffect, useRef } from "react";
+import React, {
+  useState,
+  memo,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { JSONContent } from "@tiptap/react";
 import { Editor } from "@tiptap/core";
 import { cn } from "@/lib/utils";
@@ -10,7 +17,7 @@ import { validateSchema } from "@/lib/utils";
 import { htmlParserOptions } from "@/config/html-parser";
 import extensions from "@/features/editor/components/extensions";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useScrollIntoView } from "@mantine/hooks";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AIContentPreviewProps {
   content: JSONContent | null;
@@ -18,6 +25,32 @@ interface AIContentPreviewProps {
   isLoading: boolean;
   className?: string;
 }
+
+const LoadingAnimation = () => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="space-y-4"
+  >
+    {[...Array(3)].map((_, i) => (
+      <motion.div
+        key={i}
+        initial={{ width: "100%", opacity: 0.5 }}
+        animate={{
+          opacity: [0.5, 1, 0.5],
+          transition: {
+            duration: 1.5,
+            repeat: Infinity,
+            delay: i * 0.2,
+          },
+        }}
+        className="h-4 bg-muted rounded"
+        style={{ width: `${Math.random() * 40 + 60}%` }}
+      />
+    ))}
+  </motion.div>
+);
 
 export function AIContentPreview({
   content,
@@ -35,16 +68,20 @@ export function AIContentPreview({
         ref={previewRef}
         className="h-[500px] overflow-y-auto p-4 prose prose-sm dark:prose-invert max-w-none"
       >
-        {isLoading && !content && (
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[400px]" />
-            <Skeleton className="h-4 w-[300px]" />
-            <Skeleton className="h-4 w-[350px]" />
-          </div>
-        )}
-
-        {content && <BlogPreview content={content} />}
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <LoadingAnimation />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {content && <BlogPreview content={content} />}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </CardContent>
     </Card>
   );
@@ -76,7 +113,6 @@ interface BlogPreviewProps {
   className?: string;
   blogRef?: React.RefObject<HTMLDivElement>;
   content: JSONContent;
-  targetRef?: React.RefObject<HTMLDivElement>;
 }
 
 const BlogPreview = memo(
@@ -84,24 +120,26 @@ const BlogPreview = memo(
     const [htmlContent, setHtmlContent] = useState<string>("");
     const debouncedSetHtmlContent = useDebounce(setHtmlContent, 500);
     const renderCount = useRef(0);
+    const targetRef = useRef<HTMLDivElement>(null);
 
-    const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
-      duration: 200,
-      offset: 60,
-      cancelable: true,
-      isList: false,
-    });
+    const scrollToBottom = useCallback(() => {
+      if (targetRef.current) {
+        targetRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "end",
+        });
+      }
+    }, []);
 
     useEffect(() => {
-      // Wait for content to be processed and rendered
       const timeoutId = setTimeout(() => {
         if (targetRef.current && htmlContent) {
-          scrollIntoView({ alignment: "end" });
+          scrollToBottom();
         }
       }, 100);
 
       return () => clearTimeout(timeoutId);
-    }, [htmlContent, scrollIntoView]);
+    }, [htmlContent, scrollToBottom]);
 
     // Memoize the parsed HTML content
     const parsedHtmlContent = useMemo(() => {

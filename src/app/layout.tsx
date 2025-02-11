@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
                 <div className="sticky top-0 h-screen flex-shrink-0">
                   <AppSidebar />
                 </div>
-                <div className="flex flex-1 flex-col w-full ">
+                <div className="flex flex-1 flex-col w-full max-w-full overflow-auto ">
                   <SiteHeader />
                   {children}
                 </div>

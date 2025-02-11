@@ -73,9 +73,11 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
     };
   }, []);
 
-  console.log("mode is ", mode);
   return (
-    <ResizablePanelGroup direction="horizontal" className="max-h-full">
+    <ResizablePanelGroup
+      direction="horizontal"
+      className="max-h-full max-w-full"
+    >
       {/* Left panel collapses when mode === 'preview' */}
       <ResizablePanel
         ref={leftRef}

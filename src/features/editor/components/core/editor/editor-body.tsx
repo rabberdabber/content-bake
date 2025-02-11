@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect } from "react";
+import { forwardRef, useEffect, useRef } from "react";
 import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { useScrollIntoView } from "@mantine/hooks";
 import {
@@ -11,6 +11,8 @@ import {
 import BlogPreview from "@/features/editor/components/preview/blog-preview";
 import dynamic from "next/dynamic";
 import { useEditor } from "@/features/editor/context/editor-context";
+import { cn } from "@/lib/utils";
+import { ImperativePanelHandle } from "react-resizable-panels";
 
 const TipTapEditor = dynamic(
   () => import("@/features/editor/components/core/editor"),
@@ -22,7 +24,7 @@ const TipTapEditor = dynamic(
  * and handles scrolling to the bottom on content changes.
  */
 const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
-  const { content, mode } = useEditor();
+  const { content, mode, setMode } = useEditor();
   const controls = useAnimation();
   const { scrollIntoView } = useScrollIntoView<HTMLDivElement>({
     axis: "y",
@@ -38,6 +40,28 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
   //     );
   // };
 
+  const leftRef = useRef<ImperativePanelHandle>(null);
+  const rightRef = useRef<ImperativePanelHandle>(null);
+
+  useEffect(() => {
+    if (!leftRef.current || !rightRef.current) {
+      return;
+    }
+    if (mode === "editor") {
+      leftRef.current.expand();
+      rightRef.current.collapse();
+    } else if (mode === "preview") {
+      leftRef.current.collapse();
+      rightRef.current.expand();
+    } else if (mode === "split-pane") {
+      leftRef.current.expand();
+      rightRef.current.expand();
+
+      leftRef.current.resize(50);
+      rightRef.current.resize(50);
+    }
+  }, [mode]);
+
   useEffect(() => {
     // scrollIntoView();
   }, [content, scrollIntoView]);
@@ -49,6 +73,7 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
     };
   }, []);
 
+  console.log("mode is ", mode);
   return (
     <motion.div
       ref={ref}
@@ -57,39 +82,41 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
       initial={{ scale: 1 }}
     >
       <AnimatePresence mode="wait">
-        <motion.div
-          key={mode} // trigger re-animation on mode change
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.2 }}
-          className="h-full"
-        >
-          {mode === "split-pane" ? (
-            <ResizablePanelGroup direction="horizontal">
-              <ResizablePanel defaultSize={50}>
-                <div className="h-full rounded-lg rounded-t-none p-4">
-                  <TipTapEditor />
-                </div>
-              </ResizablePanel>
-              <ResizableHandle />
-              <ResizablePanel defaultSize={50}>
-                <BlogPreview className="flex-1" />
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          ) : (
-            <>
-              <div style={{ display: mode === "preview" ? "none" : "block" }}>
-                <div className="rounded-lg rounded-t-none p-4">
-                  <TipTapEditor />
-                </div>
-              </div>
-              <div style={{ display: mode === "editor" ? "none" : "block" }}>
-                <BlogPreview />
-              </div>
-            </>
-          )}
-        </motion.div>
+        <div className="flex-1 flex flex-col h-full w-full">
+          <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+            {/* Left panel collapses when mode === 'preview' */}
+            <ResizablePanel
+              ref={leftRef}
+              collapsible
+              onCollapse={() => {
+                if (mode === "preview") {
+                  setMode("editor");
+                }
+              }}
+              defaultSize={50}
+            >
+              <TipTapEditor />
+            </ResizablePanel>
+
+            <ResizableHandle
+              className={mode === "split-pane" ? "" : "hidden"}
+            />
+
+            {/* Right panel collapses when mode === 'editor' */}
+            <ResizablePanel
+              ref={rightRef}
+              collapsible
+              onCollapse={() => {
+                if (mode === "editor") {
+                  setMode("preview");
+                }
+              }}
+              defaultSize={50}
+            >
+              <BlogPreview />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </AnimatePresence>
     </motion.div>
   );

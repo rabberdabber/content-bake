@@ -13,7 +13,6 @@ export default function EditorHeader({
   children?: React.ReactNode;
 }) {
   const { editor, mode, setMode } = useEditor();
-  const isSplitPane = mode === "split-pane";
   if (!editor) return null;
 
   return (

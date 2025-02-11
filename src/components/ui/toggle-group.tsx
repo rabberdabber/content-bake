@@ -37,7 +37,8 @@ export default function ToggleGroup({
                   variant="ghost"
                   className={cn(
                     "p-2",
-                    "hover:bg-muted-foreground/10 focus:bg-muted-foreground/10"
+                    "hover:bg-muted-foreground/10 focus:bg-muted-foreground/10",
+                    selectedMode === mode && "bg-muted-foreground/10"
                   )}
                   size="icon"
                   key={index}

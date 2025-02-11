@@ -15,8 +15,11 @@ import { useAnimationControls } from "framer-motion";
 import { TableColumnMenu } from "../extensions/table/menus";
 import { TableRowMenu } from "../extensions/table/menus";
 import { useEditor } from "../../context/editor-context";
-
-const CoreEditor = () => {
+import { cn } from "@/lib/utils";
+interface CoreEditorProps {
+  className?: string;
+}
+const CoreEditor = ({ className }: CoreEditorProps) => {
   const { editor, content } = useEditor();
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -59,7 +62,7 @@ const CoreEditor = () => {
   // console.log(JSON.stringify(editor.getJSON(), null, 2));
   // console.table(editor.schema.spec.nodes);
   return (
-    <div className="flex h-full" ref={menuContainerRef}>
+    <div className={cn("flex h-full", className)} ref={menuContainerRef}>
       <div className="relative flex flex-col flex-1 h-full overflow-hidden">
         <EditorBubble
           tippyOptions={{
@@ -108,7 +111,7 @@ const CoreEditor = () => {
   );
 };
 
-const TipTapEditor = () => {
+const TipTapEditor = ({ className }: CoreEditorProps) => {
   const { content } = useEditor();
   const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({
     axis: "y",
@@ -129,7 +132,7 @@ const TipTapEditor = () => {
 
   return (
     <>
-      <CoreEditor />
+      <CoreEditor className={className} />
       <div ref={targetRef} onScroll={handleContentScroll}></div>
     </>
   );

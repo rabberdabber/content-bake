@@ -75,50 +75,39 @@ const EditorBody = forwardRef<HTMLDivElement>(function EditorBody(_, ref) {
 
   console.log("mode is ", mode);
   return (
-    <motion.div
-      ref={ref}
-      animate={controls}
-      className="flex-1 flex flex-col"
-      initial={{ scale: 1 }}
-    >
-      <AnimatePresence mode="wait">
-        <div className="flex-1 flex flex-col h-full w-full">
-          <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-            {/* Left panel collapses when mode === 'preview' */}
-            <ResizablePanel
-              ref={leftRef}
-              collapsible
-              onCollapse={() => {
-                if (mode === "preview") {
-                  setMode("editor");
-                }
-              }}
-              defaultSize={50}
-            >
-              <TipTapEditor />
-            </ResizablePanel>
+    <ResizablePanelGroup direction="horizontal" className="max-h-full">
+      {/* Left panel collapses when mode === 'preview' */}
+      <ResizablePanel
+        ref={leftRef}
+        collapsible
+        onCollapse={() => {
+          if (mode === "preview") {
+            setMode("editor");
+          }
+        }}
+        defaultSize={50}
+        className={mode === "preview" ? "h-0" : ""}
+      >
+        <TipTapEditor />
+      </ResizablePanel>
 
-            <ResizableHandle
-              className={mode === "split-pane" ? "" : "hidden"}
-            />
+      <ResizableHandle className={mode === "split-pane" ? "" : "hidden"} />
 
-            {/* Right panel collapses when mode === 'editor' */}
-            <ResizablePanel
-              ref={rightRef}
-              collapsible
-              onCollapse={() => {
-                if (mode === "editor") {
-                  setMode("preview");
-                }
-              }}
-              defaultSize={50}
-            >
-              <BlogPreview />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
-      </AnimatePresence>
-    </motion.div>
+      {/* Right panel collapses when mode === 'editor' */}
+      <ResizablePanel
+        ref={rightRef}
+        collapsible
+        onCollapse={() => {
+          if (mode === "editor") {
+            setMode("preview");
+          }
+        }}
+        defaultSize={50}
+        className={mode === "editor" ? "h-0" : ""}
+      >
+        <BlogPreview />
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 });
 

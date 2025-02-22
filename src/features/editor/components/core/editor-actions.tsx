@@ -57,7 +57,7 @@ export function EditorActionsDialog({
         })}
 
         <DialogContent
-          className={cn("overflow-y-auto min-w-[50dvw] h-[90dvh]")}
+          className={cn("overflow-y-auto min-w-[75dvw] h-[90dvh]")}
         >
           {triggerIndex !== -1 && buttons[triggerIndex].children}
         </DialogContent>

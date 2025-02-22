@@ -247,18 +247,18 @@ const config = {
               marginBottom: "0.5em",
             },
             p: {
-              marginTop: "1.5em",
-              marginBottom: "1.5em",
+              marginTop: "0",
+              marginBottom: "0",
               lineHeight: "1.75",
             },
             ul: {
-              marginTop: "1.5em",
-              marginBottom: "1.5em",
+              marginTop: "1em",
+              marginBottom: "1em",
               paddingLeft: "1.75em",
             },
             ol: {
-              marginTop: "1.5em",
-              marginBottom: "1.5em",
+              marginTop: "1em",
+              marginBottom: "1em",
               paddingLeft: "1.75em",
             },
             table: {

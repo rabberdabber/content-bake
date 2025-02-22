@@ -30,6 +30,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,6 +43,7 @@ import { useSession } from "next-auth/react";
 import { useEditor } from "../../context/editor-context";
 import { PostsMain } from "@/features/posts/posts-main";
 import { cn } from "@/lib/utils";
+import { TagSelector } from "./tag-selector";
 
 type PostFormProps = {
   defaultValues?: Partial<PostFormData>;
@@ -114,7 +119,6 @@ export function PostForm({
     await onSubmit(data);
   };
 
-  console.log("availableTags", availableTags);
   return (
     <Form {...form}>
       <div className="space-y-4">
@@ -140,138 +144,15 @@ export function PostForm({
               <FormItem>
                 <FormLabel>Tags</FormLabel>
                 <FormControl>
-                  <div className="space-y-2">
-                    <DropdownMenu
-                      open={openTagCommand}
-                      onOpenChange={setOpenTagCommand}
-                    >
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                        >
-                          <span className="text-muted-foreground">
-                            {(field.value || []).length > 0
-                              ? "Add more tags"
-                              : "Select or create tags..."}
-                          </span>
-                          <Icons.chevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="w-[200px] p-0"
-                        align="start"
-                        side="bottom"
-                      >
-                        <Command className="w-full">
-                          <CommandList>
-                            <CommandInput
-                              placeholder="Search or create tags..."
-                              value={tagInput}
-                              onValueChange={(value) => {
-                                setTagInput(value);
-                              }}
-                            />
-                            <CommandEmpty>
-                              {tagInput && (
-                                <CommandItem
-                                  value={tagInput}
-                                  onSelect={(currentValue) => {
-                                    const currentTags = field.value || [];
-                                    if (
-                                      currentValue.trim() &&
-                                      currentTags.length < 5
-                                    ) {
-                                      const newTag = currentValue.trim();
-                                      if (!currentTags.includes(newTag)) {
-                                        const newTags = [
-                                          ...currentTags,
-                                          newTag,
-                                        ];
-                                        field.onChange(newTags);
-                                        setSelectedTags(newTags);
-                                      }
-                                      setTagInput("");
-                                      setOpenTagCommand(false);
-                                    }
-                                  }}
-                                >
-                                  Create tag &quot;{tagInput}&quot;
-                                </CommandItem>
-                              )}
-                              {!tagInput && "No tags found."}
-                            </CommandEmpty>
-                            <CommandGroup heading="Existing Tags">
-                              {(availableTags || [])
-                                .filter((tag) =>
-                                  tag.name
-                                    .toLowerCase()
-                                    .includes((tagInput || "").toLowerCase())
-                                )
-                                .map((tag) => (
-                                  <CommandItem
-                                    key={tag.id}
-                                    value={tag.name}
-                                    onSelect={(currentValue) => {
-                                      const currentTags = field.value || [];
-                                      if (currentTags.length < 5) {
-                                        if (
-                                          !currentTags.includes(currentValue)
-                                        ) {
-                                          const newTags = [
-                                            ...currentTags,
-                                            currentValue,
-                                          ];
-                                          field.onChange(newTags);
-                                          setSelectedTags(newTags);
-                                        }
-                                        setTagInput("");
-                                        setOpenTagCommand(false);
-                                      }
-                                    }}
-                                  >
-                                    <Icons.check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        (field.value || []).includes(tag.name)
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {tag.name}
-                                    {tag.post_count > 0 && (
-                                      <span className="ml-auto text-xs text-muted-foreground">
-                                        {tag.post_count} posts
-                                      </span>
-                                    )}
-                                  </CommandItem>
-                                ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <div className="flex flex-wrap gap-2">
-                      {(field.value || []).map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="cursor-pointer"
-                          onClick={() => {
-                            const currentTags = field.value || [];
-                            const newTags = currentTags.filter(
-                              (t) => t !== tag
-                            );
-                            field.onChange(newTags);
-                            setSelectedTags(newTags);
-                          }}
-                        >
-                          {tag}
-                          <Icons.x className="ml-2 h-3 w-3" />
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    <TagSelector
+                      availableTags={availableTags}
+                      selectedTags={field.value || []}
+                      onTagsChange={(newTags) => {
+                        field.onChange(newTags);
+                        setSelectedTags(newTags);
+                      }}
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />

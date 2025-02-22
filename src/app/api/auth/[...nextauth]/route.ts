@@ -128,6 +128,13 @@ export const authOptions: AuthOptions = {
       return refreshAccessToken(token);
     },
     async session({ session, token }) {
+      // Check if token needs refreshing
+      if (token.accessTokenExpires && Date.now() > token.accessTokenExpires) {
+        const refreshedToken = await refreshAccessToken(token);
+        token = refreshedToken;
+      }
+
+      // Update session with token data
       if (token) {
         session.user.email = token.email;
         session.user.is_superuser = token.is_superuser;

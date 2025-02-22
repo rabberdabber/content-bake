@@ -105,7 +105,7 @@ function HighlightedCode({
           ref={contentRef}
           className={cn(
             className,
-            "p-4 md:p-6 rounded-b-lg overflow-x-auto font-mono relative not-prose",
+            "p-4 md:p-6 rounded-b-lg overflow-x-auto font-mono relative not-prose mb-10",
             !isExpanded && "max-h-[400px]",
             "scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 dark:hover:scrollbar-thumb-gray-500"
           )}
@@ -344,6 +344,7 @@ function CodeBlock({
         "relative group rounded-lg border border-gray-200 dark:border-gray-700",
         "transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600",
         "shadow-lg hover:shadow-xl",
+        "overflow-auto",
         className
       )}
     >

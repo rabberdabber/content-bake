@@ -25,6 +25,52 @@ import { useState } from "react";
 import { usePostFilters } from "@/hooks/use-post-filters";
 import { usePathname } from "next/navigation";
 import { shouldRenderSearchAndFilterSection } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import {
+  addDays,
+  startOfDay,
+  endOfDay,
+  format,
+  subDays,
+  subMonths,
+  subYears,
+} from "date-fns";
+
+type DatePreset = {
+  label: string;
+  getValue: () => { start: Date; end: Date };
+};
+
+const DATE_PRESETS: DatePreset[] = [
+  {
+    label: "Today",
+    getValue: () => ({
+      start: startOfDay(new Date()),
+      end: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "Last 7 days",
+    getValue: () => ({
+      start: subDays(startOfDay(new Date()), 6),
+      end: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "Last 30 days",
+    getValue: () => ({
+      start: subDays(startOfDay(new Date()), 29),
+      end: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "Last 12 months",
+    getValue: () => ({
+      start: subMonths(startOfDay(new Date()), 11),
+      end: endOfDay(new Date()),
+    }),
+  },
+];
 
 export function SearchAndFilterSection() {
   const pathname = usePathname();
@@ -35,8 +81,9 @@ export function SearchAndFilterSection() {
     handleDateRangeChange,
     searchQuery,
     currentTag,
-    sortBy,
-    dateRange,
+    sortOrder,
+    startDate,
+    endDate,
   } = usePostFilters(pathname);
   const [tags, setTags] = useState<TagsResponse | null>(null);
   const getAllTags = async () => {
@@ -48,6 +95,19 @@ export function SearchAndFilterSection() {
   useEffect(() => {
     getAllTags();
   }, []);
+
+  const handleDatePresetChange = (preset: DatePreset) => {
+    const { start, end } = preset.getValue();
+    handleDateRangeChange(
+      format(start, "yyyy-MM-dd"),
+      format(end, "yyyy-MM-dd")
+    );
+  };
+
+  const isValidDateRange = () => {
+    if (!startDate || !endDate) return true;
+    return new Date(startDate) <= new Date(endDate);
+  };
 
   if (!shouldRenderSearchAndFilterSection(pathname)) {
     return null;
@@ -115,36 +175,82 @@ export function SearchAndFilterSection() {
                 </SheetHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Sort By</h4>
-                    <Select value={sortBy} onValueChange={handleSortChange}>
+                    <h4 className="text-sm font-medium">Sort Order</h4>
+                    <Select
+                      value={sortOrder}
+                      onValueChange={(value: "asc" | "desc") =>
+                        handleSortChange(value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Sort by" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="newest">Newest First</SelectItem>
-                        <SelectItem value="oldest">Oldest First</SelectItem>
-                        <SelectItem value="popular">Most Popular</SelectItem>
+                        <SelectItem value="desc">Newest First</SelectItem>
+                        <SelectItem value="asc">Oldest First</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <Separator />
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Date Range</h4>
-                    <Select
-                      value={dateRange}
-                      onValueChange={handleDateRangeChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Date range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all-time">All Time</SelectItem>
-                        <SelectItem value="today">Today</SelectItem>
-                        <SelectItem value="this-week">This Week</SelectItem>
-                        <SelectItem value="this-month">This Month</SelectItem>
-                        <SelectItem value="this-year">This Year</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        {DATE_PRESETS.map((preset) => (
+                          <Button
+                            key={preset.label}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDatePresetChange(preset)}
+                          >
+                            {preset.label}
+                          </Button>
+                        ))}
+                      </div>
+                      <div>
+                        <Label>Start Date</Label>
+                        <Input
+                          type="date"
+                          value={startDate || ""}
+                          max={endDate || undefined}
+                          onChange={(e) =>
+                            handleDateRangeChange(e.target.value, endDate)
+                          }
+                          className={
+                            !isValidDateRange() ? "border-destructive" : ""
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label>End Date</Label>
+                        <Input
+                          type="date"
+                          value={endDate || ""}
+                          min={startDate || undefined}
+                          max={format(new Date(), "yyyy-MM-dd")}
+                          onChange={(e) =>
+                            handleDateRangeChange(startDate, e.target.value)
+                          }
+                          className={
+                            !isValidDateRange() ? "border-destructive" : ""
+                          }
+                        />
+                      </div>
+                      {!isValidDateRange() && (
+                        <p className="text-sm text-destructive">
+                          End date must be after start date
+                        </p>
+                      )}
+                      <div className="flex justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleDateRangeChange(null, null)}
+                          size="sm"
+                        >
+                          Clear Dates
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </SheetContent>

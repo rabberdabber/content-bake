@@ -109,8 +109,13 @@ function PostGrid({
               )
             }
             tags={
-              post.tags &&
-              post.tags.map((tag) => <PostCardTag key={tag}>{tag}</PostCardTag>)
+              post.tags && (
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <PostCardTag key={tag}>{tag}</PostCardTag>
+                  ))}
+                </div>
+              )
             }
             title={<PostCardTitle>{post.title}</PostCardTitle>}
             excerpt={

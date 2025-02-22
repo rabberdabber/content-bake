@@ -139,13 +139,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "p":
         return (
-          <p
-            className={cn(
-              "leading-7 [&:not(:first-child)]:mt-6",
-              "text-foreground/70",
-              attribs.class
-            )}
-          >
+          <p className={cn("text-foreground/70 m-0 p-0", attribs.class)}>
             {domToReact(children as DOMNode[], htmlParserOptions)}
           </p>
         );
@@ -216,7 +210,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
         return (
           <div
             className={cn(
-              "flex justify-center items-center p-2 mt-2 first:mt-0",
+              "flex m-0 p-0",
               align === "left" && "mr-auto",
               align === "right" && "ml-auto",
               align === "center" && "mx-auto"
@@ -228,7 +222,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             }}
           >
             <Image
-              className={cn("rounded-md", attribs.class)}
+              className={cn("rounded-md m-0 p-0", attribs.class)}
               alt={attribs.alt || ""}
               src={attribs.src as string}
               width={width}
@@ -250,7 +244,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
 
       case "table":
         return (
-          <div className="mt-4 w-full overflow-y-auto first:mt-0">
+          <div className="mt-4 w-full overflow-y-auto m-0 p-0">
             <table
               className={cn(
                 "w-full border-collapse border border-border bg-background text-sm rounded-md",
@@ -384,7 +378,7 @@ export const htmlParserOptions: HTMLReactParserOptions = {
             src={attribs.src as string}
             poster={attribs.poster}
             onError={(error) => console.error("Video error:", error)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover m-0 p-0"
           />
         );
       case "div":

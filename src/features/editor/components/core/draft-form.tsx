@@ -18,24 +18,11 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Spinner } from "@/components/ui/spinner";
 import { draftFormSchema } from "@/schemas/post";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FeatureImageUpload from "./feature-image-upload";
 import { FeatureImageGenerator } from "./ai/feature-image-generator";
-import { cn } from "@/lib/utils";
+import { TagSelector } from "./tag-selector";
 
 type DraftFormProps = {
   defaultValues?: Partial<DraftWithContentData>;
@@ -120,113 +107,14 @@ export function DraftForm({
                 <FormLabel>Tags (optional)</FormLabel>
                 <FormControl>
                   <div className="space-y-2">
-                    <DropdownMenu
-                      open={openTagCommand}
-                      onOpenChange={setOpenTagCommand}
-                    >
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                        >
-                          <span className="text-muted-foreground">
-                            {selectedTags.length > 0
-                              ? "Add more tags"
-                              : "Select or create tags..."}
-                          </span>
-                          <Icons.chevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className="w-[200px] p-0"
-                        align="start"
-                        side="bottom"
-                      >
-                        <Command className="w-full">
-                          <CommandList>
-                            <CommandInput
-                              placeholder="Search or create tags..."
-                              value={tagInput}
-                              onValueChange={setTagInput}
-                            />
-                            <CommandEmpty>
-                              {tagInput && (
-                                <CommandItem
-                                  value={tagInput}
-                                  onSelect={(currentValue) => {
-                                    if (
-                                      currentValue.trim() &&
-                                      selectedTags.length < 5
-                                    ) {
-                                      const newTag = currentValue.trim();
-                                      if (!selectedTags.includes(newTag)) {
-                                        const newTags = [
-                                          ...selectedTags,
-                                          newTag,
-                                        ];
-                                        setSelectedTags(newTags);
-                                        field.onChange(newTags);
-                                      }
-                                      setTagInput("");
-                                      setOpenTagCommand(false);
-                                    }
-                                  }}
-                                >
-                                  Create tag &quot;{tagInput}&quot;
-                                </CommandItem>
-                              )}
-                              {!tagInput && "No tags found."}
-                            </CommandEmpty>
-                            <CommandGroup heading="Existing Tags">
-                              {availableTags
-                                .filter((tag) =>
-                                  tag.name
-                                    .toLowerCase()
-                                    .includes(tagInput.toLowerCase())
-                                )
-                                .map((tag) => (
-                                  <CommandItem
-                                    key={tag.id}
-                                    value={tag.name}
-                                    onSelect={(currentValue) => {
-                                      if (selectedTags.length < 5) {
-                                        if (
-                                          !selectedTags.includes(currentValue)
-                                        ) {
-                                          const newTags = [
-                                            ...selectedTags,
-                                            currentValue,
-                                          ];
-                                          setSelectedTags(newTags);
-                                          field.onChange(newTags);
-                                        }
-                                        setTagInput("");
-                                        setOpenTagCommand(false);
-                                      }
-                                    }}
-                                  >
-                                    <Icons.check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        selectedTags.includes(tag.name)
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {tag.name}
-                                    {tag.post_count > 0 && (
-                                      <span className="ml-auto text-xs text-muted-foreground">
-                                        {tag.post_count} posts
-                                      </span>
-                                    )}
-                                  </CommandItem>
-                                ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <TagSelector
+                      availableTags={availableTags}
+                      selectedTags={selectedTags}
+                      onTagsChange={(newTags) => {
+                        setSelectedTags(newTags);
+                        field.onChange(newTags);
+                      }}
+                    />
                     <div className="flex flex-wrap gap-2">
                       {selectedTags.map((tag) => (
                         <Badge

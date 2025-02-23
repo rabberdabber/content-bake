@@ -90,7 +90,7 @@ export default async function PostPage({ params }: Props) {
             "prose-img:rounded-lg prose-img:shadow-md prose-img:my-8",
             "prose-blockquote:border-l-4 prose-blockquote:border-primary/60",
             "prose-blockquote:bg-gray-50 dark:prose-blockquote:bg-gray-800/50",
-            "prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:my-8",
+            "prose-blockquote:pl-6 p˝rose-blockquote:py-4 prose-blockquote:my-8",
             "prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6",
             "prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-6",
             "[&_pre]:!bg-gray-950 [&_pre]:border [&_pre]:border-gray-800",

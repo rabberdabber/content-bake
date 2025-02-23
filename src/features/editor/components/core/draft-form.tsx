@@ -81,8 +81,6 @@ export function DraftForm({
     });
   };
 
-  console.log("defaultValues");
-  console.log(defaultValues);
   return (
     <Form {...form}>
       <div className="space-y-4">

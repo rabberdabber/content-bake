@@ -139,7 +139,6 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
     setIsDialogOpen(false);
   };
 
-  console.log("draft", draft);
   return (
     <EditorRoot
       editor={editor}

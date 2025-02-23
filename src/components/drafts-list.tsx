@@ -25,7 +25,7 @@ import type { DraftData, PostData } from "@/schemas/post";
 import { Icons } from "./icons";
 import { useCollections } from "@/app/(collections)/collections-context";
 import { deletePost } from "@/lib/actions/post";
-
+import { toast } from "sonner";
 interface DraftsListProps {
   drafts: Partial<PostData>[];
   totalDrafts: number;
@@ -90,6 +90,7 @@ function DraftGrid({ drafts }: { drafts: Partial<PostData>[] }) {
       setIsDeleting(false);
       setOpen(false);
       setSelectedPost(null);
+      toast.success("Draft deleted successfully");
     }
   };
 

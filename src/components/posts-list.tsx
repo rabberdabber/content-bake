@@ -18,6 +18,7 @@ import { ConfirmationDialog } from "./ui/confirmation-dialog";
 import { deletePost } from "@/lib/actions/post";
 import Image from "next/image";
 import { EmptyState } from "@/components/ui/empty-state";
+import { toast } from "sonner";
 
 interface PostsListProps {
   posts: PostData[];
@@ -64,6 +65,7 @@ function PostGrid({
       setIsDeleting(false);
       setOpen(false);
       setSelectedPost(null);
+      toast.success("Post deleted successfully");
     }
   };
 

@@ -45,7 +45,7 @@ const BlogPreview = memo(({ className, blogRef }: BlogPreviewProps) => {
       <article
         ref={containerRef}
         className={cn(
-          "relative w-full mx-auto",
+          "relative w-full mx-auto min-h-screen",
           "max-w-3xl",
           "p-8 md:p-12",
           "text-prose-text-light dark:text-prose-text-dark",

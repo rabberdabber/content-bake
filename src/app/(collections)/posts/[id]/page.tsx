@@ -84,7 +84,7 @@ export default async function PostPage({ params }: Props) {
             "prose-h1:text-4xl prose-h1:font-bold prose-h1:mb-8",
             "prose-h2:text-3xl prose-h2:font-semibold prose-h2:mt-12 prose-h2:mb-6",
             "prose-h3:text-2xl prose-h3:font-medium prose-h3:mt-8 prose-h3:mb-4",
-            "prose-p:text-base prose-p:leading-7 prose-p:my-6",
+            "prose-p:text-lg prose-p:leading-7 prose-p:my-6",
             "prose-a:text-primary prose-a:no-underline hover:prose-a:text-primary/80",
             "prose-strong:text-foreground prose-strong:font-semibold",
             "prose-img:rounded-lg prose-img:shadow-md prose-img:my-8",

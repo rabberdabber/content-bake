@@ -119,8 +119,9 @@ export async function patchPost(id: string, formData: FormData, slug?: string) {
   console.log("Patching post with id", id, formData);
   const token = await getAuthToken();
   const content = JSON.parse(formData.get("content") as string);
-  const is_published = Boolean(formData.get("is_published"));
-  const tags = formData.get("tags") as string;
+  const is_published = Boolean(formData.get("is_published") === "true");
+  const tags = JSON.parse(formData.get("tags") as string);
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/posts/${id}`,
     {

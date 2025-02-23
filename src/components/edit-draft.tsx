@@ -3,7 +3,7 @@ import { useBlockDatabaseEditor } from "@/lib/hooks/use-editor";
 import dynamic from "next/dynamic";
 import { EditorActionsDialog } from "@/features/editor/components/core/editor-actions";
 import { PostForm } from "@/features/editor/components/core/post-form";
-import { createPost, patchPost } from "@/lib/actions/post";
+import { patchPost } from "@/lib/actions/post";
 import { toast } from "sonner";
 import {
   DraftResponse,
@@ -37,9 +37,8 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handlePublishSubmit = async (data: DraftWithContentData) => {
+  const handlePublishSubmit = async (data: PostFormData) => {
     setIsPublishing(true);
-    console.log("data", data);
     let success = false;
     let post: PostData | null = null;
     const formData = new FormData();
@@ -49,19 +48,22 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
       slug: slugify(data.title),
       content: editor?.getJSON(),
       is_published: true,
+      excerpt: data.excerpt || "",
     };
-    await validatePost(allData);
-    for (const key in allData) {
-      const value = allData[key as keyof typeof allData];
-      if (Array.isArray(value) || typeof value === "object") {
-        formData.append(key, JSON.stringify(value));
-      } else {
-        formData.append(key, value as string);
-      }
-    }
-    formData.delete("content");
-    formData.append("content", JSON.stringify(editor?.getJSON()));
+
     try {
+      await validatePost(allData);
+      for (const key in allData) {
+        const value = allData[key as keyof typeof allData];
+        if (Array.isArray(value) || typeof value === "object") {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value as string);
+        }
+      }
+      formData.delete("content");
+      formData.append("content", JSON.stringify(editor?.getJSON()));
+
       post = await patchPost(draft.id, formData, draft.slug);
       success = true;
     } catch (error) {
@@ -89,7 +91,7 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
     router.push("/posts");
   };
 
-  const handleDraftSubmit = async (data: PostFormData) => {
+  const handleDraftSubmit = async (data: DraftWithContentData) => {
     setIsPublishing(true);
     let success = false;
     let post: PostData | null = null;
@@ -100,14 +102,15 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
       slug: data.title ? slugify(data.title) : `draft-${Date.now()}`,
       content: editor?.getJSON(),
       is_published: false,
+      excerpt: data.excerpt || "",
     };
 
     // For drafts, we only validate the content
     const draftValidation = {
       ...allData,
       title: allData.title || `Draft ${new Date().toLocaleDateString()}`,
-      excerpt: allData.excerpt || null,
-      feature_image_url: allData.feature_image_url || null,
+      excerpt: allData.excerpt || "",
+      feature_image_url: allData.feature_image_url || "",
     };
 
     for (const key in draftValidation) {
@@ -120,7 +123,7 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
     }
 
     try {
-      post = await createPost(formData);
+      post = await patchPost(draft.id, formData, draft.slug);
       success = true;
     } catch (error) {
       console.error("Error saving draft", error);
@@ -150,11 +153,10 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
             {
               label: "Save",
               icon: "save",
-              onClick: () => {
-                console.log("save");
-              },
+              onClick: () => setIsDialogOpen(true),
               children: (
-                <PostForm
+                <DraftForm
+                  defaultValues={draft}
                   onSubmit={handleDraftSubmit}
                   isSubmitting={isPublishing}
                 />
@@ -163,11 +165,10 @@ function EditDraft({ draft }: { draft: DraftResponse }) {
             {
               label: "Publish",
               icon: "send",
-              onClick: () => {
-                console.log("publish");
-              },
+              onClick: () => setIsDialogOpen(true),
               children: (
-                <DraftForm
+                <PostForm
+                  defaultValues={draft}
                   onSubmit={handlePublishSubmit}
                   isSubmitting={isPublishing}
                 />

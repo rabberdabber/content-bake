@@ -81,6 +81,8 @@ export function DraftForm({
     });
   };
 
+  console.log("defaultValues");
+  console.log(defaultValues);
   return (
     <Form {...form}>
       <div className="space-y-4">
@@ -115,25 +117,6 @@ export function DraftForm({
                         field.onChange(newTags);
                       }}
                     />
-                    <div className="flex flex-wrap gap-2">
-                      {selectedTags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant="secondary"
-                          className="cursor-pointer"
-                          onClick={() => {
-                            const newTags = selectedTags.filter(
-                              (t) => t !== tag
-                            );
-                            setSelectedTags(newTags);
-                            field.onChange(newTags);
-                          }}
-                        >
-                          {tag}
-                          <Icons.x className="ml-2 h-3 w-3" />
-                        </Badge>
-                      ))}
-                    </div>
                   </div>
                 </FormControl>
                 <FormMessage />

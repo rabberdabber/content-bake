@@ -247,8 +247,8 @@ const config = {
               marginBottom: "0.5em",
             },
             p: {
-              marginTop: "0",
-              marginBottom: "0",
+              marginTop: "0.75rem",
+              marginBottom: "0.75rem",
               lineHeight: "1.75",
             },
             ul: {

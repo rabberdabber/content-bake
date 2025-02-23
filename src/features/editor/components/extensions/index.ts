@@ -7,8 +7,9 @@ import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
 import TextStyle from "@tiptap/extension-text-style";
 import Link from "@tiptap/extension-link";
+import Paragraph from "@tiptap/extension-paragraph";
 
-import { ReactNodeViewRenderer } from "@tiptap/react";
+import { Editor, ReactNodeViewRenderer } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import Youtube from "@tiptap/extension-youtube";
@@ -29,6 +30,17 @@ import { Table, TableCell, TableHeader, TableRow } from "./table";
 import GlobalDragHandle from "tiptap-extension-global-drag-handle";
 import ImageBlockView from "./media/image/image-block";
 import MediaUploaderExtension from "./media/media-uploader-extension";
+
+const CustomParagraph = Paragraph.extend({
+  addKeyboardShortcuts() {
+    return {
+      Enter: ({ editor }) => {
+        editor.commands.splitBlock();
+        return true;
+      },
+    };
+  },
+});
 
 const extensions = [
   Table,
@@ -80,6 +92,7 @@ const extensions = [
   }),
   StarterKit.configure({
     document: false,
+    paragraph: false,
     bulletList: {
       HTMLAttributes: {
         class: cn("list-disc list-outside leading-3 -mt-2"),
@@ -134,20 +147,25 @@ const extensions = [
       },
     },
   }),
+  CustomParagraph.configure({
+    HTMLAttributes: {
+      class: cn(""),
+    },
+  }),
   Document,
   Dropcursor,
   TrailingNodeExtension,
   CommandsExtension,
   Placeholder.configure({
-    placeholder: ({ node, pos, editor }) => {
-      // Only show placeholder for empty paragraph nodes
-      if (node.type.name === "paragraph") {
+    placeholder: ({ node }) => {
+      // Show placeholder for any empty paragraph node
+      if (node.type.name === "paragraph" && node.content.size === 0) {
         return "Press '/' for commands";
       }
-
       return "";
     },
-    showOnlyCurrent: true,
+    emptyEditorClass: "is-editor-empty",
+    emptyNodeClass: "is-empty",
   }),
   Youtube.configure({
     allowFullscreen: true,

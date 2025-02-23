@@ -6,18 +6,13 @@
 
   &.ProseMirror-focused {
     /* Slashmenu Placeholder */
-    > p.has-focus.is-empty::before {
-      content: 'Type  /  to browse options';
+    p.is-empty::before {
+      content: 'Press "/" for commands';
     }
 
-    > [data-type='columns'] > [data-type='column'] > p.is-empty.has-focus::before {
-      content: 'Type  /  to browse options';
+    > [data-type='columns'] > [data-type='column'] > p.is-empty::before {
+      content: 'Press "/" for commands';
     }
-  }
-
-  /* Default Placeholder */
-  & > .is-editor-empty::before {
-    content: 'Press "/" for commands';
   }
 
   /* Blockquote Placeholder */

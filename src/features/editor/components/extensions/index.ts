@@ -1,5 +1,7 @@
-import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import { common, createLowlight } from "lowlight";
+
+import { CodeBlockLowlight } from "@tiptap/extension-code-block-lowlight";
 import { Color } from "@tiptap/extension-color";
 import Dropcursor from "@tiptap/extension-dropcursor";
 import ListItem from "@tiptap/extension-list-item";
@@ -7,13 +9,13 @@ import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
 import TextStyle from "@tiptap/extension-text-style";
 import Link from "@tiptap/extension-link";
-import Paragraph from "@tiptap/extension-paragraph";
-
-import { Editor, ReactNodeViewRenderer } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import Youtube from "@tiptap/extension-youtube";
-import Video from "./media/video";
+import { Document } from "@tiptap/extension-document";
+import GlobalDragHandle from "tiptap-extension-global-drag-handle";
+import TextAlign from "@tiptap/extension-text-align";
+
 import SandboxExtension from "./sandbox/sandbox-extension";
 import TrailingNodeExtension from "./nodes/trailing-node";
 import CommandsExtension from "./commands";
@@ -21,26 +23,12 @@ import CodeBlock from "./code";
 import { TabCommand } from "./commands";
 import YoutubeInput from "./embeds/youtube-input-extension";
 import AIImageGeneratorExtension from "./ai/image";
-import TextAlign from "@tiptap/extension-text-align";
 import { cn } from "@/lib/utils";
-import { CustomFocus } from "./nodes/custom-focus";
-import { Document } from "@tiptap/extension-document";
 import { DEFAULT_IMAGE_GENERATION_CONFIG } from "@/config/image-generation";
 import { Table, TableCell, TableHeader, TableRow } from "./table";
-import GlobalDragHandle from "tiptap-extension-global-drag-handle";
+import Video from "./media/video";
 import ImageBlockView from "./media/image/image-block";
 import MediaUploaderExtension from "./media/media-uploader-extension";
-
-const CustomParagraph = Paragraph.extend({
-  addKeyboardShortcuts() {
-    return {
-      Enter: ({ editor }) => {
-        editor.commands.splitBlock();
-        return true;
-      },
-    };
-  },
-});
 
 const extensions = [
   Table,
@@ -53,19 +41,25 @@ const extensions = [
     },
     addKeyboardShortcuts() {
       return {
-        "Mod-Enter": () => {
-          return this.editor.commands.exitCode();
-        },
         Enter: ({ editor }) => {
-          // If we're at the end of the code block
-          if (
-            editor.state.selection.$anchor.parentOffset ===
-            editor.state.selection.$anchor.parent.content.size
-          ) {
-            // Insert a newline instead of exiting
-            return editor.commands.insertContent("\n");
+          // Only do the "insert newline" hack if we're actually in a code block
+          if (editor.isActive("codeBlock")) {
+            // Are we exactly at the end of that code block line?
+            const { $anchor } = editor.state.selection;
+            if ($anchor.parentOffset === $anchor.parent.content.size) {
+              // Insert a newline instead of letting Tiptap exit the code block
+              editor.commands.insertContent("\n");
+              return true;
+            }
+
+            // Otherwise, let Tiptap handle it normally (will insert new line in code block)
+            return false;
           }
-          return false; // Let TipTap handle normal Enter behavior
+
+          // If we’re NOT in a code block, do nothing special.
+          // Returning false here means "use Tiptap’s default behavior",
+          // which (in a paragraph) is to split into a new paragraph.
+          return false;
         },
       };
     },
@@ -91,8 +85,12 @@ const extensions = [
     defaultProtocol: "https",
   }),
   StarterKit.configure({
+    paragraph: {
+      HTMLAttributes: {
+        class: cn("leading-normal -mb-2 text-lg"),
+      },
+    },
     document: false,
-    paragraph: false,
     bulletList: {
       HTMLAttributes: {
         class: cn("list-disc list-outside leading-3 -mt-2"),
@@ -101,11 +99,6 @@ const extensions = [
     orderedList: {
       HTMLAttributes: {
         class: cn("list-decimal list-outside leading-3 -mt-2"),
-      },
-    },
-    listItem: {
-      HTMLAttributes: {
-        class: cn("leading-normal -mb-2"),
       },
     },
     blockquote: {
@@ -147,25 +140,23 @@ const extensions = [
       },
     },
   }),
-  CustomParagraph.configure({
-    HTMLAttributes: {
-      class: cn(""),
-    },
-  }),
   Document,
   Dropcursor,
   TrailingNodeExtension,
   CommandsExtension,
   Placeholder.configure({
     placeholder: ({ node }) => {
-      // Show placeholder for any empty paragraph node
-      if (node.type.name === "paragraph" && node.content.size === 0) {
+      // Show placeholder only if it's an empty paragraph
+      console.log(node.type.name);
+      console.log(node.content.size);
+      if (
+        node.type.name === "paragraph" &&
+        node.content.size === 0 // or `node.childCount === 0`
+      ) {
         return "Press '/' for commands";
       }
       return "";
     },
-    emptyEditorClass: "is-editor-empty",
-    emptyNodeClass: "is-empty",
   }),
   Youtube.configure({
     allowFullscreen: true,
@@ -194,7 +185,6 @@ const extensions = [
     dragHandleWidth: 20,
     scrollTreshold: 100,
   }),
-  // AIContentGeneratorExtension,
   ImageBlockView,
   MediaUploaderExtension,
 ];

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { NodeViewContent, NodeViewWrapper } from "@tiptap/react";
+import { NodeViewContent, NodeViewWrapper, NodeViewProps } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 import LanguageSelector from "../../core/code/language-selector";
 import { SupportedLanguage } from "@/types/code";
@@ -71,7 +71,7 @@ const CodeBlockContent = ({
   );
 };
 
-const CodeBlock: React.FC<CodeBlockProps> = ({
+const CodeBlock: React.FC<NodeViewProps> = ({
   node: {
     attrs: { language: defaultLanguage },
   },
